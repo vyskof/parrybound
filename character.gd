@@ -224,7 +224,7 @@ func _update_guardbreak(delta: float) -> void:
 		is_guardbroken = false
 		return
 	guardbreak_timer = max(0.0, guardbreak_timer - delta)
-	if guardbreak_timer == 0.0:
+	if guardbreak_timer <= 0.0:
 		is_guardbroken = false
 
 func _update_posture_regen(delta: float) -> void:
