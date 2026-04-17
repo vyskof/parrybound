@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://r2foivf5ni3w" path="res://main_menu.gd" id="1_06t4h"]
 [ext_resource type="Texture2D" uid="uid://c75kmym11yv22" path="res://assets/iYs0NzC.png" id="2_7vrkn"]
+[ext_resource type="AudioStream" uid="uid://daplfhwujpqwg" path="res://sounds/Demo End Credits Theme.wav" id="2_fu7sn"]
 
 [node name="MainMenu" type="Control" unique_id=1431463852]
 layout_mode = 3
@@ -12,6 +13,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_06t4h")
 metadata/_edit_use_anchors_ = true
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=639954137]
+stream = ExtResource("2_fu7sn")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=574833284]
 layout_mode = 0

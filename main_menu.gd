@@ -4,10 +4,12 @@ extends Control
 @onready var new_game_button: Button = $VBoxContainer/NewGameButton
 @onready var slots_container: VBoxContainer = $SlotsContainer
 @onready var quit_button: Button = $VBoxContainer/QuitButton
+@onready var audio_stream_player_2d: AudioStreamPlayer2D = $AudioStreamPlayer2D
 
 
 
 var _slot_metas: Array[Dictionary] = []
+
 
 func _ready() -> void:
 	_connect_slot_buttons()
@@ -16,6 +18,7 @@ func _ready() -> void:
 
 	continue_button.pressed.connect(_on_continue_pressed)
 	new_game_button.pressed.connect(_on_new_game_pressed)
+	audio_stream_player_2d.play()
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Zobrazení slotů
