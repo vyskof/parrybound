@@ -20,7 +20,7 @@ func _physics_process(_delta):
 	for i in get_slide_collision_count():
 		var collider = get_slide_collision(i).get_collider()
 		if collider.is_in_group("player"):
-			if not collider.is_invincible and not collider.is_parrying:
+			if not collider.is_invincible:
 				collider.stats.health -= 10
 				collider._flash_red()
 				collider._start_invincibility()

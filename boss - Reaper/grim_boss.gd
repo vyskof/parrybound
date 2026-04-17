@@ -90,6 +90,11 @@ func take_hit(other_hitbox: Hitbox) -> void:
 		state_machine.change_state("PhaseTwo")
 
 
+func receive_parry(posture_dmg: float) -> void:
+	stats.posture += posture_dmg
+	posture_regen_timer = 0.0
+
+
 
 func spawn_hit_effect(pos: Vector2) -> void:
 	var effect = Hit_effect_scene.instantiate() as Node2D

@@ -14,6 +14,8 @@ func exit():
 	super.exit()
 	owner.set_physics_process(false)
 	is_active = false
+	if is_instance_valid(hitbox):
+		hitbox.clear_hit_targets()
 
 func attack():
 	animation_player.play("melee_attack")
