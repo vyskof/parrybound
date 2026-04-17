@@ -11,5 +11,5 @@ func _on_area_entered(area_2d: Area2D) -> void:
 	
 	if hitbox.stores_hit_targets and self in hitbox.hit_targets: return
 	
-	if hitbox.stores_hit_targets: hitbox.hit_targets.append(self)
+	hitbox.register_hit(self)
 	hurt.emit(hitbox)

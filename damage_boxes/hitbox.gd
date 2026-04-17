@@ -11,3 +11,10 @@ func is_hitbox() -> bool:
 
 func clear_hit_targets() -> void:
 	hit_targets.clear()
+
+func register_hit(target: Area2D) -> void:
+	if not stores_hit_targets:
+		return
+	if target in hit_targets:
+		return
+	hit_targets.append(target)

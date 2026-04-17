@@ -67,6 +67,7 @@ func _ready() -> void:
 	parrybox.parried.connect(_on_parrybox_parried)
 	parry_window_timer.timeout.connect(_on_parry_window_timeout)
 	if guard_window_time < perfect_window_time:
+		push_warning("guard_window_time was lower than perfect_window_time and has been clamped.")
 		guard_window_time = perfect_window_time
 	parry_window_timer.wait_time = max(guard_window_time, perfect_window_time)
 	parry_cooldown_timer.wait_time = parry_cooldown_time
@@ -193,8 +194,7 @@ func _resolve_parry_hit(hitbox: Hitbox) -> ParryResult:
 
 func _apply_parry_result(hitbox: Hitbox, posture_damage: float, is_perfect: bool) -> void:
 	_stop_parry()
-	if hitbox.stores_hit_targets and hurtbox not in hitbox.hit_targets:
-		hitbox.hit_targets.append(hurtbox)
+	hitbox.register_hit(hurtbox)
 	var source := hitbox.owner
 	if is_instance_valid(source) and source.has_method("receive_parry"):
 		source.receive_parry(posture_damage)
