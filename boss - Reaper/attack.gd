@@ -14,6 +14,7 @@ func exit():
 	super.exit()
 	owner.set_physics_process(false)
 	is_active = false
+	hitbox.clear_hit_targets() 
 
 func attack(move = "1"):
 	animation_player.speed_scale = 1.5 if owner.phase_two else 1.0

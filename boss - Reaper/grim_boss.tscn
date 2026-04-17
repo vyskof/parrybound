@@ -640,7 +640,7 @@ tracks/3/path = NodePath("Hitbox")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0.75),
+"times": PackedFloat32Array(0.5),
 "transitions": PackedFloat32Array(1),
 "values": [{
 "args": [],
@@ -698,7 +698,7 @@ tracks/3/path = NodePath("Hitbox")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0.875),
+"times": PackedFloat32Array(0.625),
 "transitions": PackedFloat32Array(1),
 "values": [{
 "args": [],
