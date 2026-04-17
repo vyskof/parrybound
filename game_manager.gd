@@ -205,6 +205,7 @@ func _on_node_added(node: Node) -> void:
 	if node.is_in_group("player"):
 		apply_save_to_player.call_deferred(node)
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 #  Migrace starých save souborů
 #  → Přidej sem logiku kdykoli změníš strukturu save dat

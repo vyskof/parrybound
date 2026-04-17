@@ -9,7 +9,9 @@ func enter():
 	can_transition = true
 
 func teleport():
-	owner.position = character.position + Vector2.RIGHT * 40
+	var angle = randf() * TAU
+	var offset = Vector2(cos(angle), sin(angle)) * 50
+	owner.position = character.position + offset
 
 func transition():
 	if can_transition:

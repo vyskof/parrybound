@@ -23,8 +23,5 @@ func take_damage(_hitbox: Hitbox) -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
-		if not body.is_invincible and not body.is_parrying:
-			body.stats.health -= damage
-			body._flash_red()
-			body._start_invincibility()
+		body.take_hit_raw(damage)
 		queue_free()
