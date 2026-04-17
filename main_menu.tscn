@@ -1,0 +1,154 @@
+[gd_scene format=3 uid="uid://dxnhbuqjk6qqd"]
+
+[ext_resource type="Script" uid="uid://r2foivf5ni3w" path="res://main_menu.gd" id="1_06t4h"]
+[ext_resource type="Texture2D" uid="uid://c75kmym11yv22" path="res://assets/iYs0NzC.png" id="2_7vrkn"]
+
+[node name="MainMenu" type="Control" unique_id=1431463852]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_06t4h")
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=574833284]
+layout_mode = 0
+offset_right = 481.0
+offset_bottom = 271.0
+texture = ExtResource("2_7vrkn")
+expand_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1249140644]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -46.5
+offset_top = -79.0
+offset_right = 46.5
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1688930561]
+layout_mode = 2
+text = "ParryBound"
+
+[node name="ContinueButton" type="Button" parent="VBoxContainer" unique_id=331128364]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Continue"
+
+[node name="NewGameButton" type="Button" parent="VBoxContainer" unique_id=62124791]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "New Game"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=310704440]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Quit"
+
+[node name="SlotsContainer" type="VBoxContainer" parent="." unique_id=1585534485]
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -33.0
+offset_top = -86.0
+offset_right = 33.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Slot1" type="PanelContainer" parent="SlotsContainer" unique_id=2076860769]
+layout_mode = 2
+
+[node name="Hbox" type="HBoxContainer" parent="SlotsContainer/Slot1" unique_id=494006158]
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="SlotsContainer/Slot1/Hbox" unique_id=1915740136]
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "  Slot1"
+
+[node name="LoadButton" type="Button" parent="SlotsContainer/Slot1/Hbox" unique_id=18777153]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Load"
+
+[node name="NewGameButton" type="Button" parent="SlotsContainer/Slot1/Hbox" unique_id=223055513]
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "New Game"
+
+[node name="DeleteButton" type="Button" parent="SlotsContainer/Slot1/Hbox" unique_id=1289826675]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Delete"
+
+[node name="Slot2" type="PanelContainer" parent="SlotsContainer" unique_id=668957848]
+layout_mode = 2
+
+[node name="Hbox" type="HBoxContainer" parent="SlotsContainer/Slot2" unique_id=2108411658]
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="SlotsContainer/Slot2/Hbox" unique_id=1091292677]
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "  Slot2"
+
+[node name="LoadButton" type="Button" parent="SlotsContainer/Slot2/Hbox" unique_id=1660794960]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Load"
+
+[node name="NewGameButton" type="Button" parent="SlotsContainer/Slot2/Hbox" unique_id=619601585]
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "New Game"
+
+[node name="DeleteButton" type="Button" parent="SlotsContainer/Slot2/Hbox" unique_id=1585481373]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Delete"
+
+[node name="Slot3" type="PanelContainer" parent="SlotsContainer" unique_id=1698633431]
+layout_mode = 2
+
+[node name="Hbox" type="HBoxContainer" parent="SlotsContainer/Slot3" unique_id=1974295794]
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="SlotsContainer/Slot3/Hbox" unique_id=293944788]
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "  Slot3"
+
+[node name="LoadButton" type="Button" parent="SlotsContainer/Slot3/Hbox" unique_id=1004281439]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Load"
+
+[node name="NewGameButton" type="Button" parent="SlotsContainer/Slot3/Hbox" unique_id=494800214]
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "New Game"
+
+[node name="DeleteButton" type="Button" parent="SlotsContainer/Slot3/Hbox" unique_id=1815970801]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Delete"
+
+[connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

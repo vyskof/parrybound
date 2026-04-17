@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://bvngpjkxhlgw8"]
+
+[ext_resource type="Texture2D" uid="uid://jla0gr5koysp" path="res://assets/VFX_&_Effects_Free/Blood/Blood.png" id="1_bcdmb"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_46eej"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ceoc"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jfwje"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xcpd3"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1coo2"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_klcle"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jnqy8"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hkeoq"]
+atlas = ExtResource("1_bcdmb")
+region = Rect2(224, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nrv64"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_46eej")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ceoc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jfwje")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xcpd3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1coo2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_klcle")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jnqy8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hkeoq")
+}],
+"loop": false,
+"name": &"new_animation",
+"speed": 40.0
+}]
+
+[node name="StaggerEffect" type="AnimatedSprite2D" unique_id=1301290302]
+scale = Vector2(0.875, 0.875)
+sprite_frames = SubResource("SpriteFrames_nrv64")
+animation = &"new_animation"
+autoplay = "new_animation"
+frame_progress = 1.0
+
+[connection signal="animation_finished" from="." to="." method="queue_free"]

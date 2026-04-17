@@ -1,0 +1,672 @@
+[gd_scene format=3 uid="uid://xrfvasutsedj"]
+
+[ext_resource type="Texture2D" uid="uid://dx5vw44u4cpxb" path="res://boss - golem/PNG sheet/Character_sheet.png" id="1_ktqcg"]
+[ext_resource type="Script" uid="uid://bgbieruxnb6nh" path="res://boss - golem/golem_boss.gd" id="1_q4luy"]
+[ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="1_ri1y1"]
+[ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="2_6fvac"]
+[ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://stats.gd" id="2_8m5rn"]
+[ext_resource type="Texture2D" uid="uid://cblpr4rbnvlem" path="res://boss - golem/weapon PNG/Laser_sheet.png" id="2_j32wa"]
+[ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://boss - Reaper/finite_state_machine.gd" id="5_4887p"]
+[ext_resource type="Script" uid="uid://7n21d5hci74m" path="res://boss - golem/idle.gd" id="6_52ikx"]
+[ext_resource type="AudioStream" uid="uid://c3nlq3tajxroq" path="res://sounds/sapan4-gothic-choir-dark-epic-choral-atmosphere-404794.mp3" id="6_507lb"]
+[ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="6_u5ivr"]
+[ext_resource type="Texture2D" uid="uid://b7chhc5hlajri" path="res://assets/least rounded/progress bar least rounded progress red.png" id="7_507lb"]
+[ext_resource type="Script" uid="uid://ckpfyascgvc8i" path="res://boss - golem/follow.gd" id="7_h15kg"]
+[ext_resource type="Texture2D" uid="uid://bh4u47cj1122j" path="res://assets/least rounded/progress bar least rounded progress orange.png" id="8_lg7cf"]
+[ext_resource type="Script" uid="uid://bcicosv5aac7o" path="res://boss - golem/death.gd" id="9_f3cm2"]
+[ext_resource type="Script" uid="uid://cliecglkx0ixu" path="res://boss - golem/melee_attack.gd" id="10_bfmki"]
+[ext_resource type="Script" uid="uid://cukten6ag3fl6" path="res://boss - golem/homing_missile.gd" id="11_liq1x"]
+[ext_resource type="PackedScene" uid="uid://c3oaydvcggj52" path="res://boss - golem/bullet.tscn" id="12_e5m5i"]
+[ext_resource type="Script" uid="uid://dialklydh723l" path="res://boss - golem/laser_beam.gd" id="13_hkg3k"]
+[ext_resource type="Script" uid="uid://51lwt6sbkgnw" path="res://boss - golem/armor_buff.gd" id="14_hkg3k"]
+[ext_resource type="Script" uid="uid://dl2yr6klv3j77" path="res://boss - golem/dash.gd" id="14_telw5"]
+[ext_resource type="Script" uid="uid://ctnu0dd501v7u" path="res://boss - Reaper/stagger.gd" id="17_xorjc"]
+
+[sub_resource type="Resource" id="Resource_bfmki"]
+script = ExtResource("2_8m5rn")
+health = 200
+max_health = 200
+max_posture = 150
+metadata/_custom_type_script = "uid://dq06b5pnfgvcu"
+
+[sub_resource type="Animation" id="Animation_j32wa"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("pivot/Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("UI/Label:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("pivot/Hitbox/CollisionShape2D2:shape")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("pivot/Hitbox/CollisionShape2D:shape")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
+
+[sub_resource type="Animation" id="Animation_bfmki"]
+resource_name = "armor_buff"
+length = 1.2500125
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [60, 61, 62, 63, 64, 65, 66, 67, 68]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_e5m5i"]
+resource_name = "boss_slained"
+length = 2.0
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("UI/Label:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.5, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"queue_free"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_liq1x"]
+resource_name = "death"
+length = 1.7500125
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5, 1.625),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("FiniteStateMachine/Death")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(1.5),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"boss_slained"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_4887p"]
+resource_name = "glowing"
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [10, 11, 12, 13, 14, 15, 16, 17]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_52ikx"]
+resource_name = "idle"
+length = 0.5000125
+loop_mode = 1
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xorjc"]
+size = Vector2(251, 20)
+
+[sub_resource type="Animation" id="Animation_rm3c2"]
+resource_name = "laser"
+length = 1.8750125
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("pivot/Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5, 1.625),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 0]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("FiniteStateMachine/LaserBeam")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.75),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"set_target"
+}]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("pivot/Hitbox")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(1.875),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"clear_hit_targets"
+}]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("pivot/Hitbox/CollisionShape2D:shape")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(1, 1.125),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [SubResource("RectangleShape2D_xorjc"), null]
+}
+
+[sub_resource type="Animation" id="Animation_8m5rn"]
+resource_name = "laser_cast"
+length = 0.8750125
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [50, 51, 52, 53, 54, 55, 56]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5mijk"]
+size = Vector2(80, 82)
+
+[sub_resource type="Animation" id="Animation_q4luy"]
+resource_name = "melee_attack"
+length = 0.8750125
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [40, 41, 42, 43, 44, 45, 46]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("pivot/Hitbox")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.875),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"clear_hit_targets"
+}]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("pivot/Hitbox/CollisionShape2D2:shape")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [SubResource("RectangleShape2D_5mijk"), null]
+}
+
+[sub_resource type="Animation" id="Animation_h15kg"]
+resource_name = "ranged_attack"
+length = 1.1250125
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [20, 21, 22, 23, 24, 25, 26, 27, 28]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_f3cm2"]
+resource_name = "stagger"
+length = 1.5
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [30, 31, 32, 33, 34, 35, 36, 37]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("pivot/Sprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("pivot/Hitbox")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(1),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"clear_hit_targets"
+}]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("pivot/Hitbox/CollisionShape2D2:shape")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_4887p"]
+_data = {
+&"RESET": SubResource("Animation_j32wa"),
+&"armor_buff": SubResource("Animation_bfmki"),
+&"boss_slained": SubResource("Animation_e5m5i"),
+&"death": SubResource("Animation_liq1x"),
+&"glowing": SubResource("Animation_4887p"),
+&"idle": SubResource("Animation_52ikx"),
+&"laser": SubResource("Animation_rm3c2"),
+&"laser_cast": SubResource("Animation_8m5rn"),
+&"melee_attack": SubResource("Animation_q4luy"),
+&"ranged_attack": SubResource("Animation_h15kg"),
+&"stagger": SubResource("Animation_f3cm2")
+}
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_telw5"]
+height = 42.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6fvac"]
+size = Vector2(200, 200)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hkg3k"]
+size = Vector2(27, 50)
+
+[node name="GolemBoss" type="CharacterBody2D" unique_id=323223813]
+collision_layer = 4
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_q4luy")
+stats = SubResource("Resource_bfmki")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2020328757]
+texture = ExtResource("1_ktqcg")
+hframes = 10
+vframes = 10
+
+[node name="pivot" type="Node2D" parent="." unique_id=2079291458]
+position = Vector2(2, -17)
+
+[node name="Sprite2D" type="Sprite2D" parent="pivot" unique_id=333083518]
+position = Vector2(98, 17)
+texture = ExtResource("2_j32wa")
+vframes = 15
+
+[node name="Hitbox" type="Area2D" parent="pivot" unique_id=182391474]
+position = Vector2(-2, 17)
+collision_layer = 16
+collision_mask = 32
+monitoring = false
+script = ExtResource("1_ri1y1")
+metadata/_custom_type_script = "uid://c2csuki5q02cl"
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="pivot/Hitbox" unique_id=419048634]
+position = Vector2(0, -3)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="pivot/Hitbox" unique_id=750928191]
+position = Vector2(124.5, -17)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=669686431]
+libraries/ = SubResource("AnimationLibrary_4887p")
+autoplay = &"idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=818640488]
+position = Vector2(0, -3)
+shape = SubResource("CapsuleShape2D_telw5")
+
+[node name="PlayerDetection" type="Area2D" parent="." unique_id=1739847919]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerDetection" unique_id=1578387135]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_6fvac")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="PlayerDetection" unique_id=1471427408]
+stream = ExtResource("6_507lb")
+volume_db = -2.0
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1128477653]
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="UI" unique_id=587387088]
+visible = false
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 85.0
+offset_bottom = 18.0
+max_value = 200.0
+value = 200.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
+texture_over = ExtResource("6_u5ivr")
+texture_progress = ExtResource("7_507lb")
+
+[node name="Label" type="Label" parent="UI/TextureProgressBar" unique_id=2063490954]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 3.0
+offset_right = 50.0
+offset_bottom = 10.0
+theme_override_font_sizes/font_size = 3
+text = "Stone golem"
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="UI" unique_id=1469824011]
+self_modulate = Color(1, 1, 1, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -48.5
+offset_top = -11.5
+offset_right = 48.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+text = "Boss Slained"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TexturePostureBar" type="TextureProgressBar" parent="UI" unique_id=791196626]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -62.0
+offset_top = 10.0
+offset_right = 63.0
+offset_bottom = 14.0
+grow_horizontal = 2
+max_value = 150.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
+texture_over = ExtResource("6_u5ivr")
+texture_progress = ExtResource("8_lg7cf")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1271597423]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("2_6fvac")
+metadata/_custom_type_script = "uid://bgq0ro64cif2y"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1830083723]
+position = Vector2(0.5, -3)
+shape = SubResource("RectangleShape2D_hkg3k")
+
+[node name="FiniteStateMachine" type="Node2D" parent="." unique_id=694893186]
+position = Vector2(2, -16)
+script = ExtResource("5_4887p")
+
+[node name="Idle" type="Node2D" parent="FiniteStateMachine" unique_id=576184067]
+script = ExtResource("6_52ikx")
+
+[node name="Follow" type="Node2D" parent="FiniteStateMachine" unique_id=393517255]
+script = ExtResource("7_h15kg")
+
+[node name="MeleeAttack" type="Node2D" parent="FiniteStateMachine" unique_id=837741701]
+script = ExtResource("10_bfmki")
+
+[node name="HomingMissile" type="Node2D" parent="FiniteStateMachine" unique_id=277942941]
+script = ExtResource("11_liq1x")
+bullet_node = ExtResource("12_e5m5i")
+
+[node name="LaserBeam" type="Node2D" parent="FiniteStateMachine" unique_id=1979422135]
+script = ExtResource("13_hkg3k")
+
+[node name="ArmorBuff" type="Node2D" parent="FiniteStateMachine" unique_id=1807145430]
+script = ExtResource("14_hkg3k")
+
+[node name="Dash" type="Node2D" parent="FiniteStateMachine" unique_id=796388857]
+script = ExtResource("14_telw5")
+
+[node name="Death" type="Node2D" parent="FiniteStateMachine" unique_id=2129318139]
+script = ExtResource("9_f3cm2")
+
+[node name="Stagger" type="Node2D" parent="FiniteStateMachine" unique_id=757790350]
+script = ExtResource("17_xorjc")
+
+[connection signal="body_entered" from="PlayerDetection" to="FiniteStateMachine/Idle" method="_on_player_detection_body_entered"]

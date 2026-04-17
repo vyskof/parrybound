@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://dkevayvhrivgl"]
+
+[ext_resource type="Script" uid="uid://d0veh84noa1qj" path="res://pause_menu.gd" id="1_hdmo1"]
+
+[node name="PauseMenu" type="CanvasLayer" unique_id=2109062983]
+process_mode = 3
+layer = 10
+script = ExtResource("1_hdmo1")
+
+[node name="Background" type="ColorRect" parent="." unique_id=927069551]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.1882353)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=185956115]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 81.0
+offset_top = -29.5
+offset_right = -80.0
+offset_bottom = 29.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer" unique_id=812297546]
+layout_mode = 2
+text = "Paused"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="VBoxContainer" unique_id=42063353]
+layout_mode = 2
+text = "Continue"
+
+[node name="SaveButton" type="Button" parent="VBoxContainer" unique_id=72786017]
+layout_mode = 2
+text = "Save Game"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=1540765475]
+layout_mode = 2
+text = "Exit to Main Menu"

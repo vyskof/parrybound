@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bg85lnlfb28mr"
+path="res://.godot/imported/Sword Parry 2.ogg-86b6d8617d69de58c3143cabd2d3be90.oggvorbisstr"
+
+[deps]
+
+source_file="res://sounds/Sword Attacks Hits and Blocks/Sword Parry 2.ogg"
+dest_files=["res://.godot/imported/Sword Parry 2.ogg-86b6d8617d69de58c3143cabd2d3be90.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

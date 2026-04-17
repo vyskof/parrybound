@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://br1qyvn7v7bd"
+path="res://.godot/imported/Sword Blocked 2.ogg-e357af6543afe9cf348fe361add7a5b0.oggvorbisstr"
+
+[deps]
+
+source_file="res://sounds/Sword Attacks Hits and Blocks/Sword Blocked 2.ogg"
+dest_files=["res://.godot/imported/Sword Blocked 2.ogg-e357af6543afe9cf348fe361add7a5b0.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,87 @@
+[gd_scene format=3 uid="uid://c3oaydvcggj52"]
+
+[ext_resource type="Script" uid="uid://cto7nl6wdg5f4" path="res://bullet.gd" id="1_ot2qh"]
+[ext_resource type="Texture2D" uid="uid://bm6s5213r3ccv" path="res://boss - golem/weapon PNG/arm_projectile_glowing.png" id="2_bpqgw"]
+[ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="3_bpqgw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_usr26"]
+atlas = ExtResource("2_bpqgw")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lowb2"]
+atlas = ExtResource("2_bpqgw")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_53k0q"]
+atlas = ExtResource("2_bpqgw")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3ap4p"]
+atlas = ExtResource("2_bpqgw")
+region = Rect2(0, 100, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kpm45"]
+atlas = ExtResource("2_bpqgw")
+region = Rect2(100, 100, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_82qmm"]
+atlas = ExtResource("2_bpqgw")
+region = Rect2(200, 100, 100, 100)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_w3rdj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_usr26")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lowb2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_53k0q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3ap4p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kpm45")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_82qmm")
+}],
+"loop": false,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rp2et"]
+size = Vector2(22, 4)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bpqgw"]
+radius = 4.0092044
+height = 28.0
+
+[node name="bullet" type="Area2D" unique_id=1807967099]
+collision_mask = 2
+script = ExtResource("1_ot2qh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=758506995]
+sprite_frames = SubResource("SpriteFrames_w3rdj")
+autoplay = "default"
+frame = 5
+frame_progress = 1.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1909425764]
+position = Vector2(28, -13)
+shape = SubResource("RectangleShape2D_rp2et")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1984312896]
+script = ExtResource("3_bpqgw")
+metadata/_custom_type_script = "uid://bgq0ro64cif2y"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1683027236]
+position = Vector2(27.999998, -13)
+rotation = 1.5614123
+shape = SubResource("CapsuleShape2D_bpqgw")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://bsnjapf8kgpfa"]
+
+[ext_resource type="Script" uid="uid://b6a5myp7ryk23" path="res://portal.gd" id="1_0r486"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0r486"]
+radius = 16.0
+
+[node name="Portal" type="Area2D" unique_id=936344337]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_0r486")
+destination_scene = "res://world_2.tscn"
+destination_spawn = "default"
+portal_id = "portal_to_world_2"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1846374815]
+shape = SubResource("CircleShape2D_0r486")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=333518394]
+
+[node name="Label" type="Label" parent="." unique_id=1784464982]
+offset_left = -7.0
+offset_top = -10.0
+offset_right = 7.0
+offset_bottom = -5.0
+theme_override_font_sizes/font_size = 3
+text = "[ E ] Enter"

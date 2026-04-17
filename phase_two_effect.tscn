@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://dfwfyiuyx73r4"]
+
+[ext_resource type="Texture2D" uid="uid://bk7qwqit3flpj" path="res://assets/Spritesheet/HolyNova_spritesheet.png" id="1_lf32w"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i6bhw"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(0, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jqxk8"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(128, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2wq0"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(256, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b35jr"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(384, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ry6t4"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(512, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2s7ii"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(640, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j146a"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(768, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yw6fy"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(896, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qm2yf"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(1024, 0, 128, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vna8n"]
+atlas = ExtResource("1_lf32w")
+region = Rect2(1152, 0, 128, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4mphs"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i6bhw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jqxk8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2wq0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b35jr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ry6t4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2s7ii")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j146a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yw6fy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qm2yf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vna8n")
+}],
+"loop": false,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="PhaseTwoEffect" type="AnimatedSprite2D" unique_id=846607785]
+sprite_frames = SubResource("SpriteFrames_4mphs")
+autoplay = "default"
+frame = 9
+frame_progress = 1.0
+
+[connection signal="animation_finished" from="." to="." method="queue_free"]
