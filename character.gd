@@ -67,7 +67,7 @@ func _ready() -> void:
 	parrybox.parried.connect(_on_parrybox_parried)
 	parry_window_timer.timeout.connect(_on_parry_window_timeout)
 	if guard_window_time < perfect_window_time:
-		push_warning("guard_window_time was lower than perfect_window_time and has been clamped.")
+		push_warning("guard_window_time was less than perfect_window_time and has been clamped.")
 		guard_window_time = perfect_window_time
 	parry_window_timer.wait_time = max(guard_window_time, perfect_window_time)
 	parry_cooldown_timer.wait_time = parry_cooldown_time
