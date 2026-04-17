@@ -5,6 +5,10 @@ const  SPEED = 150.0
 const DEATH_SCREEN = preload("res://deathscreen.tscn")
 const PARRY_EFFECT = preload("res://parry_effect.tscn")
 const PAUSE_MENU = preload("res://pause_menu.tscn")
+const PERFECT_PARRY_SOUND_SEEK: float = 0.6
+const GUARD_PARRY_SOUND_SEEK: float = 0.3
+const PERFECT_HITSTOP_DURATION: float = 0.20
+const GUARD_HITSTOP_DURATION: float = 0.08
 
 @export var stats: Stats
 @export var perfect_window_time: float = 0.08
@@ -62,6 +66,8 @@ func _ready() -> void:
 	stats.no_health.connect(die)
 	parrybox.parried.connect(_on_parrybox_parried)
 	parry_window_timer.timeout.connect(_on_parry_window_timeout)
+	if guard_window_time < perfect_window_time:
+		guard_window_time = perfect_window_time
 	parry_window_timer.wait_time = max(guard_window_time, perfect_window_time)
 	parry_cooldown_timer.wait_time = parry_cooldown_time
 	parrybox.monitoring = false
@@ -176,7 +182,7 @@ func _resolve_parry_hit(hitbox: Hitbox) -> ParryResult:
 	if elapsed <= perfect_window_time:
 		_apply_parry_result(hitbox, perfect_parry_posture_damage, true)
 		return ParryResult.PERFECT
-	if elapsed <= max(guard_window_time, perfect_window_time):
+	if elapsed <= guard_window_time:
 		stats.posture += guard_posture_chip
 		posture_regen_timer = 0.0
 		_apply_parry_result(hitbox, guard_parry_posture_damage, false)
@@ -193,10 +199,10 @@ func _apply_parry_result(hitbox: Hitbox, posture_damage: float, is_perfect: bool
 	if is_instance_valid(source) and source.has_method("receive_parry"):
 		source.receive_parry(posture_damage)
 	spawn_parry_effect(hurtbox.global_position)
-	parry_sound.play(0.6 if is_perfect else 0.3)
+	parry_sound.play(PERFECT_PARRY_SOUND_SEEK if is_perfect else GUARD_PARRY_SOUND_SEEK)
 	if is_perfect:
 		camera_2d.shake()
-	_hitstop(0.20 if is_perfect else 0.08)
+	_hitstop(PERFECT_HITSTOP_DURATION if is_perfect else GUARD_HITSTOP_DURATION)
 
 func _stop_parry() -> void:
 	if is_parrying:
@@ -220,12 +226,9 @@ func _on_posture_broken() -> void:
 	_stop_parry()
 
 func _update_guardbreak(delta: float) -> void:
-	if guardbreak_timer <= 0.0:
-		is_guardbroken = false
-		return
-	guardbreak_timer = max(0.0, guardbreak_timer - delta)
-	if guardbreak_timer <= 0.0:
-		is_guardbroken = false
+	if guardbreak_timer > 0.0:
+		guardbreak_timer = max(0.0, guardbreak_timer - delta)
+	is_guardbroken = guardbreak_timer > 0.0
 
 func _update_posture_regen(delta: float) -> void:
 	if stats.posture <= 0:
