@@ -1,15 +1,16 @@
 class_name Hurtbox extends Area2D
 
-signal hurt(hitbox: Hitbox)
+signal hurt(combat_data: CombatData, hitbox: Hitbox)
 
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
+
+func _on_area_entered(area: Area2D) -> void:
+	if area is not Hitbox:
+		return
 	
-func _on_area_entered(area_2d: Area2D) -> void:
-	if area_2d is not Hitbox: return
-	var hitbox = area_2d as Hitbox
-	
-	if hitbox.stores_hit_targets and self in hitbox.hit_targets: return
-	
-	if hitbox.stores_hit_targets: hitbox.hit_targets.append(self)
-	hurt.emit(hitbox)
+	var hitbox := area as Hitbox
+	if not hitbox.can_hit(self):
+		return
+	hitbox.register_hit(self)
+	hurt.emit(hitbox.combat_data, hitbox)
