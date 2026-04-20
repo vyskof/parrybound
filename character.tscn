@@ -5,12 +5,17 @@
 [ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://stats.gd" id="2_px5sl"]
 [ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="3_wfnr8"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="4_px5sl"]
-[ext_resource type="AudioStream" uid="uid://cxa0mygme8w1b" path="res://sounds/Sword Attacks Hits and Blocks/Sword Attack 1.ogg" id="5_7tnxx"]
 [ext_resource type="Script" uid="uid://j3e6xlb0pqyt" path="res://camera_2d.gd" id="5_wdpcj"]
 [ext_resource type="Script" uid="uid://dhrl3rdvnm54a" path="res://damage_boxes/parrybox.gd" id="6_0qfo5"]
 [ext_resource type="AudioStream" uid="uid://23q0g2f4jyrb" path="res://sounds/Sword Attacks Hits and Blocks/Sword Parry 1.ogg" id="9_c1b4b"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="11_bwfjh"]
 [ext_resource type="Texture2D" uid="uid://h2huqfg15vxv" path="res://assets/least rounded/progress bar least rounded progress light brown.png" id="11_c1b4b"]
+[ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://parry_resolver.gd" id="12_x1sy7"]
+[ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://hitstop_controller.gd" id="13_sm1rv"]
+[ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://feedback_orchestrator.gd" id="14_jx0ln"]
+[ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://parry_effect.tscn" id="15_lpiy1"]
+[ext_resource type="PackedScene" uid="uid://br5w7nbm0ijwe" path="res://hit_effect.tscn" id="16_88tkl"]
+[ext_resource type="PackedScene" uid="uid://bvngpjkxhlgw8" path="res://stagger_effect.tscn" id="17_y0ipg"]
 
 [sub_resource type="Resource" id="Resource_0qfo5"]
 script = ExtResource("2_px5sl")
@@ -142,17 +147,6 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(),
 "values": []
 }
-tracks/2/type = "audio"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("AudioStreamPlayer2D")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"clips": [],
-"times": PackedFloat32Array()
-}
-tracks/2/use_blend = true
 
 [sub_resource type="Animation" id="Animation_7tnxx"]
 resource_name = "parry_left"
@@ -355,21 +349,6 @@ tracks/2/keys = {
 "method": &"clear_hit_targets"
 }]
 }
-tracks/3/type = "audio"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("AudioStreamPlayer2D")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"clips": [{
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource("5_7tnxx")
-}],
-"times": PackedFloat32Array(0)
-}
-tracks/3/use_blend = true
 
 [sub_resource type="Animation" id="Animation_jx0ln"]
 resource_name = "slash_left"
@@ -413,21 +392,6 @@ tracks/2/keys = {
 "method": &"clear_hit_targets"
 }]
 }
-tracks/3/type = "audio"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("AudioStreamPlayer2D")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"clips": [{
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource("5_7tnxx")
-}],
-"times": PackedFloat32Array(0)
-}
-tracks/3/use_blend = true
 
 [sub_resource type="Animation" id="Animation_lpiy1"]
 resource_name = "slash_right"
@@ -471,21 +435,6 @@ tracks/2/keys = {
 "method": &"clear_hit_targets"
 }]
 }
-tracks/3/type = "audio"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("AudioStreamPlayer2D")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"clips": [{
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource("5_7tnxx")
-}],
-"times": PackedFloat32Array(0)
-}
-tracks/3/use_blend = true
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qi5as"]
 size = Vector2(57.651535, 67.23743)
@@ -532,21 +481,6 @@ tracks/2/keys = {
 "method": &"clear_hit_targets"
 }]
 }
-tracks/3/type = "audio"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("AudioStreamPlayer2D")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"clips": [{
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource("5_7tnxx")
-}],
-"times": PackedFloat32Array(0)
-}
-tracks/3/use_blend = true
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wfnr8"]
 _data = {
@@ -800,9 +734,6 @@ one_shot = true
 stream = ExtResource("9_c1b4b")
 volume_db = -10.0
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=617218731]
-volume_db = -10.487
-
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=20055035]
 
 [node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer" unique_id=1452768215]
@@ -818,3 +749,29 @@ stretch_margin_right = 3
 stretch_margin_bottom = 3
 texture_over = ExtResource("11_bwfjh")
 texture_progress = ExtResource("11_c1b4b")
+
+[node name="ParryResolver" type="Node" parent="." unique_id=1530687953]
+script = ExtResource("12_x1sy7")
+metadata/_custom_type_script = "uid://dn7fpdy4vo7uu"
+
+[node name="HitstopController" type="Node" parent="." unique_id=552200419 node_paths=PackedStringArray("animation_targets")]
+script = ExtResource("13_sm1rv")
+animation_targets = [NodePath("../AnimationTree")]
+metadata/_custom_type_script = "uid://bqx8amkujimip"
+
+[node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("hitstop", "camera", "perfect_parry_sfx", "guard_sfx", "hit_sfx")]
+script = ExtResource("14_jx0ln")
+hitstop = NodePath("../HitstopController")
+camera = NodePath("../Camera2D")
+perfect_parry_vfx = ExtResource("15_lpiy1")
+guard_vfx = ExtResource("15_lpiy1")
+hit_vfx = ExtResource("16_88tkl")
+stagger_vfx = ExtResource("17_y0ipg")
+perfect_parry_sfx = NodePath("../ParrySound")
+guard_sfx = NodePath("../GuardSound")
+hit_sfx = NodePath("../HitSound")
+metadata/_custom_type_script = "uid://ehwimwsn5hcr"
+
+[node name="GuardSound" type="AudioStreamPlayer" parent="." unique_id=569990498]
+
+[node name="HitSound" type="AudioStreamPlayer" parent="." unique_id=1312433180]
