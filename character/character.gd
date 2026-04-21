@@ -2,8 +2,8 @@ class_name Character extends CharacterBody2D
 
 const  SPEED = 150.0
 
-const DEATH_SCREEN = preload("res://deathscreen.tscn")
-const PAUSE_MENU = preload("res://pause_menu.tscn")
+const DEATH_SCREEN = preload("res://ui/deathscreen.tscn")
+const PAUSE_MENU = preload("res://ui/pause_menu.tscn")
 
 const posture_regen_rate := 15.0
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://mficd41fvopo"
-path="res://.godot/imported/summonAppear.png-5659e147bf12811742f1d749680e2c53.ctex"
+uid="uid://wo1bbi8riqp2"
+path="res://.godot/imported/arm_projectile.png-a2f07f9c5b0a478567972f8efc6b958b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://boss - Reaper/Undead executioner/Undead executioner puppet/png/summonAppear.png"
-dest_files=["res://.godot/imported/summonAppear.png-5659e147bf12811742f1d749680e2c53.ctex"]
+source_file="res://assets/weapon PNG/arm_projectile.png"
+dest_files=["res://.godot/imported/arm_projectile.png-a2f07f9c5b0a478567972f8efc6b958b.ctex"]
 
 [params]
 

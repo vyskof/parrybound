@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cblpr4rbnvlem"
-path="res://.godot/imported/Laser_sheet.png-ef31ad28c44f2af444558722c77585db.ctex"
+path="res://.godot/imported/Laser_sheet.png-ada93b24c38f4ba0ba503902bebc3a31.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://boss - golem/weapon PNG/Laser_sheet.png"
-dest_files=["res://.godot/imported/Laser_sheet.png-ef31ad28c44f2af444558722c77585db.ctex"]
+source_file="res://assets/weapon PNG/Laser_sheet.png"
+dest_files=["res://.godot/imported/Laser_sheet.png-ada93b24c38f4ba0ba503902bebc3a31.ctex"]
 
 [params]
 

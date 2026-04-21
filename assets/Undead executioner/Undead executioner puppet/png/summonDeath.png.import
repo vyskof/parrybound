@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7rhga4gl817x"
-path="res://.godot/imported/skill1.png-6fd0757b09fef1c981750b1a49727f7b.ctex"
+uid="uid://dp36ovurm112n"
+path="res://.godot/imported/summonDeath.png-7694a77fac78bd7383f9b62dea0a5b90.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://boss - Reaper/Undead executioner/Undead executioner puppet/png/skill1.png"
-dest_files=["res://.godot/imported/skill1.png-6fd0757b09fef1c981750b1a49727f7b.ctex"]
+source_file="res://assets/Undead executioner/Undead executioner puppet/png/summonDeath.png"
+dest_files=["res://.godot/imported/summonDeath.png-7694a77fac78bd7383f9b62dea0a5b90.ctex"]
 
 [params]
 

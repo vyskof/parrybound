@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="CombatData" format=3 uid="uid://ckqppj0opntay"]
 
-[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://combat_data.gd" id="1_mtp80"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="1_mtp80"]
 
 [resource]
 script = ExtResource("1_mtp80")

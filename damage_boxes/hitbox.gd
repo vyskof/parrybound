@@ -1,6 +1,8 @@
 class_name Hitbox extends Area2D
 
 @export var combat_data: CombatData
+var _fallback_damage: float = 50.0
+
 
 @export var stores_hit_targets: bool = true
 
@@ -10,9 +12,11 @@ var damage: float:
 	get:
 		return combat_data.damage if combat_data else _fallback_damage
 	set(value):
-		_fallback_damage = value
+		if combat_data:
+			combat_data.damage = value
+		else:
+			_fallback_damage = value
 
-var _fallback_damage: float = 0.0
 
 func can_hit(target: Node) -> bool:
 	if not stores_hit_targets:

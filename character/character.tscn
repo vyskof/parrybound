@@ -1,21 +1,21 @@
 [gd_scene format=3 uid="uid://d0do6ydtqdbnr"]
 
-[ext_resource type="Texture2D" uid="uid://bwparaovhqtif" path="res://skull knight-Sheet.png" id="1_glpr6"]
-[ext_resource type="Script" uid="uid://ccwjm75xqc4cs" path="res://character.gd" id="1_pjt0s"]
-[ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://stats.gd" id="2_px5sl"]
+[ext_resource type="Texture2D" uid="uid://bwparaovhqtif" path="res://assets/skull knight-Sheet.png" id="1_glpr6"]
+[ext_resource type="Script" uid="uid://ccwjm75xqc4cs" path="res://character/character.gd" id="1_pjt0s"]
+[ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://shared(other)/stats.gd" id="2_px5sl"]
 [ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="3_wfnr8"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="4_px5sl"]
-[ext_resource type="Script" uid="uid://j3e6xlb0pqyt" path="res://camera_2d.gd" id="5_wdpcj"]
+[ext_resource type="Script" uid="uid://j3e6xlb0pqyt" path="res://character/camera_2d.gd" id="5_wdpcj"]
 [ext_resource type="Script" uid="uid://dhrl3rdvnm54a" path="res://damage_boxes/parrybox.gd" id="6_0qfo5"]
 [ext_resource type="AudioStream" uid="uid://23q0g2f4jyrb" path="res://sounds/Sword Attacks Hits and Blocks/Sword Parry 1.ogg" id="9_c1b4b"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="11_bwfjh"]
 [ext_resource type="Texture2D" uid="uid://h2huqfg15vxv" path="res://assets/least rounded/progress bar least rounded progress light brown.png" id="11_c1b4b"]
-[ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://parry_resolver.gd" id="12_x1sy7"]
-[ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://hitstop_controller.gd" id="13_sm1rv"]
-[ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://feedback_orchestrator.gd" id="14_jx0ln"]
-[ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://parry_effect.tscn" id="15_lpiy1"]
-[ext_resource type="PackedScene" uid="uid://br5w7nbm0ijwe" path="res://hit_effect.tscn" id="16_88tkl"]
-[ext_resource type="PackedScene" uid="uid://bvngpjkxhlgw8" path="res://stagger_effect.tscn" id="17_y0ipg"]
+[ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://character/parry_resolver.gd" id="12_x1sy7"]
+[ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://shared(other)/hitstop_controller.gd" id="13_sm1rv"]
+[ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://shared(other)/feedback_orchestrator.gd" id="14_jx0ln"]
+[ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://effects/parry_effect.tscn" id="15_lpiy1"]
+[ext_resource type="PackedScene" uid="uid://br5w7nbm0ijwe" path="res://effects/hit_effect.tscn" id="16_88tkl"]
+[ext_resource type="PackedScene" uid="uid://bvngpjkxhlgw8" path="res://effects/stagger_effect.tscn" id="17_y0ipg"]
 
 [sub_resource type="Resource" id="Resource_0qfo5"]
 script = ExtResource("2_px5sl")
@@ -768,7 +768,7 @@ guard_vfx = ExtResource("15_lpiy1")
 hit_vfx = ExtResource("16_88tkl")
 stagger_vfx = ExtResource("17_y0ipg")
 perfect_parry_sfx = NodePath("../ParrySound")
-guard_sfx = NodePath("../GuardSound")
+guard_sfx = NodePath("../ParrySound")
 hit_sfx = NodePath("../HitSound")
 metadata/_custom_type_script = "uid://ehwimwsn5hcr"
 

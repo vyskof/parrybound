@@ -16,4 +16,4 @@ func _on_save_pressed() -> void:
 func _on_quit_pressed() -> void:
 	get_tree().paused = false
 	queue_free()
-	get_tree().change_scene_to_file("res://main_menu.tscn")
+	get_tree().change_scene_to_file("res://ui/main_menu.tscn")

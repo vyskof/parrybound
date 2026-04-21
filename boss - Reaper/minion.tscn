@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bveqf3a6rliwr"]
 
 [ext_resource type="Script" uid="uid://83b1rv65e5lq" path="res://boss - Reaper/minion.gd" id="1_bqca4"]
-[ext_resource type="Texture2D" uid="uid://mficd41fvopo" path="res://boss - Reaper/Undead executioner/Undead executioner puppet/png/summonAppear.png" id="1_oe71c"]
-[ext_resource type="Texture2D" uid="uid://yjgqfuer0vds" path="res://boss - Reaper/Undead executioner/Undead executioner puppet/png/summonIdle.png" id="2_har0e"]
+[ext_resource type="Texture2D" uid="uid://mficd41fvopo" path="res://assets/Undead executioner/Undead executioner puppet/png/summonAppear.png" id="1_oe71c"]
+[ext_resource type="Texture2D" uid="uid://yjgqfuer0vds" path="res://assets/Undead executioner/Undead executioner puppet/png/summonIdle.png" id="2_har0e"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="4_arrtk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_har0e"]

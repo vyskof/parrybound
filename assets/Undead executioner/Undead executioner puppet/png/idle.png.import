@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bwparaovhqtif"
-path="res://.godot/imported/skull knight-Sheet.png-6a4be92eee012a41c86ecb1345fa1ba0.ctex"
+uid="uid://bswlv5k71vmfd"
+path="res://.godot/imported/idle.png-d0cbb067c5e4d276f0ae0764a20c771e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://skull knight-Sheet.png"
-dest_files=["res://.godot/imported/skull knight-Sheet.png-6a4be92eee012a41c86ecb1345fa1ba0.ctex"]
+source_file="res://assets/Undead executioner/Undead executioner puppet/png/idle.png"
+dest_files=["res://.godot/imported/idle.png-d0cbb067c5e4d276f0ae0764a20c771e.ctex"]
 
 [params]
 

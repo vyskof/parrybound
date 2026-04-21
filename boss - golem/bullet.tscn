@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c3oaydvcggj52"]
 
-[ext_resource type="Script" uid="uid://cto7nl6wdg5f4" path="res://bullet.gd" id="1_ot2qh"]
-[ext_resource type="Texture2D" uid="uid://bm6s5213r3ccv" path="res://boss - golem/weapon PNG/arm_projectile_glowing.png" id="2_bpqgw"]
+[ext_resource type="Script" uid="uid://cto7nl6wdg5f4" path="res://boss - golem/bullet.gd" id="1_ot2qh"]
+[ext_resource type="Texture2D" uid="uid://bm6s5213r3ccv" path="res://assets/weapon PNG/arm_projectile_glowing.png" id="2_bpqgw"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="3_bpqgw"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_usr26"]

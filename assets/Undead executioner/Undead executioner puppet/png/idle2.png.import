@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://yjgqfuer0vds"
-path="res://.godot/imported/summonIdle.png-35525318e6cc7e4afe9cd8bccef69432.ctex"
+uid="uid://ct1j8qg1q1h8o"
+path="res://.godot/imported/idle2.png-b75cf11c588497d6f5453a729de4a81e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://boss - Reaper/Undead executioner/Undead executioner puppet/png/summonIdle.png"
-dest_files=["res://.godot/imported/summonIdle.png-35525318e6cc7e4afe9cd8bccef69432.ctex"]
+source_file="res://assets/Undead executioner/Undead executioner puppet/png/idle2.png"
+dest_files=["res://.godot/imported/idle2.png-b75cf11c588497d6f5453a729de4a81e.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wo1bbi8riqp2"
-path="res://.godot/imported/arm_projectile.png-584ac307ea3af6b86e1666c24aafae56.ctex"
+uid="uid://yjgqfuer0vds"
+path="res://.godot/imported/summonIdle.png-dcedf92571fb621efaaab62e67313927.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://boss - golem/weapon PNG/arm_projectile.png"
-dest_files=["res://.godot/imported/arm_projectile.png-584ac307ea3af6b86e1666c24aafae56.ctex"]
+source_file="res://assets/Undead executioner/Undead executioner puppet/png/summonIdle.png"
+dest_files=["res://.godot/imported/summonIdle.png-dcedf92571fb621efaaab62e67313927.ctex"]
 
 [params]
 

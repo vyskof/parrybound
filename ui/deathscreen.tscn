@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bhq8y3lmmal18"]
 
-[ext_resource type="Script" uid="uid://dt767no3yctvt" path="res://deathscreen.gd" id="1_ftl74"]
+[ext_resource type="Script" uid="uid://dt767no3yctvt" path="res://ui/deathscreen.gd" id="1_ftl74"]
 
 [node name="deathscreen" type="CanvasLayer" unique_id=449468554]
 process_mode = 3
