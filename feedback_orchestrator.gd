@@ -73,12 +73,6 @@ func _play_sfx(
 
 func _ready() -> void:
 	if not hitstop:
-		push_warning(
-			"FeedbackOrchestrator na '%s': chybí HitstopController!"
-			% get_parent().name
-		)
-		if not camera:
-			push_warning(
-				"FeedbackOrchestrator na '%s': chybí Camera2D!"
-				% get_parent().name
-			 )
+		push_warning("FeedbackOrchestrator na '%s': chybí HitstopController!" % get_parent().name)
+	if not camera:
+		push_warning("FeedbackOrchestrator na '%s': chybí Camera2D!" % get_parent().name)

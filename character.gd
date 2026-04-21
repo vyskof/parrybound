@@ -22,11 +22,9 @@ var is_invincible: bool = false
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _parrybox: Parrybox = $Parrybox
 @onready var _parry_cooldown_timer: Timer = $ParryCooldownTimer
-@onready var _camera: Camera2D = $Camera2D
 @onready var _health_bar : TextureProgressBar = $CanvasLayer/TextureProgressBar
 @onready var _sprite : Sprite2D = $Sprite2D
 @onready var _parry_resolver: ParryResolver = $ParryResolver
-@onready var _hitstop: HitstopController = $HitstopController
 @onready var _feedback: FeedbackOrchestrator = $FeedbackOrchestrator
 
 
@@ -133,6 +131,7 @@ func _on_hurtbox_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			pass
 		ParryResolver.Result.WHIFF:
 			pass
+
 
 func _on_parry_resolver_resolved(result: ParryResolver.Result,_combat_data: CombatData) -> void:
 	_parrybox.set_deferred("monitoring", false)

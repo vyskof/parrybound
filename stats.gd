@@ -1,14 +1,14 @@
 class_name Stats extends Resource
 
 
-@export var health: = 100 :
+@export var health: float = 100.0:
 	set(value):
 		var previous_health = health
-		health = value
+		health= value
 		if health != previous_health: health_changed.emit(health) 
 		if health <= 0: no_health.emit() 
 
-@export var max_health: = 100
+@export var max_health: float = 100.0
 
 signal health_changed(new_health)
 signal no_health()

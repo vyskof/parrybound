@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://boss - Reaper/finite_state_machine.gd" id="5_4887p"]
 [ext_resource type="Script" uid="uid://7n21d5hci74m" path="res://boss - golem/idle.gd" id="6_52ikx"]
 [ext_resource type="AudioStream" uid="uid://c3nlq3tajxroq" path="res://sounds/sapan4-gothic-choir-dark-epic-choral-atmosphere-404794.mp3" id="6_507lb"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://combat_data.gd" id="6_lg7cf"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="6_u5ivr"]
 [ext_resource type="Texture2D" uid="uid://b7chhc5hlajri" path="res://assets/least rounded/progress bar least rounded progress red.png" id="7_507lb"]
 [ext_resource type="Script" uid="uid://ckpfyascgvc8i" path="res://boss - golem/follow.gd" id="7_h15kg"]
@@ -24,10 +25,14 @@
 
 [sub_resource type="Resource" id="Resource_bfmki"]
 script = ExtResource("2_8m5rn")
-health = 200
-max_health = 200
+health = 200.0
+max_health = 200.0
 max_posture = 150
 metadata/_custom_type_script = "uid://dq06b5pnfgvcu"
+
+[sub_resource type="Resource" id="Resource_3nkpl"]
+script = ExtResource("6_lg7cf")
+metadata/_custom_type_script = "uid://dxnjmcdy603mm"
 
 [sub_resource type="Animation" id="Animation_j32wa"]
 length = 0.001
@@ -534,6 +539,7 @@ collision_layer = 16
 collision_mask = 32
 monitoring = false
 script = ExtResource("1_ri1y1")
+combat_data = SubResource("Resource_3nkpl")
 metadata/_custom_type_script = "uid://c2csuki5q02cl"
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="pivot/Hitbox" unique_id=419048634]

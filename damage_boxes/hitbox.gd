@@ -8,7 +8,11 @@ var hit_targets: Array[Node] = []
 
 var damage: float:
 	get:
-		return combat_data.damage if combat_data else 0.0
+		return combat_data.damage if combat_data else _fallback_damage
+	set(value):
+		_fallback_damage = value
+
+var _fallback_damage: float = 0.0
 
 func can_hit(target: Node) -> bool:
 	if not stores_hit_targets:

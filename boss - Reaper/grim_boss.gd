@@ -24,5 +24,5 @@ func _start_phase_two() -> void:
 
 func _spawn_effect(scene: PackedScene, pos: Vector2) -> void:
 	var effect := scene.instantiate() as Node2D
-	get_parent().add_child(effect)
+	get_parent().current_scene.add_child(effect)
 	effect.global_position = pos

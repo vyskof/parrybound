@@ -10,7 +10,7 @@ func _on_boss_ready() -> void:
 func _on_boss_process(_delta: float) -> void:
 	$Sprite2D.flip_h = direction.x < 0
 
-func _on_boss_hit(combat_data: CombatData) -> void:
+func _on_boss_hit(_combat_data: CombatData) -> void:
 	stats.health += defense
 	_spawn_effect(Hit_effect, $Sprite2D.global_position)
 	if stats.health <= stats.max_health * 0.5 and defense == 0:
@@ -19,5 +19,5 @@ func _on_boss_hit(combat_data: CombatData) -> void:
 
 func _spawn_effect(scene: PackedScene, pos: Vector2) -> void:
 	var effect := scene.instantiate() as Node2D
-	get_parent().add_child(effect)
+	get_parent().current_scene.add_child(effect)
 	effect.global_position = pos
