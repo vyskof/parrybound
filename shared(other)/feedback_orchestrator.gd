@@ -18,12 +18,12 @@ func play_parry_feedback(
 	position: Vector2
 ) -> void:
 	match result:
-		ParryResolver.Result.PERFECT:
+		ParryResolver.Result.DEFLECT:
 			_spawn_vfx(perfect_parry_vfx, position)
 			_play_sfx(perfect_parry_sfx)
 			camera.shake()
 			hitstop.freeze(0.18)
-		ParryResolver.Result.GUARD:
+		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
 			_play_sfx(guard_sfx)
 			hitstop.freeze(0.06)
@@ -45,9 +45,9 @@ func play_boss_parried_feedback(
 	position: Vector2
 ) ->void:
 	match result:
-		ParryResolver.Result.PERFECT:
+		ParryResolver.Result.DEFLECT:
 			_spawn_vfx(perfect_parry_vfx, position)
-		ParryResolver.Result.GUARD:
+		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
 
 

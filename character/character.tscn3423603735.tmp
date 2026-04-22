@@ -11,7 +11,6 @@
 [ext_resource type="AudioStream" uid="uid://23q0g2f4jyrb" path="res://sounds/Sword Attacks Hits and Blocks/Sword Parry 1.ogg" id="9_c1b4b"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="11_bwfjh"]
 [ext_resource type="Texture2D" uid="uid://h2huqfg15vxv" path="res://assets/least rounded/progress bar least rounded progress light brown.png" id="11_c1b4b"]
-[ext_resource type="Texture2D" uid="uid://bh4u47cj1122j" path="res://assets/least rounded/progress bar least rounded progress orange.png" id="12_6kuvt"]
 [ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://character/parry_resolver.gd" id="12_x1sy7"]
 [ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://shared(other)/hitstop_controller.gd" id="13_sm1rv"]
 [ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://shared(other)/feedback_orchestrator.gd" id="14_jx0ln"]
@@ -759,26 +758,6 @@ stretch_margin_right = 3
 stretch_margin_bottom = 3
 texture_over = ExtResource("11_bwfjh")
 texture_progress = ExtResource("11_c1b4b")
-
-[node name="TexturePostureBar" type="TextureProgressBar" parent="CanvasLayer" unique_id=702370558]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -65.0
-offset_top = -15.0
-offset_right = 65.0
-offset_bottom = -9.0
-grow_horizontal = 2
-grow_vertical = 0
-nine_patch_stretch = true
-stretch_margin_left = 3
-stretch_margin_top = 3
-stretch_margin_right = 3
-stretch_margin_bottom = 3
-texture_over = ExtResource("11_bwfjh")
-texture_progress = ExtResource("12_6kuvt")
 
 [node name="ParryResolver" type="Node" parent="." unique_id=1530687953]
 script = ExtResource("12_x1sy7")
