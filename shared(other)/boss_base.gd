@@ -46,18 +46,13 @@ func receive_parry(posture_dmg: float) -> void:
 	_posture_regen_timer = 0.0
 
 func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
-	var dmg: float
-	var posture_dmg: float
-	
 	if combat_data:
 		stats.health -= combat_data.damage
 		stats.posture += combat_data.posture_damage
 	else:
-		dmg = hitbox.damage if hitbox else 10.0
-		posture_dmg = 5.0
+		stats.health  -= hitbox.damage if hitbox else 10.0
+		stats.posture += 5.0
 	
-	stats.health -= dmg
-	stats.posture += posture_dmg
 	_posture_regen_timer = 0.0
 	_on_boss_hit(combat_data)
 

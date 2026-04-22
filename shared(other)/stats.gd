@@ -4,9 +4,11 @@ class_name Stats extends Resource
 @export var health: float = 100.0:
 	set(value):
 		var previous_health = health
-		health= value
+		health= clampf(value, 0.0, max_health)
 		if health != previous_health: health_changed.emit(health) 
-		if health <= 0: no_health.emit() 
+		if health <= 0.0 and previous_health > 0.0:  
+			no_health.emit()
+			 
 
 @export var max_health: float = 100.0
 
@@ -16,9 +18,10 @@ signal no_health()
 @export var posture: float = 0 :
 	set(value):
 		var previous_posture = posture
-		posture = value
+		posture = clampf(value, 0.0, float(max_posture))
 		if posture != previous_posture: posture_changed.emit(posture)
-		if posture >= max_posture: posture_broken.emit()
+		if posture >= float(max_posture) and previous_posture < float(max_posture):
+			posture_broken.emit()
 
 @export var max_posture: = 100
 
