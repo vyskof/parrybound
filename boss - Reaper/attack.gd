@@ -6,7 +6,7 @@ var is_active: bool = false
 func enter() -> void:
 	super.enter()
 	is_active = true
-	hitbox.damage = 20
+	_setup_hitbox()
 	owner.set_physics_process(true)
 	combo()
 

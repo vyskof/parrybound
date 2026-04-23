@@ -59,7 +59,7 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 func _on_boss_hit(_combat_data: CombatData) -> void:
 	pass
 
-func _on_health_changed(new_health: int) -> void:
+func _on_health_changed(new_health: float) -> void:
 	var bar := get_node_or_null("UI/TextureProgressBar")
 	if bar:
 		bar.value = float(new_health)
