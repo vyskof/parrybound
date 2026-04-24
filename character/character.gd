@@ -1,8 +1,12 @@
 class_name Character extends CharacterBody2D
 
-const SPEED              := 150.0
-const SPEED_GUARD        := 80.0
-const POSTURE_REGEN_RATE := 15.0
+const SPEED                := 150.0
+const SPEED_GUARD          := 80.0
+const POSTURE_REGEN_RATE   := 15.0
+const POSTURE_REGEN_DELAY  := 2.5
+const STAGGER_DURATION     := 1.8
+const PARRY_POSTURE_RESTORE:= 8.0
+
 const KNOCKBACK_FRICTION := 400.0
 
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
@@ -24,6 +28,12 @@ var _knockback_velocity := Vector2.ZERO
 var _knockback_lock     : float = 0.0
 var _in_parry_state     := false
 var _in_attack_state    := false
+
+
+var _posture_regen_timer : float = 0.0
+var _is_staggered        : bool  = false
+var _stagger_timer       : float = 0.0
+
 
 @onready var _animation_player : AnimationPlayer      = $AnimationPlayer
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
@@ -73,12 +83,19 @@ func _physics_process(delta: float) -> void:
 	_parry_resolver.tick(delta)
 	_tick_posture_regen(delta)
 	_tick_knockback(delta)
+	_tick_stagger(delta)
 
 	if _knockback_lock > 0.0:
 			_knockback_lock -= delta
 			velocity = _knockback_velocity
 			move_and_slide()
 			return
+
+	if _is_staggered:
+		velocity = _knockback_velocity
+		move_and_slide()
+		return
+
 
 	if _in_attack_state and _playback.get_current_node() == "MoveState":
 		_in_attack_state = false
@@ -169,7 +186,8 @@ func take_hit_raw(damage: float, inv_duration: float = 0.5) -> void:
 		return
 	stats.health -= damage
 	_feedback.play_hit_feedback(global_position)
-	_flash_red()
+	if not _is_staggered:
+		_flash_red()
 	_start_invincibility(inv_duration)
 
 
@@ -181,11 +199,14 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 
 	match result:
 		ParryResolver.Result.DEFLECT:
+			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
+			_posture_regen_timer = 0.0
 			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position)
 
 		ParryResolver.Result.BLOCK:
 			if combat_data:
 				stats.posture += combat_data.guard_chip
+			_posture_regen_timer = 0.0
 			_feedback.play_parry_feedback(ParryResolver.Result.BLOCK, global_position)
 
 		ParryResolver.Result.NONE:
@@ -193,10 +214,12 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			var pdmg := combat_data.posture_damage   if combat_data else 5.0
 			stats.health  -= dmg
 			stats.posture += pdmg
+			_posture_regen_timer = 0.0
 			if hitbox and combat_data and combat_data.knockback_force > 0.0:
 				_apply_knockback(hitbox, combat_data)
 			_feedback.play_hit_feedback(global_position)
-			_flash_red()
+			if not _is_staggered:
+				_flash_red()
 			_start_invincibility(0.5)
 
 
@@ -225,9 +248,23 @@ func _tick_knockback(delta: float) -> void:
 		return
 	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)
 
+func _tick_stagger(delta: float) -> void:
+	if not _is_staggered:
+		return
+	_stagger_timer -= delta
+	if _stagger_timer <= 0.0:
+		_is_staggered = false
+		_sprite.modulate = Color.WHITE
+
 
 func _tick_posture_regen(delta: float) -> void:
-	if stats.posture > 0.0 and not is_blocking:
+	if stats.posture <= 0.0 or _is_staggered:
+		_posture_regen_timer = 0.0
+		return
+	if is_blocking:
+		return
+	_posture_regen_timer += delta
+	if _posture_regen_timer >= POSTURE_REGEN_DELAY:
 		stats.posture = maxf(0.0, stats.posture - POSTURE_REGEN_RATE * delta)
 
 
@@ -251,7 +288,8 @@ func _update_blend_positions(dir: Vector2) -> void:
 func _flash_red() -> void:
 	_sprite.modulate = Color(1.0, 0.3, 0.3)
 	await get_tree().create_timer(0.15, true, false, true).timeout
-	_sprite.modulate = Color.WHITE
+	if not _is_staggered:
+		_sprite.modulate = Color.WHITE
 
 
 func _start_invincibility(duration: float) -> void:
@@ -275,7 +313,13 @@ func _on_no_health() -> void:
 
 
 func _on_posture_broken() -> void:
-	stats.posture = 0.0
+	stats.posture        = 0.0
+	_posture_regen_timer = 0.0
+	_is_staggered        = true
+	_stagger_timer       = STAGGER_DURATION
+	_in_attack_state     = false           
+	_sprite.modulate     = Color(1.0, 0.3, 0.3)  
 	_feedback.play_stagger_feedback(global_position)
 	if _in_parry_state:
 		_exit_parry()
+	_playback.start("MoveState", true)
