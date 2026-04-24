@@ -1,8 +1,8 @@
 extends BossBase
 
 const Stagger_effect := preload("res://effects/stagger_effect.tscn")
-const Hit_effect := preload("res://effects/hit_effect.tscn")
 const Phase_two_effect := preload("res://effects/phase_two_effect.tscn")
+const Hit_effect := preload("res://effects/hit_effect.tscn")
 
 var phase_two: bool = false
 

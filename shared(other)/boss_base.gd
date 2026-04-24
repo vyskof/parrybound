@@ -5,6 +5,7 @@ class_name BossBase extends CharacterBody2D
 @export var posture_regen_speed : float = 20.0
 @export var boss_id: String = "unnamed_boss"
 
+
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _state_machine = $FiniteStateMachine
 
@@ -13,6 +14,7 @@ signal boss_defeated(id: String)
 var direction: Vector2
 var _posture_regen_timer: float = 0.0
 var _player: Node2D
+var _is_dead: bool = false 
 
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
@@ -28,6 +30,8 @@ func _on_boss_ready() -> void:
 	pass
 
 func _process(delta: float) -> void:
+	if _is_dead:
+		return
 	_tick_posture_regen(delta)
 	_update_direction()
 	_on_boss_process(delta)
@@ -46,6 +50,8 @@ func receive_parry(posture_dmg: float) -> void:
 	_posture_regen_timer = 0.0
 
 func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
+	if _is_dead:
+		return
 	if combat_data:
 		stats.health -= combat_data.damage
 		stats.posture += combat_data.posture_damage
@@ -70,6 +76,8 @@ func _on_posture_broken() -> void:
 	_state_machine.change_state("Stagger")
 
 func _on_no_health() -> void:
+	_is_dead = true
+	set_physics_process(false)
 	var hp_bar := get_node_or_null("UI/TextureProgressBar")
 	var posture_bar := get_node_or_null("UI/TexturePostureBar")
 	if hp_bar: hp_bar.visible = false

@@ -1,8 +1,9 @@
 class_name Character extends CharacterBody2D
 
 const SPEED              := 150.0
+const SPEED_GUARD        := 80.0
 const POSTURE_REGEN_RATE := 15.0
-const KNOCKBACK_FRICTION := 600.0
+const KNOCKBACK_FRICTION := 400.0
 
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
@@ -20,6 +21,7 @@ var is_parrying: bool:
 	get: return _in_parry_state
 
 var _knockback_velocity := Vector2.ZERO
+var _knockback_lock     : float = 0.0
 var _in_parry_state     := false
 var _in_attack_state    := false
 
@@ -32,6 +34,8 @@ var _in_attack_state    := false
 @onready var _sprite           : Sprite2D             = $Sprite2D
 @onready var _parry_resolver   : ParryResolver        = $ParryResolver
 @onready var _feedback         : FeedbackOrchestrator = $FeedbackOrchestrator
+@onready var _parry_cooldown    : Timer                = $ParryCooldownTimer
+
 
 var _playback: AnimationNodeStateMachinePlayback
 
@@ -69,6 +73,12 @@ func _physics_process(delta: float) -> void:
 	_parry_resolver.tick(delta)
 	_tick_posture_regen(delta)
 	_tick_knockback(delta)
+
+	if _knockback_lock > 0.0:
+			_knockback_lock -= delta
+			velocity = _knockback_velocity
+			move_and_slide()
+			return
 
 	if _in_attack_state and _playback.get_current_node() == "MoveState":
 		_in_attack_state = false
@@ -114,10 +124,14 @@ func _process_parry() -> void:
 		_exit_parry()
 		return
 
-	velocity = _knockback_velocity
+	input_vector = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	if input_vector != Vector2.ZERO:
+		last_input_vector = input_vector
+		_update_blend_positions(Vector2(input_vector.x, -input_vector.y))
+
+	velocity = input_vector * SPEED_GUARD + _knockback_velocity
 	move_and_slide()
 
-# ─── State transitions ────────────────────────────────────────────────────────
 func _enter_attack() -> void:
 	_in_attack_state = true
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
@@ -129,6 +143,10 @@ func _enter_attack() -> void:
 
 
 func _enter_parry() -> void:
+	if not _parry_cooldown.is_stopped():
+		return
+	_parry_cooldown.start(0.3) 
+
 	_in_parry_state = true
 	_parrybox.monitoring = true
 	_parry_resolver.try_start_deflect()
@@ -145,7 +163,6 @@ func _exit_parry() -> void:
 
 	_playback.start("MoveState", true)
 
-# ─── Combat ───────────────────────────────────────────────────────────────────
 
 func take_hit_raw(damage: float, inv_duration: float = 0.5) -> void:
 	if is_invincible:
@@ -191,7 +208,6 @@ func _on_parrybox_parried(hitbox: Area2D) -> void:
 	var typed  := hitbox as Hitbox
 	var reward := typed.combat_data.parry_posture_reward if typed.combat_data else 35.0
 	hitbox.owner.receive_parry(reward)
-	_feedback.play_boss_parried_feedback(ParryResolver.Result.DEFLECT, typed.global_position)
 
 
 func _apply_knockback(hitbox: Hitbox, data: CombatData) -> void:
@@ -201,6 +217,7 @@ func _apply_knockback(hitbox: Hitbox, data: CombatData) -> void:
 	else:
 		dir = (global_position - hitbox.owner.global_position).normalized()
 	_knockback_velocity = dir * data.knockback_force
+	_knockback_lock = 0.2
 
 func _tick_knockback(delta: float) -> void:
 	if _knockback_velocity.length_squared() < 1.0:
@@ -214,8 +231,7 @@ func _tick_posture_regen(delta: float) -> void:
 		stats.posture = maxf(0.0, stats.posture - POSTURE_REGEN_RATE * delta)
 
 
-## Makes all four parry animations loop so that holding the parry button shows
-## a continuous guard cycle rather than a frozen one-shot clip.
+
 func _make_parry_animations_loop() -> void:
 	var lib := _animation_player.get_animation_library("")
 	for anim_name: String in ["parry_down", "parry_left", "parry_right", "parry_up"]:
@@ -261,6 +277,5 @@ func _on_no_health() -> void:
 func _on_posture_broken() -> void:
 	stats.posture = 0.0
 	_feedback.play_stagger_feedback(global_position)
-	_start_invincibility(1.5)
 	if _in_parry_state:
 		_exit_parry()

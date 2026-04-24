@@ -17,7 +17,11 @@
 [ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://shared(other)/feedback_orchestrator.gd" id="14_jx0ln"]
 [ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://effects/parry_effect.tscn" id="15_lpiy1"]
 [ext_resource type="PackedScene" uid="uid://br5w7nbm0ijwe" path="res://effects/hit_effect.tscn" id="16_88tkl"]
+[ext_resource type="PackedScene" uid="uid://y5nx1te2pyb0" path="res://effects/guard_effect.tscn" id="17_mbhnd"]
 [ext_resource type="PackedScene" uid="uid://bvngpjkxhlgw8" path="res://effects/stagger_effect.tscn" id="17_y0ipg"]
+[ext_resource type="AudioStream" uid="uid://drrfyqogdxeoi" path="res://sounds/Sword Attacks Hits and Blocks/Sword Blocked 3.ogg" id="19_6610h"]
+[ext_resource type="PackedScene" uid="uid://dcitucb1j4jco" path="res://effects/boss_hit_effect.tscn" id="20_wlm6a"]
+[ext_resource type="AudioStream" uid="uid://b3eccn8m8h1v" path="res://sounds/Sword Attacks Hits and Blocks/Sword Impact Hit 2.ogg" id="22_wlm6a"]
 
 [sub_resource type="Resource" id="Resource_0qfo5"]
 script = ExtResource("2_px5sl")
@@ -639,14 +643,15 @@ states/AttackState/position = Vector2(366, 194)
 states/MoveState/node = SubResource("AnimationNodeStateMachine_wdpcj")
 states/MoveState/position = Vector2(366, 90)
 states/ParryState/node = SubResource("AnimationNodeBlendSpace2D_qi5as")
-states/ParryState/position = Vector2(366, -2)
+states/ParryState/position = Vector2(366, -5)
 states/Start/position = Vector2(177, 90)
 transitions = ["Start", "MoveState", SubResource("AnimationNodeStateMachineTransition_jb3kq"), "MoveState", "AttackState", SubResource("AnimationNodeStateMachineTransition_c1b4b"), "AttackState", "MoveState", SubResource("AnimationNodeStateMachineTransition_7tnxx"), "ParryState", "MoveState", SubResource("AnimationNodeStateMachineTransition_bwfjh"), "MoveState", "ParryState", SubResource("AnimationNodeStateMachineTransition_x1sy7")]
-graph_offset = Vector2(-220, -95)
+graph_offset = Vector2(-132, -60)
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_sm1rv"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_wa5vi"]
+graph_offset = Vector2(-458, 25)
 nodes/StateMachine/node = SubResource("AnimationNodeStateMachine_pjt0s")
 nodes/StateMachine/position = Vector2(-200, 80)
 nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_sm1rv")
@@ -794,14 +799,19 @@ script = ExtResource("14_jx0ln")
 hitstop = NodePath("../HitstopController")
 camera = NodePath("../Camera2D")
 perfect_parry_vfx = ExtResource("15_lpiy1")
-guard_vfx = ExtResource("15_lpiy1")
-hit_vfx = ExtResource("16_88tkl")
+guard_vfx = ExtResource("17_mbhnd")
+player_hit_vfx = ExtResource("16_88tkl")
 stagger_vfx = ExtResource("17_y0ipg")
+boss_hit_vfx = ExtResource("20_wlm6a")
 perfect_parry_sfx = NodePath("../ParrySound")
-guard_sfx = NodePath("../ParrySound")
+guard_sfx = NodePath("../GuardSound")
 hit_sfx = NodePath("../HitSound")
 metadata/_custom_type_script = "uid://ehwimwsn5hcr"
 
 [node name="GuardSound" type="AudioStreamPlayer" parent="." unique_id=569990498]
+stream = ExtResource("19_6610h")
 
 [node name="HitSound" type="AudioStreamPlayer" parent="." unique_id=1312433180]
+stream = ExtResource("22_wlm6a")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=1504002630]

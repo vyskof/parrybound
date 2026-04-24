@@ -5,12 +5,15 @@ class_name FeedbackOrchestrator extends Node
 
 @export var perfect_parry_vfx: PackedScene
 @export var guard_vfx: PackedScene
-@export var hit_vfx: PackedScene
+@export var player_hit_vfx: PackedScene
 @export var stagger_vfx: PackedScene
+@export var boss_hit_vfx: PackedScene
 
 @export var perfect_parry_sfx: AudioStreamPlayer
 @export var guard_sfx: AudioStreamPlayer
 @export var hit_sfx: AudioStreamPlayer
+
+
 
 
 func play_parry_feedback(
@@ -31,14 +34,16 @@ func play_parry_feedback(
 			pass
 
 func play_hit_feedback(position: Vector2) -> void:
-	_spawn_vfx(hit_vfx, position)
+	_spawn_vfx(boss_hit_vfx, position)
 	_play_sfx(hit_sfx)
 	hitstop.freeze(0.10)
+
+
 
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
 	camera.shake()
-	hitstop.freeze(0.20)
+	hitstop.freeze(0.30)
 
 func play_boss_parried_feedback(
 	result: ParryResolver.Result,

@@ -6,20 +6,21 @@ var is_active: bool = false
 func enter() -> void:
 	super.enter()
 	is_active = true
-	_setup_hitbox()
 	owner.set_physics_process(true)
+	_setup_hitbox()
 	combo()
 
 func exit() -> void:
 	super.exit()
 	is_active = false
+	owner.set_physics_process(false)
 	hitbox.clear_hit_targets()
 
 func _setup_hitbox() -> void:
 	if hitbox.combat_data:
 		hitbox.combat_data.damage          = 20.0
 		hitbox.combat_data.posture_damage  = 15.0
-		hitbox.combat_data.knockback_force = 70.0   
+		hitbox.combat_data.knockback_force = 150.0
 	else:
 		hitbox.damage = 20.0
 

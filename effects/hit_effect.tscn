@@ -59,7 +59,7 @@ autoplay = "default"
 frame = 5
 frame_progress = 1.0
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=2004934266]
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=952788553]
 stream = ExtResource("2_gh0va")
 autoplay = true
 
