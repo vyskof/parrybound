@@ -5,7 +5,7 @@ extends State
 var can_transition: bool = false
 
 const LASER_DAMAGE:         float = 50.0
-const LASER_POSTURE_DAMAGE: float = 3.0
+const LASER_POSTURE_DAMAGE: float = 30.0
 const LASER_KNOCKBACK:      float = 0.0
 
 

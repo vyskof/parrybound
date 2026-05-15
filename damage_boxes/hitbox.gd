@@ -1,7 +1,7 @@
 class_name Hitbox extends Area2D
 
 @export var combat_data: CombatData
-var _fallback_damage: float = 50.0
+var _fallback_damage: float = 10.0
 
 
 @export var stores_hit_targets: bool = true

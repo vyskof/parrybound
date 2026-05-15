@@ -12,7 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="11_bwfjh"]
 [ext_resource type="Texture2D" uid="uid://h2huqfg15vxv" path="res://assets/least rounded/progress bar least rounded progress light brown.png" id="11_c1b4b"]
 [ext_resource type="Texture2D" uid="uid://bh4u47cj1122j" path="res://assets/least rounded/progress bar least rounded progress orange.png" id="12_6kuvt"]
-[ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://character/parry_resolver.gd" id="12_x1sy7"]
+[ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://shared(other)/parry_resolver.gd" id="12_x1sy7"]
 [ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://shared(other)/hitstop_controller.gd" id="13_sm1rv"]
 [ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://shared(other)/feedback_orchestrator.gd" id="14_jx0ln"]
 [ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://effects/parry_effect.tscn" id="15_lpiy1"]
@@ -717,7 +717,7 @@ node_connections = [&"output", 0, &"TimeScale", &"TimeScale", 0, &"StateMachine"
 
 [sub_resource type="Resource" id="Resource_6kuvt"]
 script = ExtResource("6_1dqym")
-damage = 15.0
+damage = 50.0
 posture_damage = 10.0
 hitstop_duration = 0.08
 metadata/_custom_type_script = "uid://dxnjmcdy603mm"

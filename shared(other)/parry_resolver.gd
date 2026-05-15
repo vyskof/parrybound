@@ -1,9 +1,9 @@
 class_name ParryResolver extends Node
 
 enum Result {
-	NONE,      ## Žádný aktivní parry pokus (výchozí stav)
-	DEFLECT,   ## Perfect timing = Sekiro "deflect" (dřív PERFECT)
-	BLOCK,     ## Držíš blok nebo pozdní timing
+	NONE,      
+	DEFLECT,   
+	BLOCK,     
 }
 
 @export var deflect_window: float  = 0.18
@@ -16,9 +16,6 @@ var _deflect_timer: float = 0.0
 var _spam_count: int   = 0
 var _spam_decay_timer: float = 0.0
 
-
-var base_deflect_window: float:
-	get: return deflect_window
 
 func try_start_deflect() -> void:
 	_is_deflect_active = true
@@ -43,15 +40,15 @@ func tick(delta: float) -> void:
 	if not _is_deflect_active:
 		return
 	_deflect_timer += delta
-	if _deflect_timer >= _current_deflect_window:
+	if _deflect_timer >= get_current_deflect_window():
 		_is_deflect_active = false
 
-var _current_deflect_window: float:
-	get:
-		match _spam_count:
-			0, 1: return deflect_window
-			2:    return deflect_window * 0.6
-			_:    return deflect_window * 0.3
+func get_current_deflect_window() -> float:
+	match _spam_count:
+		0, 1: return deflect_window
+		2:    return deflect_window * 0.6
+		_:    return deflect_window * 0.3
+
 
 
 func evaluate(combat_data: CombatData) -> Result:

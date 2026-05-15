@@ -1,7 +1,7 @@
 extends Area2D
 
 @onready var hurtbox: Hurtbox = $Hurtbox
-@export var damage: int = 20
+@export var damage: float = 20
 
 var _player: Node2D = null
 var velocity: Vector2 = Vector2.ZERO
@@ -24,7 +24,17 @@ func take_damage(_combat_data: CombatData, _hitbox: Hitbox) -> void:
 	set_physics_process(false)
 	queue_free()
 
+func _on_parried(_combat_data: CombatData, _hitbox: Hitbox) -> void:
+	set_physics_process(false)
+	queue_free()
+
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		body.take_hit_raw(damage)
+		queue_free()
+
+
+func _on_area_entered(area: Area2D) -> void:
+	if area is Hurtbox and area.get_parent().is_in_group("player"):
+		area.get_parent().take_hit_raw(damage)
 		queue_free()

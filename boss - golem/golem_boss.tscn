@@ -32,6 +32,8 @@ metadata/_custom_type_script = "uid://dq06b5pnfgvcu"
 
 [sub_resource type="Resource" id="Resource_3nkpl"]
 script = ExtResource("6_lg7cf")
+posture_damage = 15.0
+guard_chip = 30.0
 metadata/_custom_type_script = "uid://dxnjmcdy603mm"
 
 [sub_resource type="Animation" id="Animation_j32wa"]

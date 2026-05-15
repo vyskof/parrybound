@@ -29,18 +29,17 @@ func _ready() -> void:
 func _on_boss_ready() -> void:
 	pass
 
+func _physics_process(delta: float) -> void:
+	if direction.length() > 25.0:
+		velocity = direction.normalized() * 60.0
+		move_and_collide(velocity * delta)
+
 func _process(delta: float) -> void:
 	if _is_dead:
 		return
 	_tick_posture_regen(delta)
 	_update_direction()
 	_on_boss_process(delta)
-
-func _physics_process(delta: float) -> void:
-	if direction.length() > 25.0:
-		velocity = direction.normalized() * 60.0
-		move_and_collide(velocity * delta)
-
 
 func _on_boss_process(_delta: float) -> void:
 	pass
