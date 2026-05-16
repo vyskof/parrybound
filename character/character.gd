@@ -9,6 +9,9 @@ const PARRY_POSTURE_RESTORE:= 8.0
 
 const KNOCKBACK_FRICTION := 400.0
 
+const DEFLECT_PUSHBACK := 90.0
+const BLOCK_PUSHBACK   := 45.0
+
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 
@@ -202,12 +205,14 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
 			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position)
+			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
 
 		ParryResolver.Result.BLOCK:
 			if combat_data:
 				stats.posture += combat_data.guard_chip
 			_posture_regen_timer = 0.0
 			_feedback.play_parry_feedback(ParryResolver.Result.BLOCK, global_position)
+			_apply_parry_pushback(hitbox, BLOCK_PUSHBACK)
 
 		ParryResolver.Result.NONE:
 			var dmg  := combat_data.damage          if combat_data else (hitbox.damage if hitbox else 10.0)
@@ -241,6 +246,10 @@ func _apply_knockback(hitbox: Hitbox, data: CombatData) -> void:
 		dir = (global_position - hitbox.owner.global_position).normalized()
 	_knockback_velocity = dir * data.knockback_force
 	_knockback_lock = 0.2
+
+func _apply_parry_pushback(hitbox: Hitbox, force: float) -> void:
+	var push_dir = (global_position - hitbox.owner.global_position).normalized()
+	_knockback_velocity = push_dir * force
 
 func _tick_knockback(delta: float) -> void:
 	if _knockback_velocity.length_squared() < 1.0:

@@ -25,25 +25,25 @@ func play_parry_feedback(
 			_spawn_vfx(perfect_parry_vfx, position)
 			_play_sfx(perfect_parry_sfx)
 			camera.shake()
-			hitstop.freeze(0.18)
+			hitstop.freeze(0.10)
 		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
 			_play_sfx(guard_sfx)
-			hitstop.freeze(0.06)
+			hitstop.freeze(0.05)
 		_:
 			pass
 
 func play_hit_feedback(position: Vector2) -> void:
 	_spawn_vfx(boss_hit_vfx, position)
 	_play_sfx(hit_sfx)
-	hitstop.freeze(0.10)
+	hitstop.freeze(0.08)
 
 
 
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
 	camera.shake()
-	hitstop.freeze(0.30)
+	hitstop.freeze(0.22)
 
 func play_boss_parried_feedback(
 	result: ParryResolver.Result,

@@ -846,9 +846,8 @@ texture_progress = ExtResource("12_6kuvt")
 script = ExtResource("12_x1sy7")
 metadata/_custom_type_script = "uid://dn7fpdy4vo7uu"
 
-[node name="HitstopController" type="Node" parent="." unique_id=552200419 node_paths=PackedStringArray("animation_targets")]
+[node name="HitstopController" type="Node" parent="." unique_id=552200419]
 script = ExtResource("13_sm1rv")
-animation_targets = [NodePath("../AnimationTree")]
 metadata/_custom_type_script = "uid://bqx8amkujimip"
 
 [node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("hitstop", "camera", "perfect_parry_sfx", "guard_sfx", "hit_sfx")]

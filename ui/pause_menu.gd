@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 func _ready() -> void:
+	Engine.time_scale = 1.0
 	get_tree().paused = true   
 	$VBoxContainer/ContinueButton.pressed.connect(_on_continue_pressed)
 	$VBoxContainer/SaveButton.pressed.connect(_on_save_pressed)
