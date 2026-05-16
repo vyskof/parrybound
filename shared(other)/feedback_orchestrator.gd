@@ -13,6 +13,7 @@ class_name FeedbackOrchestrator extends Node
 @export var guard_sfx: AudioStreamPlayer
 @export var hit_sfx: AudioStreamPlayer
 
+@export var deflect_sparks_vfx: PackedScene
 
 
 
@@ -23,12 +24,13 @@ func play_parry_feedback(
 	match result:
 		ParryResolver.Result.DEFLECT:
 			_spawn_vfx(perfect_parry_vfx, position)
-			_play_sfx(perfect_parry_sfx)
+			_spawn_vfx(deflect_sparks_vfx, position)
+			_play_sfx(perfect_parry_sfx, 0.10)
 			camera.shake()
 			hitstop.freeze(0.10)
 		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
-			_play_sfx(guard_sfx)
+			_play_sfx(guard_sfx, 0.10)
 			hitstop.freeze(0.05)
 		_:
 			pass
@@ -59,9 +61,13 @@ func play_boss_parried_feedback(
 func _spawn_vfx(scene: PackedScene, pos: Vector2) -> void:
 	if not scene:
 		return
-	var effect := scene.instantiate() as Node2D
-	get_tree().current_scene.add_child(effect)
-	effect.global_position = pos
+	var effect := scene.instantiate()
+	if not effect:
+		return
+	else:
+		if effect is Node2D:
+			effect.global_position = pos
+		get_tree().current_scene.add_child(effect)
 
 func _play_sfx(
 	player: AudioStreamPlayer,

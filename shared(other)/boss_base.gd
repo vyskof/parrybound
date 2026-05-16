@@ -47,6 +47,14 @@ func _on_boss_process(_delta: float) -> void:
 func receive_parry(posture_dmg: float) -> void:
 	stats.posture += posture_dmg
 	_posture_regen_timer = 0.0
+	_interrupt_current_action()
+
+func _interrupt_current_action() -> void:
+	set_physics_process(false)
+	await get_tree().create_timer(0.20, true, false, true).timeout
+	if not _is_dead:
+		set_physics_process(true)
+
 
 func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 	if _is_dead:
