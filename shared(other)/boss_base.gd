@@ -30,8 +30,10 @@ func _on_boss_ready() -> void:
 	pass
 
 func _physics_process(delta: float) -> void:
-	if direction.length() > 25.0:
+	if direction.length() > 33.0:
 		velocity = direction.normalized() * 60.0
+	velocity = velocity.move_toward(Vector2.ZERO, 300.0 * delta)
+	if velocity.length() > 1.0:
 		move_and_collide(velocity * delta)
 
 func _process(delta: float) -> void:
@@ -48,6 +50,9 @@ func receive_parry(posture_dmg: float) -> void:
 	stats.posture += posture_dmg
 	_posture_regen_timer = 0.0
 	_interrupt_current_action()
+	if is_instance_valid(_player):
+		var push_dir := (global_position - _player.global_position).normalized()
+		velocity += push_dir * 30.0
 
 func _interrupt_current_action() -> void:
 	set_physics_process(false)
