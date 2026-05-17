@@ -18,6 +18,7 @@ const DODGE_IFRAMES        := 0.14
 const DODGE_STAMINA_COST   := 25.0    
 const STAMINA_REGEN_RATE   := 40.0    
 const STAMINA_REGEN_DELAY  := 1.0     
+const DODGE_COOLDOWN       := 0.25
 
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
@@ -31,6 +32,9 @@ var is_invincible     := false
 var _is_dodging        := false
 var _dodge_direction   := Vector2.ZERO
 var _stamina_regen_timer : float = 0.0
+var _dodge_cooldown_timer : float = 0.0
+
+var _stamina_blink_tween: Tween = null
 
 var is_blocking: bool:
 	get: return _parry_resolver != null and _parry_resolver.is_blocking()
@@ -68,7 +72,6 @@ var _playback: AnimationNodeStateMachinePlayback
 func _ready() -> void:
 	_playback = _animation_tree.get("parameters/StateMachine/playback")
 
-
 	_make_parry_animations_loop()
 
 	stats.health  = stats.max_health
@@ -105,6 +108,7 @@ func _physics_process(delta: float) -> void:
 	_tick_knockback(delta)
 	_tick_stagger(delta)
 	_tick_stamina_regen(delta)
+	_tick_dodge_cooldown(delta)
 
 	if _is_dodging:
 		velocity = _dodge_direction * DODGE_SPEED + _knockback_velocity
@@ -313,9 +317,31 @@ func _tick_stamina_regen(delta: float) -> void:
 
 func _on_stamina_changed(new_stamina: float) -> void:
 	_stamina_bar.value = new_stamina
+	if new_stamina <= 0.0:
+		_start_stamina_blink()
+	else:
+		_stop_stamina_blink()
+
+func _start_stamina_blink() -> void:
+	if _stamina_blink_tween and _stamina_blink_tween.is_running():
+		return
+	_stamina_blink_tween = create_tween().set_loops()
+	_stamina_blink_tween.tween_property(_stamina_bar, "modulate:a", 0.2, 0.2)
+	_stamina_blink_tween.tween_property(_stamina_bar, "modulate:a", 1.0, 0.2)
+
+func _stop_stamina_blink() -> void:
+	if _stamina_blink_tween:
+		_stamina_blink_tween.kill()
+		_stamina_blink_tween = null
+	_stamina_bar.modulate.a = 1.0
+
+
+
 
 func _enter_dodge() -> void:
 	if _is_dodging:
+		return
+	if _dodge_cooldown_timer > 0.0:
 		return
 	if stats.stamina < DODGE_STAMINA_COST:
 		return
@@ -327,8 +353,12 @@ func _enter_dodge() -> void:
 	_sprite.modulate.a = 0.4
 	await get_tree().create_timer(DODGE_DURATION, true, false, true).timeout
 	_is_dodging = false
+	_dodge_cooldown_timer = DODGE_COOLDOWN
 	_sprite.modulate.a = 1.0
 
+func _tick_dodge_cooldown(delta: float) -> void:
+	if _dodge_cooldown_timer > 0.0:
+		_dodge_cooldown_timer -= delta
 
 func _make_parry_animations_loop() -> void:
 	var lib := _animation_player.get_animation_library("")

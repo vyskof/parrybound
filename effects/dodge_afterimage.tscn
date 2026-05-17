@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://deav0ry57my53"]
+
+[ext_resource type="Script" uid="uid://bikpbq4kbabo8" path="res://effects/dodge_afterimage.gd" id="1_0oayp"]
+
+[node name="DodgeAfterimage" type="Sprite2D" unique_id=1471621261]
+script = ExtResource("1_0oayp")
