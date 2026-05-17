@@ -7,10 +7,17 @@ const POSTURE_REGEN_DELAY  := 2.5
 const STAGGER_DURATION     := 1.8
 const PARRY_POSTURE_RESTORE:= 8.0
 
-const KNOCKBACK_FRICTION := 400.0
+const KNOCKBACK_FRICTION   := 400.0
 
-const DEFLECT_PUSHBACK := 90.0
-const BLOCK_PUSHBACK   := 45.0
+const DEFLECT_PUSHBACK     := 90.0
+const BLOCK_PUSHBACK       := 45.0
+
+const DODGE_SPEED          := 300.0   
+const DODGE_DURATION       := 0.18    
+const DODGE_IFRAMES        := 0.14    
+const DODGE_STAMINA_COST   := 25.0    
+const STAMINA_REGEN_RATE   := 40.0    
+const STAMINA_REGEN_DELAY  := 1.0     
 
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
@@ -20,6 +27,10 @@ const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 var input_vector      := Vector2.ZERO
 var last_input_vector := Vector2.DOWN
 var is_invincible     := false
+
+var _is_dodging        := false
+var _dodge_direction   := Vector2.ZERO
+var _stamina_regen_timer : float = 0.0
 
 var is_blocking: bool:
 	get: return _parry_resolver != null and _parry_resolver.is_blocking()
@@ -44,10 +55,12 @@ var _stagger_timer       : float = 0.0
 @onready var _parrybox         : Parrybox             = $Parrybox
 @onready var _health_bar       : TextureProgressBar   = $CanvasLayer/TextureProgressBar
 @onready var _posture_bar      : TextureProgressBar   = $CanvasLayer/TexturePostureBar
+@onready var _stamina_bar: TextureProgressBar = $CanvasLayer/TextureStaminaBar
 @onready var _sprite           : Sprite2D             = $Sprite2D
 @onready var _parry_resolver   : ParryResolver        = $ParryResolver
 @onready var _feedback         : FeedbackOrchestrator = $FeedbackOrchestrator
 @onready var _parry_cooldown    : Timer                = $ParryCooldownTimer
+
 
 
 var _playback: AnimationNodeStateMachinePlayback
@@ -64,6 +77,10 @@ func _ready() -> void:
 	_health_bar.max_value  = stats.max_health
 	_posture_bar.max_value = float(stats.max_posture)
 	_posture_bar.value     = 0.0
+
+	_stamina_bar.max_value = stats.max_stamina
+	_stamina_bar.value     = stats.max_stamina
+	stats.stamina_changed.connect(_on_stamina_changed)
 
 	stats.health_changed.connect(_on_health_changed)
 	stats.posture_changed.connect(_on_posture_changed)
@@ -87,6 +104,13 @@ func _physics_process(delta: float) -> void:
 	_tick_posture_regen(delta)
 	_tick_knockback(delta)
 	_tick_stagger(delta)
+	_tick_stamina_regen(delta)
+
+	if _is_dodging:
+		velocity = _dodge_direction * DODGE_SPEED + _knockback_velocity
+		move_and_slide()
+		return
+
 
 	if _knockback_lock > 0.0:
 			_knockback_lock -= delta
@@ -124,6 +148,10 @@ func _process_move(_delta: float) -> void:
 
 	if Input.is_action_just_pressed("parry"):
 		_enter_parry()
+		return
+
+	if Input.is_action_just_pressed("dodge"):
+		_enter_dodge()
 		return
 
 	velocity = input_vector * SPEED + _knockback_velocity
@@ -276,6 +304,30 @@ func _tick_posture_regen(delta: float) -> void:
 	if _posture_regen_timer >= POSTURE_REGEN_DELAY:
 		stats.posture = maxf(0.0, stats.posture - POSTURE_REGEN_RATE * delta)
 
+func _tick_stamina_regen(delta: float) -> void:
+	if stats.stamina >= stats.max_stamina:
+		return
+	_stamina_regen_timer += delta
+	if _stamina_regen_timer >= STAMINA_REGEN_DELAY:
+		stats.stamina += STAMINA_REGEN_RATE * delta
+
+func _on_stamina_changed(new_stamina: float) -> void:
+	_stamina_bar.value = new_stamina
+
+func _enter_dodge() -> void:
+	if _is_dodging:
+		return
+	if stats.stamina < DODGE_STAMINA_COST:
+		return
+	stats.stamina -= DODGE_STAMINA_COST
+	_stamina_regen_timer = 0.0
+	_is_dodging = true
+	_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
+	_start_invincibility(DODGE_IFRAMES)
+	_sprite.modulate.a = 0.4
+	await get_tree().create_timer(DODGE_DURATION, true, false, true).timeout
+	_is_dodging = false
+	_sprite.modulate.a = 1.0
 
 
 func _make_parry_animations_loop() -> void:

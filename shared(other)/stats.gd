@@ -27,3 +27,12 @@ signal no_health()
 
 signal posture_changed(new_posture)
 signal posture_broken
+
+@export var stamina: float = 100.0:
+	set(value):
+		stamina = clampf(value, 0.0, max_stamina)
+		stamina_changed.emit(stamina)
+
+@export var max_stamina: float = 100.0
+
+signal stamina_changed(new_stamina)

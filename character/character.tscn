@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://h2huqfg15vxv" path="res://assets/least rounded/progress bar least rounded progress light brown.png" id="11_c1b4b"]
 [ext_resource type="Texture2D" uid="uid://bh4u47cj1122j" path="res://assets/least rounded/progress bar least rounded progress orange.png" id="12_6kuvt"]
 [ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://shared(other)/parry_resolver.gd" id="12_x1sy7"]
+[ext_resource type="Texture2D" uid="uid://o25obof4nlwc" path="res://assets/least rounded/progress bar least rounded progress dark green.png" id="13_4ekbm"]
 [ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://shared(other)/hitstop_controller.gd" id="13_sm1rv"]
 [ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://shared(other)/feedback_orchestrator.gd" id="14_jx0ln"]
 [ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://effects/parry_effect.tscn" id="15_lpiy1"]
@@ -27,6 +28,8 @@
 
 [sub_resource type="Resource" id="Resource_0qfo5"]
 script = ExtResource("2_px5sl")
+stamina = 150.0
+max_stamina = 150.0
 metadata/_custom_type_script = "uid://dq06b5pnfgvcu"
 
 [sub_resource type="Animation" id="Animation_pjt0s"]
@@ -811,9 +814,9 @@ volume_db = -10.0
 
 [node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer" unique_id=1452768215]
 offset_left = 10.0
-offset_top = 255.0
+offset_top = 249.0
 offset_right = 74.0
-offset_bottom = 261.0
+offset_bottom = 255.0
 value = 100.0
 nine_patch_stretch = true
 stretch_margin_left = 3
@@ -842,6 +845,20 @@ stretch_margin_right = 3
 stretch_margin_bottom = 3
 texture_over = ExtResource("11_bwfjh")
 texture_progress = ExtResource("12_6kuvt")
+
+[node name="TextureStaminaBar" type="TextureProgressBar" parent="CanvasLayer" unique_id=836169846]
+offset_left = 10.0
+offset_top = 257.0
+offset_right = 61.0
+offset_bottom = 261.0
+max_value = 150.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
+texture_over = ExtResource("11_bwfjh")
+texture_progress = ExtResource("13_4ekbm")
 
 [node name="ParryResolver" type="Node" parent="." unique_id=1530687953]
 script = ExtResource("12_x1sy7")

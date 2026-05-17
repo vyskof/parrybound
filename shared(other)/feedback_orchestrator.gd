@@ -30,7 +30,7 @@ func play_parry_feedback(
 			hitstop.freeze(0.10)
 		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
-			_play_sfx(guard_sfx, 0.10)
+			_play_sfx(guard_sfx, 0.5)
 			hitstop.freeze(0.05)
 		_:
 			pass
