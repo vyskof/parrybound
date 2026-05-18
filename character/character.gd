@@ -20,6 +20,9 @@ const STAMINA_REGEN_RATE   := 40.0
 const STAMINA_REGEN_DELAY  := 1.0     
 const DODGE_COOLDOWN       := 0.25
 
+const AFTERIMAGE_INTERVAL := 0.05
+const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
+
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 
@@ -317,7 +320,7 @@ func _tick_stamina_regen(delta: float) -> void:
 
 func _on_stamina_changed(new_stamina: float) -> void:
 	_stamina_bar.value = new_stamina
-	if new_stamina <= 0.0:
+	if new_stamina <= stats.max_stamina * 0.20:
 		_start_stamina_blink()
 	else:
 		_stop_stamina_blink()
@@ -350,8 +353,14 @@ func _enter_dodge() -> void:
 	_is_dodging = true
 	_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
 	_start_invincibility(DODGE_IFRAMES)
-	_sprite.modulate.a = 0.4
-	await get_tree().create_timer(DODGE_DURATION, true, false, true).timeout
+	_sprite.modulate.a = 0.5
+	
+	var elapsed := 0.0
+	while elapsed < DODGE_DURATION:
+		_spawn_afterimage()
+		await get_tree().create_timer(AFTERIMAGE_INTERVAL, true, false, true).timeout
+		elapsed += AFTERIMAGE_INTERVAL
+	
 	_is_dodging = false
 	_dodge_cooldown_timer = DODGE_COOLDOWN
 	_sprite.modulate.a = 1.0
@@ -365,6 +374,11 @@ func _make_parry_animations_loop() -> void:
 	for anim_name: String in ["parry_down", "parry_left", "parry_right", "parry_up"]:
 		if lib.has_animation(anim_name):
 			lib.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
+
+func _spawn_afterimage() -> void:
+	var afterimage := AFTERIMAGE_SCENE.instantiate()
+	afterimage.init(_sprite)
+	get_parent().add_child(afterimage)
 
 
 func _update_blend_positions(dir: Vector2) -> void:
