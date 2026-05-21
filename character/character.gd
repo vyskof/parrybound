@@ -20,6 +20,8 @@ const STAMINA_REGEN_RATE   := 40.0
 const STAMINA_REGEN_DELAY  := 1.0     
 const DODGE_COOLDOWN       := 0.25
 
+const ATTACK_STAMINA_COST  := 15.0
+
 const AFTERIMAGE_INTERVAL := 0.05
 const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
 
@@ -188,6 +190,11 @@ func _process_parry() -> void:
 	move_and_slide()
 
 func _enter_attack() -> void:
+	if stats.stamina < ATTACK_STAMINA_COST:
+		return
+	stats.stamina -= ATTACK_STAMINA_COST
+	_stamina_regen_timer = 0.0
+	
 	_in_attack_state = true
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_animation_tree.set(
