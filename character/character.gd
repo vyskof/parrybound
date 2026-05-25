@@ -22,6 +22,9 @@ const DODGE_COOLDOWN       := 0.25
 
 const ATTACK_STAMINA_COST  := 15.0
 
+const COMBO_PULSE_WINDOW   := 0.15
+const COMBO_ATTACK_SPEED   := 1.15
+
 const AFTERIMAGE_INTERVAL := 0.05
 const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
 
@@ -57,6 +60,12 @@ var _posture_regen_timer : float = 0.0
 var _is_staggered        : bool  = false
 var _stagger_timer       : float = 0.0
 
+var _combo_pulse_timer : float = 0.0
+var _attack_buffered   : bool  = false
+var _was_in_attack     : bool  = false
+var _parry_buffered : bool = false
+
+var _attack_just_started: bool = false
 
 @onready var _animation_player : AnimationPlayer      = $AnimationPlayer
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
@@ -114,6 +123,22 @@ func _physics_process(delta: float) -> void:
 	_tick_stagger(delta)
 	_tick_stamina_regen(delta)
 	_tick_dodge_cooldown(delta)
+	_tick_combo_pulse(delta)
+
+	if _was_in_attack and not _attack_just_started and _playback.get_current_node() == "MoveState":
+		_in_attack_state = false
+		_animation_tree.set("parameters/TimeScale/scale", 1.0)
+		_combo_pulse_timer = COMBO_PULSE_WINDOW
+		if _parry_buffered:
+			_parry_buffered = false
+			_attack_buffered = false
+			_enter_parry()
+		elif _attack_buffered:
+			_attack_buffered = false
+			_enter_attack()
+	_attack_just_started = false
+	_was_in_attack = _in_attack_state
+
 
 	if _is_dodging:
 		velocity = _dodge_direction * DODGE_SPEED + _knockback_velocity
@@ -131,10 +156,6 @@ func _physics_process(delta: float) -> void:
 		velocity = _knockback_velocity
 		move_and_slide()
 		return
-
-
-	if _in_attack_state and _playback.get_current_node() == "MoveState":
-		_in_attack_state = false
 
 	if _in_parry_state:
 		_process_parry()
@@ -168,8 +189,14 @@ func _process_move(_delta: float) -> void:
 
 
 func _process_attack() -> void:
+	if Input.is_action_just_pressed("attack"):
+		if not _attack_buffered and stats.stamina >= ATTACK_STAMINA_COST:
+			_attack_buffered = true
+	if Input.is_action_just_pressed("parry"):
+		_parry_buffered = true 
 	velocity = _knockback_velocity
 	move_and_slide()
+
 
 
 func _process_parry() -> void:
@@ -190,12 +217,19 @@ func _process_parry() -> void:
 	move_and_slide()
 
 func _enter_attack() -> void:
+	if _in_attack_state:
+		return
 	if stats.stamina < ATTACK_STAMINA_COST:
 		return
+	_in_attack_state = true
+	_attack_just_started = true
 	stats.stamina -= ATTACK_STAMINA_COST
 	_stamina_regen_timer = 0.0
+	_attack_buffered = false
 	
-	_in_attack_state = true
+	var speed := COMBO_ATTACK_SPEED if _combo_pulse_timer > 0.0 else 1.0
+	_animation_tree.set("parameters/TimeScale/scale", speed)
+	
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_animation_tree.set(
 		"parameters/StateMachine/AttackState/blend_position",
@@ -246,14 +280,14 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 		ParryResolver.Result.DEFLECT:
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
-			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position)
+			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data)
 			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
 
 		ParryResolver.Result.BLOCK:
 			if combat_data:
 				stats.posture += combat_data.guard_chip
 			_posture_regen_timer = 0.0
-			_feedback.play_parry_feedback(ParryResolver.Result.BLOCK, global_position)
+			_feedback.play_parry_feedback(ParryResolver.Result.BLOCK, global_position, combat_data)
 			_apply_parry_pushback(hitbox, BLOCK_PUSHBACK)
 
 		ParryResolver.Result.NONE:
@@ -264,7 +298,7 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			_posture_regen_timer = 0.0
 			if hitbox and combat_data and combat_data.knockback_force > 0.0:
 				_apply_knockback(hitbox, combat_data)
-			_feedback.play_hit_feedback(global_position)
+			_feedback.play_hit_feedback(global_position, combat_data)
 			if not _is_staggered:
 				_flash_red()
 			_start_invincibility(0.5)
@@ -324,6 +358,11 @@ func _tick_stamina_regen(delta: float) -> void:
 	_stamina_regen_timer += delta
 	if _stamina_regen_timer >= STAMINA_REGEN_DELAY:
 		stats.stamina += STAMINA_REGEN_RATE * delta
+
+func _tick_combo_pulse(delta: float) -> void:
+	if _combo_pulse_timer > 0.0:
+		_combo_pulse_timer -= delta
+
 
 func _on_stamina_changed(new_stamina: float) -> void:
 	_stamina_bar.value = new_stamina

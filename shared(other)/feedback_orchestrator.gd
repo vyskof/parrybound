@@ -19,32 +19,36 @@ class_name FeedbackOrchestrator extends Node
 
 func play_parry_feedback(
 	result: ParryResolver.Result,
-	position: Vector2
+	position: Vector2,
+	combat_data: CombatData = null
 ) -> void:
+	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.10
 	match result:
 		ParryResolver.Result.DEFLECT:
 			_spawn_vfx(perfect_parry_vfx, position)
 			_spawn_vfx(deflect_sparks_vfx, position)
 			_play_sfx(perfect_parry_sfx, 0.10)
-			camera.shake()
-			hitstop.freeze(0.10)
+			camera.shake(0.5)
+			hitstop.freeze(hitstop_dur)
 		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
 			_play_sfx(guard_sfx, 0.5)
-			hitstop.freeze(0.05)
+			hitstop.freeze(hitstop_dur * 0.5)
 		_:
 			pass
 
-func play_hit_feedback(position: Vector2) -> void:
+func play_hit_feedback(position: Vector2, combat_data: CombatData = null) -> void:
 	_spawn_vfx(boss_hit_vfx, position)
 	_play_sfx(hit_sfx)
-	hitstop.freeze(0.08)
+	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.08
+	hitstop.freeze(hitstop_dur)
+	camera.shake(1.0)
 
 
 
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
-	camera.shake()
+	camera.shake(2.2)
 	hitstop.freeze(0.22)
 
 func play_boss_parried_feedback(
