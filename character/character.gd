@@ -90,6 +90,8 @@ func _ready() -> void:
 
 	stats.health  = stats.max_health
 	stats.posture = 0.0
+	stats.stamina  = stats.max_stamina    
+	_stamina_regen_timer = 0.0
 
 	_health_bar.max_value  = stats.max_health
 	_posture_bar.max_value = float(stats.max_posture)

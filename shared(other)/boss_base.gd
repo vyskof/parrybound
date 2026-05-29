@@ -19,6 +19,7 @@ var _is_dead: bool = false
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	stats.health = stats.max_health
+	stats.posture  = 0.0 
 	stats.posture_broken.connect(_on_posture_broken)
 	stats.health_changed.connect(_on_health_changed)
 	stats.no_health.connect(_on_no_health)
