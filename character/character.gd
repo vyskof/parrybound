@@ -19,6 +19,7 @@ const DODGE_STAMINA_COST   := 25.0
 const STAMINA_REGEN_RATE   := 40.0    
 const STAMINA_REGEN_DELAY  := 1.0     
 const DODGE_COOLDOWN       := 0.25
+const DODGE_CANCEL_STAMINA_MULT := 1.3
 
 const ATTACK_STAMINA_COST  := 15.0
 
@@ -64,6 +65,7 @@ var _combo_pulse_timer : float = 0.0
 var _attack_buffered   : bool  = false
 var _was_in_attack     : bool  = false
 var _parry_buffered : bool = false
+var _dodge_buffered    : bool = false
 
 var _attack_just_started: bool = false
 
@@ -73,11 +75,12 @@ var _attack_just_started: bool = false
 @onready var _parrybox         : Parrybox             = $Parrybox
 @onready var _health_bar       : TextureProgressBar   = $CanvasLayer/TextureProgressBar
 @onready var _posture_bar      : TextureProgressBar   = $CanvasLayer/TexturePostureBar
-@onready var _stamina_bar: TextureProgressBar = $CanvasLayer/TextureStaminaBar
+@onready var _stamina_bar      : TextureProgressBar   = $CanvasLayer/TextureStaminaBar
 @onready var _sprite           : Sprite2D             = $Sprite2D
 @onready var _parry_resolver   : ParryResolver        = $ParryResolver
 @onready var _feedback         : FeedbackOrchestrator = $FeedbackOrchestrator
-@onready var _parry_cooldown    : Timer                = $ParryCooldownTimer
+@onready var _parry_cooldown   : Timer                = $ParryCooldownTimer
+@onready var _hitbox           : Hitbox               = $Hitbox
 
 
 
@@ -135,6 +138,12 @@ func _physics_process(delta: float) -> void:
 			_parry_buffered = false
 			_attack_buffered = false
 			_enter_parry()
+		elif _dodge_buffered:
+			_dodge_buffered  = false
+			_attack_buffered = false
+			_parry_buffered  = false
+			_clear_hitbox()
+			_enter_dodge()
 		elif _attack_buffered:
 			_attack_buffered = false
 			_enter_attack()
@@ -196,6 +205,21 @@ func _process_attack() -> void:
 			_attack_buffered = true
 	if Input.is_action_just_pressed("parry"):
 		_parry_buffered = true 
+	
+	if Input.is_action_just_pressed("dodge"):
+		var cancel_cost := DODGE_STAMINA_COST * DODGE_CANCEL_STAMINA_MULT
+		if stats.stamina >= cancel_cost and _dodge_cooldown_timer <= 0.0:
+			_attack_buffered  = false
+			_parry_buffered   = false
+			_in_attack_state  = false
+			_animation_tree.set("parameters/TimeScale/scale", 1.0)
+			_playback.start("MoveState", true)
+			_clear_hitbox()
+			_enter_dodge()
+			return
+		else:
+			_dodge_buffered = true
+	
 	velocity = _knockback_velocity
 	move_and_slide()
 
@@ -470,9 +494,16 @@ func _on_posture_broken() -> void:
 	_posture_regen_timer = 0.0
 	_is_staggered        = true
 	_stagger_timer       = STAGGER_DURATION
-	_in_attack_state     = false           
+	_in_attack_state     = false
+	_dodge_buffered      = false 
 	_sprite.modulate     = Color(1.0, 0.3, 0.3)  
 	_feedback.play_stagger_feedback(global_position)
 	if _in_parry_state:
 		_exit_parry()
 	_playback.start("MoveState", true)
+
+func _clear_hitbox() -> void:
+	_hitbox.clear_hit_targets()
+	var col := _hitbox.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col:
+		col.shape = null
