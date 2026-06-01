@@ -9,12 +9,14 @@ enum Result {
 @export var deflect_window: float  = 0.18
 @export var spam_decay_time: float  = 2.0
 @export var spam_max_count: int   = 3
+@export var just_frame_window: float = 0.05
 
 var _is_deflect_active: bool = false
 var _is_blocking: bool = false
 var _deflect_timer: float = 0.0
 var _spam_count: int   = 0
 var _spam_decay_timer: float = 0.0
+var _last_just_frame: bool = false
 
 
 func try_start_deflect() -> void:
@@ -53,6 +55,7 @@ func get_current_deflect_window() -> float:
 
 func evaluate(combat_data: CombatData) -> Result:
 	if _is_deflect_active:
+		_last_just_frame  = _deflect_timer < just_frame_window
 		_spam_count       = 0  
 		_spam_decay_timer = 0.0
 		_is_deflect_active = false
@@ -71,3 +74,6 @@ func is_deflect_active() -> bool:
 
 func get_spam_count() -> int:
 	return _spam_count
+
+func was_just_frame() -> bool:
+	return _last_just_frame

@@ -12,6 +12,8 @@ const KNOCKBACK_FRICTION   := 400.0
 const DEFLECT_PUSHBACK     := 90.0
 const BLOCK_PUSHBACK       := 45.0
 
+const DEFLECT_STAMINA_REWARD := 12.0
+
 const DODGE_SPEED          := 300.0   
 const DODGE_DURATION       := 0.18    
 const DODGE_IFRAMES        := 0.14    
@@ -19,9 +21,23 @@ const DODGE_STAMINA_COST   := 25.0
 const STAMINA_REGEN_RATE   := 40.0    
 const STAMINA_REGEN_DELAY  := 1.0     
 const DODGE_COOLDOWN       := 0.25
+
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
 const ATTACK_STAMINA_COST  := 15.0
+
+const COUNTER_WINDOW_DURATION  := 0.30
+const COUNTER_POSTURE_MULT     := 1.5
+const BASE_ATTACK_POSTURE_DMG  := 10.0
+
+const JUST_FRAME_STAMINA_BONUS  := 8.0
+const JUST_FRAME_POSTURE_MULT   := 2.2   
+const JUST_FRAME_WINDOW_BONUS   := 0.15 
+
+const STREAK_RESET_TIME         := 2.5    
+const STREAK_MAX                := 4      
+const STREAK_POSTURE_PER_LEVEL  := 0.15   
+const STREAK_PITCH_PER_LEVEL    := 0.08   
 
 const COMBO_PULSE_WINDOW   := 0.15
 const COMBO_ATTACK_SPEED   := 1.15
@@ -56,18 +72,24 @@ var _knockback_lock     : float = 0.0
 var _in_parry_state     := false
 var _in_attack_state    := false
 
+var _deflect_streak     : int   = 0
+var _streak_reset_timer : float = 0.0
+var _glow_tween         : Tween = null
 
-var _posture_regen_timer : float = 0.0
-var _is_staggered        : bool  = false
-var _stagger_timer       : float = 0.0
+var _posture_regen_timer: float = 0.0
+var _is_staggered       : bool  = false
+var _stagger_timer      : float = 0.0
 
-var _combo_pulse_timer : float = 0.0
-var _attack_buffered   : bool  = false
-var _was_in_attack     : bool  = false
-var _parry_buffered : bool = false
-var _dodge_buffered    : bool = false
+var _combo_pulse_timer  : float = 0.0
+var _attack_buffered    : bool  = false
+var _was_in_attack      : bool  = false
+var _parry_buffered     : bool = false
+var _dodge_buffered     : bool = false
 
 var _attack_just_started: bool = false
+
+var _in_counter_window  : bool  = false
+var _counter_timer      : float = 0.0
 
 @onready var _animation_player : AnimationPlayer      = $AnimationPlayer
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
@@ -81,6 +103,7 @@ var _attack_just_started: bool = false
 @onready var _feedback         : FeedbackOrchestrator = $FeedbackOrchestrator
 @onready var _parry_cooldown   : Timer                = $ParryCooldownTimer
 @onready var _hitbox           : Hitbox               = $Hitbox
+@onready var _parry_sound      : AudioStreamPlayer    = $ParrySound
 
 
 
@@ -129,6 +152,8 @@ func _physics_process(delta: float) -> void:
 	_tick_stamina_regen(delta)
 	_tick_dodge_cooldown(delta)
 	_tick_combo_pulse(delta)
+	_tick_counter_window(delta)
+	_tick_streak_reset(delta)
 
 	if _was_in_attack and not _attack_just_started and _playback.get_current_node() == "MoveState":
 		_in_attack_state = false
@@ -268,11 +293,10 @@ func _enter_parry() -> void:
 	if not _parry_cooldown.is_stopped():
 		return
 	_parry_cooldown.start(0.3) 
-
 	_in_parry_state = true
 	_parrybox.monitoring = true
 	_parry_resolver.try_start_deflect()
-
+	_play_deflect_glow()
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_update_blend_positions(Vector2(mouse_dir.x, -mouse_dir.y))
 	_playback.travel("ParryState")
@@ -282,7 +306,7 @@ func _exit_parry() -> void:
 	_in_parry_state = false
 	_parry_resolver.stop_block()
 	_parrybox.monitoring = false
-
+	_stop_deflect_glow()
 	_playback.start("MoveState", true)
 
 
@@ -304,8 +328,30 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 
 	match result:
 		ParryResolver.Result.DEFLECT:
+			_deflect_streak     = mini(_deflect_streak + 1, STREAK_MAX)
+			_streak_reset_timer = 0.0
+			
+			var is_just_frame  := _parry_resolver.was_just_frame()
+			var posture_mult   := _get_streak_posture_mult()
+			var counter_dur    := COUNTER_WINDOW_DURATION
+			
+			if is_just_frame:
+				posture_mult  = maxf(posture_mult, JUST_FRAME_POSTURE_MULT)
+				counter_dur  += JUST_FRAME_WINDOW_BONUS
+				stats.stamina += DEFLECT_STAMINA_REWARD + JUST_FRAME_STAMINA_BONUS
+			else:
+				stats.stamina += DEFLECT_STAMINA_REWARD
+				
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
+			stats.stamina += DEFLECT_STAMINA_REWARD
+			_in_counter_window = true
+			_counter_timer     = counter_dur
+			_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG * posture_mult
+			
+			_sprite.modulate   = _get_streak_tint()
+			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
+			
 			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data)
 			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
 
@@ -317,6 +363,9 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			_apply_parry_pushback(hitbox, BLOCK_PUSHBACK)
 
 		ParryResolver.Result.NONE:
+			_deflect_streak          = 0
+			_streak_reset_timer      = 0.0
+			_parry_sound.pitch_scale = 1.0
 			var dmg  := combat_data.damage          if combat_data else (hitbox.damage if hitbox else 10.0)
 			var pdmg := combat_data.posture_damage   if combat_data else 5.0
 			stats.health  -= dmg
@@ -389,6 +438,27 @@ func _tick_combo_pulse(delta: float) -> void:
 	if _combo_pulse_timer > 0.0:
 		_combo_pulse_timer -= delta
 
+func _tick_counter_window(delta: float) -> void:
+	if not _in_counter_window:
+		return
+	_counter_timer -= delta
+	if _counter_timer <= 0.0:
+		_in_counter_window = false
+		_counter_timer     = 0.0
+		_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
+		_sprite.modulate   = Color.WHITE
+		
+
+func _tick_streak_reset(delta: float) -> void:
+	if _deflect_streak == 0:
+		return
+	_streak_reset_timer += delta
+	if _streak_reset_timer >= STREAK_RESET_TIME:
+		_deflect_streak     = 0
+		_streak_reset_timer = 0.0
+		_parry_sound.pitch_scale = 1.0
+
+
 
 func _on_stamina_changed(new_stamina: float) -> void:
 	_stamina_bar.value = new_stamina
@@ -409,8 +479,6 @@ func _stop_stamina_blink() -> void:
 		_stamina_blink_tween.kill()
 		_stamina_blink_tween = null
 	_stamina_bar.modulate.a = 1.0
-
-
 
 
 func _enter_dodge() -> void:
@@ -496,6 +564,11 @@ func _on_posture_broken() -> void:
 	_stagger_timer       = STAGGER_DURATION
 	_in_attack_state     = false
 	_dodge_buffered      = false 
+	_in_counter_window   = false
+	_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
+	_deflect_streak          = 0
+	_streak_reset_timer      = 0.0
+	_parry_sound.pitch_scale = 1.0
 	_sprite.modulate     = Color(1.0, 0.3, 0.3)  
 	_feedback.play_stagger_feedback(global_position)
 	if _in_parry_state:
@@ -507,3 +580,33 @@ func _clear_hitbox() -> void:
 	var col := _hitbox.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if col:
 		col.shape = null
+
+func _get_streak_posture_mult() -> float:
+	var levels := mini(_deflect_streak - 1, STREAK_MAX - 1)
+	return COUNTER_POSTURE_MULT + levels * STREAK_POSTURE_PER_LEVEL
+
+func _get_streak_tint() -> Color:
+	match mini(_deflect_streak, STREAK_MAX):
+		1: return Color(1.0, 0.92, 0.60)   
+		2: return Color(1.0, 0.85, 0.40)   
+		3: return Color(1.0, 0.75, 0.20) 
+		_: return Color(1.0, 0.65, 0.10)
+
+func _play_deflect_glow() -> void:
+	if _glow_tween:
+		_glow_tween.kill()
+	var glow_color: Color
+	if _parry_resolver.get_spam_count() >= 2:
+		glow_color = Color(1.0, 0.55, 0.50)
+	else:
+		glow_color = Color(0.80, 0.95, 1.0)
+	_glow_tween = create_tween().set_loops()
+	_glow_tween.tween_property(_sprite, "modulate", glow_color, 0.07)
+	_glow_tween.tween_property(_sprite, "modulate", Color.WHITE,  0.07)
+
+func _stop_deflect_glow() -> void:
+	if _glow_tween:
+		_glow_tween.kill()
+		_glow_tween = null
+	if not _in_counter_window:
+		_sprite.modulate = Color.WHITE
