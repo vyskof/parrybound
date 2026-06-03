@@ -344,10 +344,13 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 				
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
-			stats.stamina += DEFLECT_STAMINA_REWARD
 			_in_counter_window = true
 			_counter_timer     = counter_dur
 			_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG * posture_mult
+			
+			if _glow_tween:
+				_glow_tween.kill()
+				_glow_tween = null
 			
 			_sprite.modulate   = _get_streak_tint()
 			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
@@ -446,8 +449,11 @@ func _tick_counter_window(delta: float) -> void:
 		_in_counter_window = false
 		_counter_timer     = 0.0
 		_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
-		_sprite.modulate   = Color.WHITE
-		
+		if _in_parry_state:
+			_play_deflect_glow()
+		else:
+			_sprite.modulate   = Color.WHITE
+
 
 func _tick_streak_reset(delta: float) -> void:
 	if _deflect_streak == 0:
