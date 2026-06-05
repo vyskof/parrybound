@@ -9,7 +9,7 @@ enum Result {
 @export var deflect_window: float  = 0.18
 @export var spam_decay_time: float  = 2.0
 @export var spam_max_count: int   = 3
-@export var just_frame_window: float = 0.05
+@export var just_frame_window: float = 0.033
 
 var _is_deflect_active: bool = false
 var _is_blocking: bool = false

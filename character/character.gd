@@ -37,7 +37,7 @@ const JUST_FRAME_WINDOW_BONUS   := 0.15
 const STREAK_RESET_TIME         := 2.5    
 const STREAK_MAX                := 4      
 const STREAK_POSTURE_PER_LEVEL  := 0.15   
-const STREAK_PITCH_PER_LEVEL    := 0.08   
+const STREAK_PITCH_PER_LEVEL    := 0.10
 
 const COMBO_PULSE_WINDOW   := 0.15
 const COMBO_ATTACK_SPEED   := 1.15
@@ -74,7 +74,6 @@ var _in_attack_state    := false
 
 var _deflect_streak     : int   = 0
 var _streak_reset_timer : float = 0.0
-var _glow_tween         : Tween = null
 
 var _posture_regen_timer: float = 0.0
 var _is_staggered       : bool  = false
@@ -296,7 +295,6 @@ func _enter_parry() -> void:
 	_in_parry_state = true
 	_parrybox.monitoring = true
 	_parry_resolver.try_start_deflect()
-	_play_deflect_glow()
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_update_blend_positions(Vector2(mouse_dir.x, -mouse_dir.y))
 	_playback.travel("ParryState")
@@ -306,7 +304,6 @@ func _exit_parry() -> void:
 	_in_parry_state = false
 	_parry_resolver.stop_block()
 	_parrybox.monitoring = false
-	_stop_deflect_glow()
 	_playback.start("MoveState", true)
 
 
@@ -348,14 +345,9 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			_counter_timer     = counter_dur
 			_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG * posture_mult
 			
-			if _glow_tween:
-				_glow_tween.kill()
-				_glow_tween = null
-			
-			_sprite.modulate   = _get_streak_tint()
 			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
 			
-			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data)
+			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak, is_just_frame)
 			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
 
 		ParryResolver.Result.BLOCK:
@@ -449,10 +441,6 @@ func _tick_counter_window(delta: float) -> void:
 		_in_counter_window = false
 		_counter_timer     = 0.0
 		_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
-		if _in_parry_state:
-			_play_deflect_glow()
-		else:
-			_sprite.modulate   = Color.WHITE
 
 
 func _tick_streak_reset(delta: float) -> void:
@@ -590,29 +578,3 @@ func _clear_hitbox() -> void:
 func _get_streak_posture_mult() -> float:
 	var levels := mini(_deflect_streak - 1, STREAK_MAX - 1)
 	return COUNTER_POSTURE_MULT + levels * STREAK_POSTURE_PER_LEVEL
-
-func _get_streak_tint() -> Color:
-	match mini(_deflect_streak, STREAK_MAX):
-		1: return Color(1.0, 0.92, 0.60)   
-		2: return Color(1.0, 0.85, 0.40)   
-		3: return Color(1.0, 0.75, 0.20) 
-		_: return Color(1.0, 0.65, 0.10)
-
-func _play_deflect_glow() -> void:
-	if _glow_tween:
-		_glow_tween.kill()
-	var glow_color: Color
-	if _parry_resolver.get_spam_count() >= 2:
-		glow_color = Color(1.0, 0.55, 0.50)
-	else:
-		glow_color = Color(0.80, 0.95, 1.0)
-	_glow_tween = create_tween().set_loops()
-	_glow_tween.tween_property(_sprite, "modulate", glow_color, 0.07)
-	_glow_tween.tween_property(_sprite, "modulate", Color.WHITE,  0.07)
-
-func _stop_deflect_glow() -> void:
-	if _glow_tween:
-		_glow_tween.kill()
-		_glow_tween = null
-	if not _in_counter_window:
-		_sprite.modulate = Color.WHITE

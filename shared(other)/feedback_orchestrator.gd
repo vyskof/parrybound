@@ -20,15 +20,20 @@ class_name FeedbackOrchestrator extends Node
 func play_parry_feedback(
 	result: ParryResolver.Result,
 	position: Vector2,
-	combat_data: CombatData = null
+	combat_data: CombatData = null,
+	streak: int = 1,
+	is_just_frame: bool = false
 ) -> void:
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.10
 	match result:
 		ParryResolver.Result.DEFLECT:
 			_spawn_vfx(perfect_parry_vfx, position)
-			_spawn_vfx(deflect_sparks_vfx, position)
+			_spawn_deflect_sparks(position, streak, is_just_frame)
 			_play_sfx(perfect_parry_sfx, 0.10)
-			camera.shake(0.5)
+			var shake_mag := 0.3 + (mini(streak, 4) - 1) * 0.3
+			if is_just_frame:
+				shake_mag = 1.6
+			camera.shake(shake_mag)
 			hitstop.freeze(hitstop_dur)
 		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
@@ -85,6 +90,48 @@ func _play_sfx(
 			pitch_variation
 		)
 	player.play()
+
+func _spawn_deflect_sparks(pos: Vector2, streak: int, is_just_frame: bool) -> void:
+	if not deflect_sparks_vfx:
+		return
+	if is_just_frame:
+		var e1 := deflect_sparks_vfx.instantiate()
+		e1.global_position = pos
+		get_tree().current_scene.add_child(e1)
+		e1.init(Color(0.9, 1.0, 1.0), 2.5, 1.2)
+		
+		var e2 := deflect_sparks_vfx.instantiate()
+		e2.global_position = pos
+		get_tree().current_scene.add_child(e2)
+		e2.init(Color(1.0, 0.992, 0.959, 1.0), 1.2, 0.9) 
+		return
+		
+	var color: Color
+	var amount_mult: float
+	var size_mult: float
+	match mini(streak, 4):
+		1:
+			color       = Color(1.0, 0.90, 0.6)
+			amount_mult = 1.0  
+			size_mult   = 1.0
+		2:
+			color       = Color(1.0, 0.85, 0.5)
+			amount_mult = 1.4
+			size_mult   = 1.03
+		3:
+			color       = Color(1.0, 0.80, 0.4)
+			amount_mult = 1.8
+			size_mult   = 1.06
+		_:
+			color       = Color(1.0, 0.75, 0.3)
+			amount_mult = 2.2
+			size_mult   = 1.09
+	
+	var effect := deflect_sparks_vfx.instantiate()
+	effect.global_position = pos
+	get_tree().current_scene.add_child(effect)
+	effect.init(color, amount_mult, size_mult)
+
 
 func _ready() -> void:
 	if not hitstop:
