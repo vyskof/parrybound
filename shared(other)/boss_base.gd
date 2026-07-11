@@ -16,6 +16,8 @@ var _posture_regen_timer: float = 0.0
 var _player: Node2D
 var _is_dead: bool = false 
 
+var _posture_bar: Node
+
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	stats.health = stats.max_health
@@ -26,6 +28,7 @@ func _ready() -> void:
 	_hurtbox.hurt.connect(_on_hurt)
 	set_physics_process(false)
 	_on_boss_ready()
+	_posture_bar = get_node_or_null("UI/TexturePostureBar")
 
 func _on_boss_ready() -> void:
 	pass
@@ -33,9 +36,10 @@ func _on_boss_ready() -> void:
 func _physics_process(delta: float) -> void:
 	if direction.length() > 33.0:
 		velocity = direction.normalized() * 60.0
-	velocity = velocity.move_toward(Vector2.ZERO, 300.0 * delta)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, 300.0 * delta)
 	if velocity.length() > 1.0:
-		move_and_collide(velocity * delta)
+		move_and_slide()
 
 func _process(delta: float) -> void:
 	if _is_dead:
@@ -57,7 +61,16 @@ func receive_parry(posture_dmg: float) -> void:
 
 func _interrupt_current_action() -> void:
 	set_physics_process(false)
-	await get_tree().create_timer(0.20, true, false, true).timeout
+	if not has_node("InterruptTimer"):
+		var timer := Timer.new()
+		timer.name = "InterruptTimer"
+		timer.one_shot = true
+		timer.wait_time = 0.20
+		timer.timeout.connect(_on_interrupt_timeout)
+		add_child(timer)
+	$InterruptTimer.start()
+
+func _on_interrupt_timeout() -> void:
 	if not _is_dead:
 		set_physics_process(true)
 
@@ -65,13 +78,15 @@ func _interrupt_current_action() -> void:
 func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 	if _is_dead:
 		return
+	var raw_dmg: float
 	if combat_data:
-		stats.health -= combat_data.damage
+		raw_dmg = combat_data.damage
 		stats.posture += combat_data.posture_damage
 	else:
-		stats.health  -= hitbox.damage if hitbox else 10.0
+		raw_dmg = hitbox.damage if hitbox else 10.0
 		stats.posture += 5.0
-	
+
+	stats.health -= _calculate_damage(raw_dmg, combat_data, hitbox)
 	_posture_regen_timer = 0.0
 	_on_boss_hit(combat_data)
 
@@ -108,12 +123,13 @@ func _tick_posture_regen(delta: float) -> void:
 	
 	if _posture_regen_timer >= posture_regen_delay:
 		stats.posture = maxf(0.0, stats.posture - posture_regen_speed * delta)
-	
-	var posture_bar := get_node_or_null("UI/TexturePostureBar")
-	if posture_bar:
-		posture_bar.value = stats.posture
+	if _posture_bar:
+		_posture_bar.value = stats.posture
 
 func _update_direction() -> void:
 	if not is_instance_valid(_player):
 		return
 	direction = _player.global_position - global_position
+
+func _calculate_damage(raw_damage: float, _combat_data: CombatData = null, _hitbox: Hitbox = null) -> float:
+	return raw_damage

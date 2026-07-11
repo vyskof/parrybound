@@ -1,14 +1,5 @@
 extends State
 
-var can_transition: bool = false
-
-func enter():
+func enter() -> void:
 	super.enter()
-	animation_player.play("armor_buff")
-	await animation_player.animation_finished
-	can_transition = true
-
-func transition():
-	if can_transition:
-		can_transition = false
-		get_parent().change_state("Follow")
+	await_and_transition("armor_buff", "Follow")

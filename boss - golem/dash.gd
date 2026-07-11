@@ -1,19 +1,12 @@
 extends State
 
-var can_transition: bool = false
-
-func enter():
+func enter() -> void:
 	super.enter()
 	animation_player.play("glowing")
-	await dash()
-	can_transition = true
+	await _dash()
+	get_parent().change_state("Follow")
 
-func dash():
-	var tween = create_tween()
+func _dash() -> void:
+	var tween: Tween = create_tween()
 	tween.tween_property(owner, "position", character.position, 0.8)
 	await tween.finished
-
-func transition():
-	if can_transition:
-		can_transition = false
-		get_parent().change_state("Follow")

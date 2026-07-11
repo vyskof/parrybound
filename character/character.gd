@@ -182,10 +182,10 @@ func _physics_process(delta: float) -> void:
 
 
 	if _knockback_lock > 0.0:
-			_knockback_lock -= delta
-			velocity = _knockback_velocity
-			move_and_slide()
-			return
+		_knockback_lock -= delta
+		velocity = _knockback_velocity
+		move_and_slide()
+		return
 
 	if _is_staggered:
 		velocity = _knockback_velocity
@@ -530,11 +530,16 @@ func _flash_red() -> void:
 	if not _is_staggered:
 		_sprite.modulate = Color.WHITE
 
+var _invincibility_count: int = 0
 
 func _start_invincibility(duration: float) -> void:
 	is_invincible = true
+	_invincibility_count += 1
 	await get_tree().create_timer(duration, true, false, true).timeout
-	is_invincible = false
+	_invincibility_count -= 1
+	if _invincibility_count <=0:
+		_invincibility_count = 0
+		is_invincible = false
 
 func _on_health_changed(new_health: float) -> void:
 	_health_bar.value = new_health

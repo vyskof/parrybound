@@ -1,4 +1,4 @@
-extends CanvasLayer
+class_name DeathScreen extends CanvasLayer
 
 func _ready() -> void:
 	get_tree().paused = true

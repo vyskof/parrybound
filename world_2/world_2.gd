@@ -1,4 +1,4 @@
-extends Node2D
+class_name World2 extends Node2D
 
 
 @export var portal_scene: PackedScene

@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="2_6fvac"]
 [ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://shared(other)/stats.gd" id="2_8m5rn"]
 [ext_resource type="Texture2D" uid="uid://cblpr4rbnvlem" path="res://assets/weapon PNG/Laser_sheet.png" id="2_j32wa"]
-[ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://boss - Reaper/finite_state_machine.gd" id="5_4887p"]
+[ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://shared(other)/finite_state_machine.gd" id="5_4887p"]
 [ext_resource type="Script" uid="uid://7n21d5hci74m" path="res://boss - golem/idle.gd" id="6_52ikx"]
 [ext_resource type="AudioStream" uid="uid://c3nlq3tajxroq" path="res://sounds/sapan4-gothic-choir-dark-epic-choral-atmosphere-404794.mp3" id="6_507lb"]
 [ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="6_lg7cf"]

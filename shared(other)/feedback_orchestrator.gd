@@ -73,10 +73,9 @@ func _spawn_vfx(scene: PackedScene, pos: Vector2) -> void:
 	var effect := scene.instantiate()
 	if not effect:
 		return
-	else:
-		if effect is Node2D:
-			effect.global_position = pos
-		get_tree().current_scene.add_child(effect)
+	if effect is Node2D:
+		effect.global_position = pos
+	get_tree().current_scene.add_child(effect)
 
 func _play_sfx(
 	player: AudioStreamPlayer,
@@ -95,42 +94,27 @@ func _spawn_deflect_sparks(pos: Vector2, streak: int, is_just_frame: bool) -> vo
 	if not deflect_sparks_vfx:
 		return
 	if is_just_frame:
-		var e1 := deflect_sparks_vfx.instantiate()
-		e1.global_position = pos
-		get_tree().current_scene.add_child(e1)
-		e1.init(Color(0.9, 1.0, 1.0), 2.5, 1.2)
-		
-		var e2 := deflect_sparks_vfx.instantiate()
-		e2.global_position = pos
-		get_tree().current_scene.add_child(e2)
-		e2.init(Color(1.0, 0.992, 0.959, 1.0), 1.2, 0.9) 
+		_spawn_single_spark(pos, Color(0.9, 1.0, 1.0), 2.5, 1.2)
+		_spawn_single_spark(pos, Color(1.0, 0.992, 0.959), 1.2, 0.9)
 		return
-		
-	var color: Color
-	var amount_mult: float
-	var size_mult: float
-	match mini(streak, 4):
-		1:
-			color       = Color(1.0, 0.90, 0.6)
-			amount_mult = 1.0  
-			size_mult   = 1.0
-		2:
-			color       = Color(1.0, 0.85, 0.5)
-			amount_mult = 1.4
-			size_mult   = 1.03
-		3:
-			color       = Color(1.0, 0.80, 0.4)
-			amount_mult = 1.8
-			size_mult   = 1.06
-		_:
-			color       = Color(1.0, 0.75, 0.3)
-			amount_mult = 2.2
-			size_mult   = 1.09
 	
+	var cfg := _get_streak_config(streak)
+	_spawn_single_spark(pos, cfg.color, cfg.amount_mult, cfg.size_mult)
+
+
+func _spawn_single_spark(pos: Vector2, color: Color, amount_mult: float, size_mult: float) -> void:
 	var effect := deflect_sparks_vfx.instantiate()
 	effect.global_position = pos
 	get_tree().current_scene.add_child(effect)
 	effect.init(color, amount_mult, size_mult)
+
+
+func _get_streak_config(streak: int) -> Dictionary:
+	match mini(streak, 4):
+		1: return {"color": Color(1.0, 0.90, 0.6), "amount_mult": 1.0, "size_mult": 1.0}
+		2: return {"color": Color(1.0, 0.85, 0.5), "amount_mult": 1.4, "size_mult": 1.03}
+		3: return {"color": Color(1.0, 0.80, 0.4), "amount_mult": 1.8, "size_mult": 1.06}
+		_: return {"color": Color(1.0, 0.75, 0.3), "amount_mult": 2.2, "size_mult": 1.09}
 
 
 func _ready() -> void:

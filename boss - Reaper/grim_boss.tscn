@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://b7rhga4gl817x" path="res://assets/Undead executioner/Undead executioner puppet/png/skill1.png" id="4_lfy3k"]
 [ext_resource type="Texture2D" uid="uid://cvec0dqwfhuot" path="res://assets/Undead executioner/Undead executioner puppet/png/summon.png" id="5_f6yd4"]
 [ext_resource type="Texture2D" uid="uid://ct1j8qg1q1h8o" path="res://assets/Undead executioner/Undead executioner puppet/png/idle2.png" id="6_8i8u5"]
-[ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://boss - Reaper/finite_state_machine.gd" id="6_p45h1"]
+[ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://shared(other)/finite_state_machine.gd" id="6_p45h1"]
 [ext_resource type="Script" uid="uid://rnm7r0wh8xje" path="res://boss - Reaper/idle.gd" id="7_lfy3k"]
 [ext_resource type="Script" uid="uid://whkuseby2ynm" path="res://boss - Reaper/follow.gd" id="8_f6yd4"]
 [ext_resource type="AudioStream" uid="uid://7tb3vtm4xtrx" path="res://sounds/luis_humanoide-temple-of-the-dark-side-cinematic-dark-choral-music-219925.mp3" id="9_f7dme"]
@@ -311,7 +311,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_a1fgc")
 }],
-"loop": true,
+"loop": 1,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -337,7 +337,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_77tp1")
 }],
-"loop": true,
+"loop": 1,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -399,7 +399,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_v3noo")
 }],
-"loop": true,
+"loop": 1,
 "name": &"death",
 "speed": 8.0
 }, {
@@ -416,7 +416,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_bredg")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 6.0
 }, {
@@ -433,7 +433,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_m1ymd")
 }],
-"loop": false,
+"loop": 0,
 "name": &"phase_2",
 "speed": 10.0
 }, {
@@ -474,7 +474,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_f8alx")
 }],
-"loop": true,
+"loop": 1,
 "name": &"skill",
 "speed": 10.0
 }, {
@@ -503,7 +503,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_qnlel")
 }],
-"loop": false,
+"loop": 0,
 "name": &"stagger",
 "speed": 8.0
 }, {
@@ -523,7 +523,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_uudxd")
 }],
-"loop": true,
+"loop": 1,
 "name": &"summon",
 "speed": 8.0
 }]

@@ -1,4 +1,4 @@
-extends Control
+class_name MainMenu extends Control
 
 @onready var continue_button: Button = $VBoxContainer/ContinueButton
 @onready var new_game_button: Button = $VBoxContainer/NewGameButton

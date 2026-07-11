@@ -192,13 +192,17 @@ func apply_save_to_player(player: Node) -> void:
 	if player.stats:
 		player.stats.max_health = p.get("max_health", 100)
 		player.stats.health     = p.get("health",     player.stats.max_health)
+		player.stats.max_posture = p.get("max_posture", 100.0)  
+		player.stats.max_posture = p.get("max_posture", 100.0)  
+		
 
 func _capture_player_state() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player and player.stats:
 		save_data["player"]["health"]      = player.stats.health
 		save_data["player"]["max_health"]  = player.stats.max_health
-		# Sem přidej další stats podle potřeby
+		save_data["player"]["posture"]     = player.stats.posture  
+		save_data["player"]["max_posture"] = player.stats.max_posture
 
 func _on_node_added(node: Node) -> void:
 	# Hráč se přidal do scény – aplikuj save data

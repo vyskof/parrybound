@@ -23,6 +23,8 @@ func try_start_deflect() -> void:
 	_is_deflect_active = true
 	_is_blocking = true
 	_deflect_timer = 0.0
+	_spam_count = 0
+	_spam_decay_timer = 0.0
 
 
 func start_block() -> void:

@@ -1,4 +1,6 @@
-extends Node2D
+
+
+class_name World1 extends Node2D
 
 @export var portal_scene: PackedScene
 @onready var portal_spawn_point: Node2D = $PortalSpawnPoint

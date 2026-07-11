@@ -1,4 +1,4 @@
-extends CanvasLayer
+class_name PauseMenu extends CanvasLayer
 
 func _ready() -> void:
 	Engine.time_scale = 1.0
