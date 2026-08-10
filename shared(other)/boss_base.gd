@@ -19,12 +19,15 @@ var _is_dead: bool = false
 var _posture_bar: Node
 
 @onready var _visual: Node2D = find_child("*Sprite2D", true, false)
+@onready var _posture_arc: Node = get_node_or_null("PostureArc")
 
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	stats.health = stats.max_health
 	stats.posture  = 0.0 
 	stats.posture_broken.connect(_on_posture_broken)
+	stats.posture_changed.connect(_update_posture_lean)
+	stats.posture_changed.connect(_update_posture_arc)
 	stats.health_changed.connect(_on_health_changed)
 	stats.no_health.connect(_on_no_health)
 	_hurtbox.hurt.connect(_on_hurt)
@@ -112,6 +115,8 @@ func _on_no_health() -> void:
 	var posture_bar := get_node_or_null("UI/TexturePostureBar")
 	if hp_bar: hp_bar.visible = false
 	if posture_bar: posture_bar.visible = false
+	if _posture_arc and _posture_arc.has_method("set_posture_ratio"):
+		_posture_arc.set_posture_ratio(0.0)
 	_state_machine.change_state("Death")
 	GameManager.mark_boss_defeated(boss_id)
 	GameManager.save_to_slot()
@@ -143,3 +148,9 @@ func _update_posture_lean(new_posture: float) -> void:
 	var lean_angle: float = deg_to_rad(6.0) * ratio
 	var tween := create_tween()
 	tween.tween_property(_visual, "rotation", lean_angle, 0.25).set_trans(Tween.TRANS_SINE)
+
+func _update_posture_arc(new_posture: float) -> void:
+	if not _posture_arc or not _posture_arc.has_method("set_posture_ratio"):
+		return
+	_posture_arc.set_posture_ratio(new_posture / float(stats.max_posture))
+	

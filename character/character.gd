@@ -640,3 +640,6 @@ func lock_for_intro(duration: float) -> void:
 	_is_intro_locked = true
 	await get_tree().create_timer(duration, true, false, true).timeout
 	_is_intro_locked = false
+
+func skip_intro_lock() -> void:
+	_is_intro_locked = false

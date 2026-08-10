@@ -53,6 +53,7 @@ func _default_save(slot: int) -> Dictionary:
 			"current_scene":  "res://world.tscn",
 			"spawn_point":    "default",       # jméno Node2D spawn markeru ve scéně
 			"defeated_bosses": [],             # ["grim_reaper", "golem", ...]
+			"seen_intros":    [],              # # ["grim_reaper", "golem", ...] — boss intro cutscéna se přehraje jen jednou
 			"unlocked_portals": [],            # pro budoucí použití
 			"visited_areas":   []              # pro budoucí mapy / fast travel
 		},
@@ -179,6 +180,19 @@ func mark_boss_defeated(boss_id: String) -> void:
 
 func is_boss_defeated(boss_id: String) -> bool:
 	return boss_id in save_data["world"].get("defeated_bosses", [])
+
+func mark_intro_seen(boss_id: String) -> void:
+	if not save_data.has("world"):
+		return
+	var seen: Array = save_data["world"].get("seen_intros", [])
+	if boss_id not in seen:
+		seen.append(boss_id)
+		save_data["world"]["seen_intros"] = seen
+
+func has_seen_intro(boss_id: String) -> bool:
+	if not save_data.has("world"):
+		return false
+	return boss_id in save_data["world"].get("seen_intros", [])
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Aplikace save dat na entitiy po načtení scény

@@ -24,7 +24,7 @@ func _on_player_detection_body_entered(_body: Node2D) -> void:
 	_play_intro()
 
 func _play_intro() -> void:
-	await EncounterDirector.play_intro(owner, BOSS_DISPLAY_NAME)
+	await EncounterDirector.play_intro(owner, BOSS_DISPLAY_NAME, owner.boss_id)
 	_boss_active = true
 
 func transition():

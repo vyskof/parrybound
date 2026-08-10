@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://uk453iijft5b"]
+
+[ext_resource type="Script" uid="uid://djv6w3ctcq1d6" path="res://effects/posture_arc.gd" id="1_b41ps"]
+
+[node name="PostureArc" type="Node2D" unique_id=1874882248]
+script = ExtResource("1_b41ps")
