@@ -6,6 +6,8 @@ extends State
 @onready var texture_posture_bar = owner.get_node("UI/TexturePostureBar")
 
 
+const BOSS_DISPLAY_NAME := "Stone Golem"
+
 var character_entered: bool = false:
 	set(value):
 		character_entered = value
@@ -13,11 +15,18 @@ var character_entered: bool = false:
 		texture_progress_bar.set_deferred("visible", value)
 		texture_posture_bar.set_deferred("visible", value)
 
+var _boss_active: bool = false
 
 
 func _on_player_detection_body_entered(_body: Node2D) -> void:
 	character_entered = true 
 	audio_stream_player_2d.play()
+	_play_intro()
+
+func _play_intro() -> void:
+	await EncounterDirector.play_intro(owner, BOSS_DISPLAY_NAME)
+	_boss_active = true
+
 func transition():
-	if character_entered:
+	if _boss_active:
 		get_parent().change_state("Follow")

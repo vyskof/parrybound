@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 GameManager="*uid://dj4bch0b7a7ug"
+EncounterDirector="*uid://bckr700ke087w"
 
 [display]
 

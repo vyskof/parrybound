@@ -1,7 +1,10 @@
 class_name CombatData extends Resource
 
+enum PerilousType { NONE, SWEEP, THRUST, GRAB }
+
 @export var damage: float = 10.0
 @export var posture_damage: float = 8.0
+@export var perilous_type: PerilousType = PerilousType.NONE
 
 @export var parry_posture_reward: float = 35.0
 @export var guard_posture_reward: float = 12.0

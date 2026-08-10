@@ -26,6 +26,11 @@ const DODGE_CANCEL_STAMINA_MULT := 1.3
 
 const ATTACK_STAMINA_COST  := 15.0
 
+const REGAIN_RATIO             := 0.5    
+const REGAIN_DECAY_DELAY       := 1.0    
+const REGAIN_DECAY_RATE        := 15.0   
+const POSTURE_RECOVERY_ON_HIT  := 4.0    
+
 const COUNTER_WINDOW_DURATION  := 0.30
 const COUNTER_POSTURE_MULT     := 1.5
 const BASE_ATTACK_POSTURE_DMG  := 10.0
@@ -80,12 +85,15 @@ var _is_staggered       : bool  = false
 var _stagger_timer      : float = 0.0
 
 var _combo_pulse_timer  : float = 0.0
+var _regain_pool: float = 0.0
+var _regain_decay_timer: float = 0.0
 var _attack_buffered    : bool  = false
 var _was_in_attack      : bool  = false
 var _parry_buffered     : bool = false
 var _dodge_buffered     : bool = false
 
 var _attack_just_started: bool = false
+var _is_intro_locked: bool = false
 
 var _in_counter_window  : bool  = false
 var _counter_timer      : float = 0.0
@@ -103,6 +111,7 @@ var _counter_timer      : float = 0.0
 @onready var _parry_cooldown   : Timer                = $ParryCooldownTimer
 @onready var _hitbox           : Hitbox               = $Hitbox
 @onready var _parry_sound      : AudioStreamPlayer    = $ParrySound
+@onready var _regain_bar       : TextureProgressBar   = $CanvasLayer/RegainBar
 
 
 
@@ -121,6 +130,9 @@ func _ready() -> void:
 	_health_bar.max_value  = stats.max_health
 	_posture_bar.max_value = float(stats.max_posture)
 	_posture_bar.value     = 0.0
+	
+	_regain_bar.max_value = stats.max_health
+	_regain_bar.value     = stats.health
 
 	_stamina_bar.max_value = stats.max_stamina
 	_stamina_bar.value     = stats.max_stamina
@@ -132,6 +144,7 @@ func _ready() -> void:
 	stats.posture_broken.connect(_on_posture_broken)
 
 	_hurtbox.hurt.connect(_on_hurt)
+	_hitbox.hit_landed.connect(_on_own_hitbox_landed)
 	_parrybox.parried.connect(_on_parrybox_parried)
 	_parrybox.monitoring = false
 
@@ -144,6 +157,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # ─── Main loop ────────────────────────────────────────────────────────────────
 func _physics_process(delta: float) -> void:
+	if _is_intro_locked:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	_parry_resolver.tick(delta)
 	_tick_posture_regen(delta)
 	_tick_knockback(delta)
@@ -153,6 +170,7 @@ func _physics_process(delta: float) -> void:
 	_tick_combo_pulse(delta)
 	_tick_counter_window(delta)
 	_tick_streak_reset(delta)
+	_tick_regain(delta)
 
 	if _was_in_attack and not _attack_just_started and _playback.get_current_node() == "MoveState":
 		_in_attack_state = false
@@ -311,6 +329,7 @@ func take_hit_raw(damage: float, inv_duration: float = 0.5) -> void:
 	if is_invincible:
 		return
 	stats.health -= damage
+	_add_regain_pool(damage)
 	_feedback.play_hit_feedback(global_position)
 	if not _is_staggered:
 		_flash_red()
@@ -356,14 +375,13 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			_posture_regen_timer = 0.0
 			_feedback.play_parry_feedback(ParryResolver.Result.BLOCK, global_position, combat_data)
 			_apply_parry_pushback(hitbox, BLOCK_PUSHBACK)
+			_flash_posture_bar()
 
 		ParryResolver.Result.NONE:
-			_deflect_streak          = 0
-			_streak_reset_timer      = 0.0
-			_parry_sound.pitch_scale = 1.0
 			var dmg  := combat_data.damage          if combat_data else (hitbox.damage if hitbox else 10.0)
 			var pdmg := combat_data.posture_damage   if combat_data else 5.0
 			stats.health  -= dmg
+			_add_regain_pool(dmg)
 			stats.posture += pdmg
 			_posture_regen_timer = 0.0
 			if hitbox and combat_data and combat_data.knockback_force > 0.0:
@@ -543,6 +561,7 @@ func _start_invincibility(duration: float) -> void:
 
 func _on_health_changed(new_health: float) -> void:
 	_health_bar.value = new_health
+	_update_regain_bar()
 
 
 func _on_posture_changed(new_posture: float) -> void:
@@ -583,3 +602,41 @@ func _clear_hitbox() -> void:
 func _get_streak_posture_mult() -> float:
 	var levels := mini(_deflect_streak - 1, STREAK_MAX - 1)
 	return COUNTER_POSTURE_MULT + levels * STREAK_POSTURE_PER_LEVEL
+
+func _tick_regain(delta: float) -> void:
+	if _regain_pool <= 0.0:
+		return
+	_regain_decay_timer += delta
+	if _regain_decay_timer >= REGAIN_DECAY_DELAY:
+		_regain_pool = maxf(0.0, _regain_pool - REGAIN_DECAY_RATE * delta)
+	_update_regain_bar()
+
+func _add_regain_pool(damage_taken: float) -> void:
+	var missing_hp := stats.max_health - stats.health
+	_regain_pool = minf(_regain_pool + damage_taken * REGAIN_RATIO, missing_hp)
+	_regain_decay_timer = 0.0
+	_update_regain_bar()
+
+func _update_regain_bar() -> void:
+	_regain_pool = minf(_regain_pool, stats.max_health - stats.health)
+	_regain_bar.value = stats.health + _regain_pool
+
+func _on_own_hitbox_landed(_target: Node) -> void:
+	if _regain_pool > 0.0:
+		var heal := minf(_regain_pool, stats.max_health - stats.health)
+		stats.health += heal 
+		_regain_pool -= heal
+		_update_regain_bar()
+
+	stats.posture = maxf(0.0, stats.posture - POSTURE_RECOVERY_ON_HIT)
+	_posture_regen_timer = 0.0
+
+func _flash_posture_bar() -> void:
+	var tween := create_tween()
+	tween.tween_property(_posture_bar, "modulate", Color(1.6, 1.6, 1.6, 1.0), 0.05)
+	tween.tween_property(_posture_bar, "modulate", Color.WHITE, 0.15)
+
+func lock_for_intro(duration: float) -> void:
+	_is_intro_locked = true
+	await get_tree().create_timer(duration, true, false, true).timeout
+	_is_intro_locked = false

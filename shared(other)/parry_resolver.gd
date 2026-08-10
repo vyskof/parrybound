@@ -56,8 +56,10 @@ func get_current_deflect_window() -> float:
 
 
 func evaluate(combat_data: CombatData) -> Result:
+	if combat_data and combat_data.is_unblockable:
+		return Result.NONE   
+
 	if _is_deflect_active:
-		_last_just_frame  = _deflect_timer < just_frame_window
 		_spam_count       = 0  
 		_spam_decay_timer = 0.0
 		_is_deflect_active = false

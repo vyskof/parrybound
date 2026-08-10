@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://c0ohfv2fqecmn"]
+
+[node name="RegainBar" type="CanvasLayer" unique_id=813139974]
+
+[node name="RegainBar" type="TextureProgressBar" parent="." unique_id=1153956799]
+offset_right = 40.0
+offset_bottom = 40.0

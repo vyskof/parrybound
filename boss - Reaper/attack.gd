@@ -3,6 +3,12 @@ extends State
 var is_active: bool = false
 @onready var hitbox: Hitbox = owner.find_child("Hitbox")
 
+const PerilousWarning := preload("res://effects/perilous_warning.tscn")
+const PERILOUS_CHANCE            := 0.25
+const PERILOUS_CHANCE_PHASE_TWO  := 0.4
+
+var _current_warning: Node2D = null
+
 func enter() -> void:
 	super.enter()
 	is_active = true
@@ -15,6 +21,7 @@ func exit() -> void:
 	is_active = false
 	owner.set_physics_process(false)
 	hitbox.clear_hit_targets()
+	_clear_perilous_state()
 
 func _setup_hitbox() -> void:
 	if hitbox.combat_data:
@@ -25,10 +32,16 @@ func _setup_hitbox() -> void:
 		hitbox.damage = 20.0
 
 
-func attack(move: String = "1") -> void:
+func attack(move: String = "1", perilous: bool = false) -> void:
+	if perilous:
+		_begin_perilous_telegraph()
+
 	animation_player.speed_scale = 1.5 if owner.phase_two else 1.0
 	animation_player.play("attack_" + move)
 	await animation_player.animation_finished
+
+	if perilous:
+		_clear_perilous_state()
 
 func combo() -> void:
 	while is_active:
@@ -40,7 +53,9 @@ func combo() -> void:
 		for move in move_set:
 			if not is_active:
 				return
-			await attack(move)
+			var chance := PERILOUS_CHANCE_PHASE_TWO if owner.phase_two else PERILOUS_CHANCE
+			var is_perilous := move == "2" and randf() < chance
+			await attack(move, is_perilous)
 
 		var wait = randf_range(0.4, 0.9) if not owner.phase_two else randf_range(0.2, 0.4)
 		await get_tree().create_timer(wait).timeout
@@ -49,5 +64,25 @@ func combo() -> void:
 			get_parent().change_state("Follow")
 			return
 
+func _begin_perilous_telegraph() -> void:
+	if hitbox.combat_data:
+		hitbox.combat_data.is_unblockable = true
+		hitbox.combat_data.perilous_type  = CombatData.PerilousType.SWEEP
+		hitbox.combat_data.posture_damage = 0.0   # perilous se neřeší postureou — buď uhneš, nebo tě to sejme naplno
+
+	_current_warning = PerilousWarning.instantiate()
+	owner.add_child(_current_warning)
+	_current_warning.position = Vector2(0, -70)
+
+func _clear_perilous_state() -> void:
+	if hitbox.combat_data:
+		hitbox.combat_data.is_unblockable = false
+		hitbox.combat_data.perilous_type  = CombatData.PerilousType.NONE
+		hitbox.combat_data.posture_damage = 15.0   # vrátit hodnotu ze _setup_hitbox
+
+	if is_instance_valid(_current_warning):
+		_current_warning.queue_free()
+		_current_warning = null
+
 func transition():
-	pass  
+	pass

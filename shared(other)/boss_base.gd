@@ -18,6 +18,8 @@ var _is_dead: bool = false
 
 var _posture_bar: Node
 
+@onready var _visual: Node2D = find_child("*Sprite2D", true, false)
+
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	stats.health = stats.max_health
@@ -133,3 +135,11 @@ func _update_direction() -> void:
 
 func _calculate_damage(raw_damage: float, _combat_data: CombatData = null, _hitbox: Hitbox = null) -> float:
 	return raw_damage
+
+func _update_posture_lean(new_posture: float) -> void:
+	if not _visual or _is_dead:
+		return
+	var ratio: float = clampf(new_posture / float(stats.max_posture), 0.0, 1.0)
+	var lean_angle: float = deg_to_rad(6.0) * ratio
+	var tween := create_tween()
+	tween.tween_property(_visual, "rotation", lean_angle, 0.25).set_trans(Tween.TRANS_SINE)

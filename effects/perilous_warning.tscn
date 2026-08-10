@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://273swuay5sqd"]
+
+[ext_resource type="FontFile" uid="uid://mxvcxy5fq0jh" path="res://assets/Fool.ttf" id="1_bp0kq"]
+[ext_resource type="Script" uid="uid://dpiw0v5ntiyk1" path="res://effects/perilous_warning.gd" id="1_lcb41"]
+
+[node name="PerilousWarning" type="Node2D" unique_id=2142329673]
+script = ExtResource("1_lcb41")
+
+[node name="Label" type="Label" parent="." unique_id=1312677577]
+offset_right = 40.0
+offset_bottom = 14.0
+pivot_offset = Vector2(-8, -22)
+pivot_offset_ratio = Vector2(8, -8)
+theme_override_colors/font_color = Color(1, 0.13, 0.13, 1)
+theme_override_fonts/font = ExtResource("1_bp0kq")
+theme_override_font_sizes/font_size = 16
+text = "!"

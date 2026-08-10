@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bor8scg0wpjer"]
+
+[ext_resource type="Script" uid="uid://c3q21yg7pmqfd" path="res://effects/boss_intro_label.gd" id="1_qcmsa"]
+
+[node name="BossIntroLabel" type="CanvasLayer" unique_id=177343724]
+layer = 5
+script = ExtResource("1_qcmsa")
+
+[node name="Label" type="Label" parent="." unique_id=1528130545]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -131.0
+offset_top = -27.0
+offset_right = 131.0
+offset_bottom = 27.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+text = "					"
+horizontal_alignment = 1
