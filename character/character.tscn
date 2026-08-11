@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://drlwx5o8mnovc" path="res://effects/deflect_sparks_effect.tscn" id="21_5s0vb"]
 [ext_resource type="AudioStream" uid="uid://b3eccn8m8h1v" path="res://sounds/Sword Attacks Hits and Blocks/Sword Impact Hit 2.ogg" id="22_wlm6a"]
 [ext_resource type="AudioStream" uid="uid://cxa0mygme8w1b" path="res://sounds/Sword Attacks Hits and Blocks/Sword Attack 1.ogg" id="23_c0nog"]
+[ext_resource type="PackedScene" uid="uid://der1v3g6q8juy" path="res://effects/blood_spray_effect.tscn" id="23_kxp0i"]
 
 [sub_resource type="Resource" id="Resource_0qfo5"]
 script = ExtResource("2_px5sl")
@@ -897,9 +898,8 @@ metadata/_custom_type_script = "uid://dn7fpdy4vo7uu"
 script = ExtResource("13_sm1rv")
 metadata/_custom_type_script = "uid://bqx8amkujimip"
 
-[node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("hitstop", "camera", "perfect_parry_sfx", "guard_sfx", "hit_sfx")]
+[node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("camera", "perfect_parry_sfx", "guard_sfx", "hit_sfx")]
 script = ExtResource("14_jx0ln")
-hitstop = NodePath("../HitstopController")
 camera = NodePath("../Camera2D")
 perfect_parry_vfx = ExtResource("15_lpiy1")
 guard_vfx = ExtResource("17_mbhnd")
@@ -910,6 +910,7 @@ perfect_parry_sfx = NodePath("../ParrySound")
 guard_sfx = NodePath("../GuardSound")
 hit_sfx = NodePath("../HitSound")
 deflect_sparks_vfx = ExtResource("21_5s0vb")
+blood_spray_vfx = ExtResource("23_kxp0i")
 metadata/_custom_type_script = "uid://ehwimwsn5hcr"
 
 [node name="GuardSound" type="AudioStreamPlayer" parent="." unique_id=569990498]

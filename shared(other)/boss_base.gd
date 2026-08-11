@@ -80,9 +80,13 @@ func _on_interrupt_timeout() -> void:
 		set_physics_process(true)
 
 
+const BloodSprayEffect := preload("res://effects/blood_spray_effect.tscn")
+
 func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 	if _is_dead:
 		return
+
+
 	var raw_dmg: float
 	if combat_data:
 		raw_dmg = combat_data.damage
@@ -93,7 +97,19 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 
 	stats.health -= _calculate_damage(raw_dmg, combat_data, hitbox)
 	_posture_regen_timer = 0.0
+	_spawn_blood_spray(hitbox)
 	_on_boss_hit(combat_data)
+
+func _spawn_blood_spray(hitbox: Hitbox, amount_mult: float = 1.0) -> void:
+	if not is_instance_valid(hitbox) or not is_instance_valid(hitbox.owner):
+		return
+	var dir = global_position - hitbox.owner.global_position
+	if dir == Vector2.ZERO:
+		dir = Vector2.UP
+	var spray := BloodSprayEffect.instantiate()
+	get_parent().add_child(spray)
+	spray.global_position = global_position
+	spray.init(dir, amount_mult)
 
 func _on_boss_hit(_combat_data: CombatData) -> void:
 	pass

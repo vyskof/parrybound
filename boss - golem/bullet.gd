@@ -29,12 +29,16 @@ func _on_parried(_combat_data: CombatData, _hitbox: Hitbox) -> void:
 	queue_free()
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		body.take_hit_raw(damage)
-		queue_free()
-
+	_deal_damage_to_player(body)
 
 func _on_area_entered(area: Area2D) -> void:
-	if area is Hurtbox and area.get_parent().is_in_group("player"):
-		area.get_parent().take_hit_raw(damage)
-		queue_free()
+	if area is Hurtbox:
+		_deal_damage_to_player(area.get_parent())
+
+func _deal_damage_to_player(target: Node) -> void:
+	if not is_instance_valid(target) or not target.is_in_group("player"):
+		return
+	if target.has_method("take_hit_raw"):
+		target.take_hit_raw(damage)
+	set_physics_process(false)
+	queue_free()

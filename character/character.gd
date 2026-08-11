@@ -22,6 +22,11 @@ const STAMINA_REGEN_RATE   := 40.0
 const STAMINA_REGEN_DELAY  := 1.0     
 const DODGE_COOLDOWN       := 0.25
 
+const MICRO_DODGE_DISTANCE     := 25.0
+const MICRO_DODGE_DURATION     := 0.10
+const MICRO_DODGE_STAMINA_COST := 8.0
+const MICRO_DODGE_COOLDOWN     := 0.5
+
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
 const ATTACK_STAMINA_COST  := 15.0
@@ -47,6 +52,9 @@ const STREAK_PITCH_PER_LEVEL    := 0.10
 const COMBO_PULSE_WINDOW   := 0.15
 const COMBO_ATTACK_SPEED   := 1.15
 
+const RIPOSTE_ATTACK_SPEED   := 1.4
+const RIPOSTE_LUNGE_DISTANCE := 14.0
+
 const AFTERIMAGE_INTERVAL := 0.05
 const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
 
@@ -63,6 +71,11 @@ var _is_dodging        := false
 var _dodge_direction   := Vector2.ZERO
 var _stamina_regen_timer : float = 0.0
 var _dodge_cooldown_timer : float = 0.0
+
+var _is_micro_dodging: bool = false
+var _micro_dodge_direction: Vector2 = Vector2.ZERO
+var _micro_dodge_timer: float = 0.0
+var _micro_dodge_cooldown_timer: float = 0.0
 
 var _stamina_blink_tween: Tween = null
 
@@ -167,6 +180,7 @@ func _physics_process(delta: float) -> void:
 	_tick_stagger(delta)
 	_tick_stamina_regen(delta)
 	_tick_dodge_cooldown(delta)
+	_tick_micro_dodge_cooldown(delta)
 	_tick_combo_pulse(delta)
 	_tick_counter_window(delta)
 	_tick_streak_reset(delta)
@@ -193,6 +207,15 @@ func _physics_process(delta: float) -> void:
 	_was_in_attack = _in_attack_state
 
 
+	if _is_micro_dodging:
+		_micro_dodge_timer -= delta
+		velocity = _micro_dodge_direction * (MICRO_DODGE_DISTANCE / MICRO_DODGE_DURATION) + _knockback_velocity
+		move_and_slide()
+		if _micro_dodge_timer <= 0.0:
+			_is_micro_dodging = false
+		return
+
+
 	if _is_dodging:
 		velocity = _dodge_direction * DODGE_SPEED + _knockback_velocity
 		move_and_slide()
@@ -217,7 +240,6 @@ func _physics_process(delta: float) -> void:
 	else:
 		_process_move(delta)
 
-# ─── State processors ─────────────────────────────────────────────────────────
 func _process_move(_delta: float) -> void:
 	input_vector = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 
@@ -270,6 +292,9 @@ func _process_attack() -> void:
 func _process_parry() -> void:
 	_parrybox.monitoring = _parry_resolver.is_deflect_active()
 
+	if Input.is_action_just_pressed("dodge") and _try_micro_dodge():
+		return
+
 	if Input.is_action_pressed("parry"):
 		_parry_resolver.start_block()
 	else:
@@ -294,16 +319,30 @@ func _enter_attack() -> void:
 	stats.stamina -= ATTACK_STAMINA_COST
 	_stamina_regen_timer = 0.0
 	_attack_buffered = false
-	
-	var speed := COMBO_ATTACK_SPEED if _combo_pulse_timer > 0.0 else 1.0
+
+	var is_riposte := _in_counter_window
+	var speed := RIPOSTE_ATTACK_SPEED if is_riposte else (COMBO_ATTACK_SPEED if _combo_pulse_timer > 0.0 else 1.0)
 	_animation_tree.set("parameters/TimeScale/scale", speed)
-	
+
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_animation_tree.set(
 		"parameters/StateMachine/AttackState/blend_position",
 		Vector2(mouse_dir.x, -mouse_dir.y)
 	)
 	_playback.travel("AttackState")
+
+	if is_riposte:
+		_play_riposte_lunge(mouse_dir)
+
+func _play_riposte_lunge(dir: Vector2) -> void:
+	var target := global_position + dir * RIPOSTE_LUNGE_DISTANCE
+	var tween := create_tween()
+	tween.tween_property(self, "global_position", target, 0.1)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+	var flash := create_tween()
+	flash.tween_property(_sprite, "modulate", Color(1.4, 1.4, 1.0, 1.0), 0.05)
+	flash.tween_property(_sprite, "modulate", Color.WHITE, 0.15)
 
 
 func _enter_parry() -> void:
@@ -366,6 +405,7 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			
 			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
 			
+			
 			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak, is_just_frame)
 			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
 
@@ -386,7 +426,8 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			_posture_regen_timer = 0.0
 			if hitbox and combat_data and combat_data.knockback_force > 0.0:
 				_apply_knockback(hitbox, combat_data)
-			_feedback.play_hit_feedback(global_position, combat_data)
+			var attacker_pos = hitbox.owner.global_position if hitbox and is_instance_valid(hitbox.owner) else Vector2.ZERO
+			_feedback.play_hit_feedback(global_position, combat_data, attacker_pos)
 			if not _is_staggered:
 				_flash_red()
 			_start_invincibility(0.5)
@@ -520,6 +561,26 @@ func _enter_dodge() -> void:
 func _tick_dodge_cooldown(delta: float) -> void:
 	if _dodge_cooldown_timer > 0.0:
 		_dodge_cooldown_timer -= delta
+
+func _try_micro_dodge() -> bool:
+	if _is_micro_dodging or _micro_dodge_cooldown_timer > 0.0:
+		return false
+	if stats.stamina < MICRO_DODGE_STAMINA_COST:
+		return false
+
+	stats.stamina -= MICRO_DODGE_STAMINA_COST
+	_stamina_regen_timer = 0.0
+	_micro_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
+	_micro_dodge_timer = MICRO_DODGE_DURATION
+	_micro_dodge_cooldown_timer = MICRO_DODGE_COOLDOWN
+	_is_micro_dodging = true
+	return true
+
+func _tick_micro_dodge_cooldown(delta: float) -> void:
+	if _micro_dodge_cooldown_timer > 0.0:
+		_micro_dodge_cooldown_timer -= delta
+
+
 
 func _make_parry_animations_loop() -> void:
 	var lib := _animation_player.get_animation_library("")

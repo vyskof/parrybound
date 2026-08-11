@@ -1,6 +1,5 @@
 class_name FeedbackOrchestrator extends Node
 
-@export var hitstop: HitstopController
 @export var camera: Camera2D
 
 @export var perfect_parry_vfx: PackedScene
@@ -14,7 +13,7 @@ class_name FeedbackOrchestrator extends Node
 @export var hit_sfx: AudioStreamPlayer
 
 @export var deflect_sparks_vfx: PackedScene
-
+@export var blood_spray_vfx: PackedScene
 
 
 func play_parry_feedback(
@@ -34,27 +33,42 @@ func play_parry_feedback(
 			if is_just_frame:
 				shake_mag = 1.6
 			camera.shake(shake_mag)
-			hitstop.freeze(hitstop_dur)
+			Hitstop.freeze(hitstop_dur)
 		ParryResolver.Result.BLOCK:
 			_spawn_vfx(guard_vfx, position)
 			_play_sfx(guard_sfx, 0.5)
-			hitstop.freeze(hitstop_dur * 0.5)
+			Hitstop.freeze(hitstop_dur * 0.5)
 		_:
 			pass
 
-func play_hit_feedback(position: Vector2, combat_data: CombatData = null) -> void:
-	_spawn_vfx(boss_hit_vfx, position)
+func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source_position: Vector2 = Vector2.ZERO) -> void:
+	_spawn_vfx(player_hit_vfx, position)
+	_spawn_blood_spray(position, source_position)
 	_play_sfx(hit_sfx)
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.08
-	hitstop.freeze(hitstop_dur)
+	Hitstop.freeze(hitstop_dur)
 	camera.shake(1.0)
+
+func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void:
+	if not blood_spray_vfx:
+		return
+	var dir := Vector2.UP
+	if source_position != Vector2.ZERO:
+		dir = hit_position - source_position
+		if dir == Vector2.ZERO:
+			dir = Vector2.UP
+	var spray := blood_spray_vfx.instantiate()
+	get_tree().current_scene.add_child(spray)
+	spray.global_position = hit_position
+	if spray.has_method("init"):
+		spray.init(dir)
 
 
 
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
 	camera.shake(2.2)
-	hitstop.freeze(0.22)
+	Hitstop.freeze(0.22)
 
 func play_boss_parried_feedback(
 	result: ParryResolver.Result,
@@ -118,7 +132,5 @@ func _get_streak_config(streak: int) -> Dictionary:
 
 
 func _ready() -> void:
-	if not hitstop:
-		push_warning("FeedbackOrchestrator na '%s': chybí HitstopController!" % get_parent().name)
 	if not camera:
 		push_warning("FeedbackOrchestrator na '%s': chybí Camera2D!" % get_parent().name)
