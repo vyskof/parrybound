@@ -21,6 +21,7 @@ Hitstop="*uid://bqx8amkujimip"
 EncounterDirector="*uid://bckr700ke087w"
 VignetteOverlay="*uid://dx8g46erl34p7"
 ChromaticAberration="*uid://51g7y0j1movw"
+DamageVignette="*uid://g3n2j64oroke"
 
 [display]
 

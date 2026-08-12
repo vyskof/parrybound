@@ -55,6 +55,8 @@ const COMBO_ATTACK_SPEED   := 1.15
 const RIPOSTE_ATTACK_SPEED   := 1.4
 const RIPOSTE_LUNGE_DISTANCE := 14.0
 
+const LOW_HEALTH_RATIO    := 0.20
+
 const AFTERIMAGE_INTERVAL := 0.05
 const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
 
@@ -111,6 +113,7 @@ var _dodge_buffered     : bool = false
 
 var _attack_just_started: bool = false
 var _attack_sequence_id: int = 0
+var _low_health_active: bool = false
 
 var _is_intro_locked: bool = false
 
@@ -378,6 +381,7 @@ func take_hit_raw(damage: float, inv_duration: float = 0.5) -> void:
 		return
 	stats.health -= damage
 	_add_regain_pool(damage)
+	_pulse_damage_vignette(damage)
 	_feedback.play_hit_feedback(global_position)
 	if not _is_staggered:
 		_flash_red()
@@ -431,6 +435,7 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			var pdmg := combat_data.posture_damage   if combat_data else 5.0
 			stats.health  -= dmg
 			_add_regain_pool(dmg)
+			_pulse_damage_vignette(dmg)
 			stats.posture += pdmg
 			_posture_regen_timer = 0.0
 			if hitbox and combat_data and combat_data.knockback_force > 0.0:
@@ -637,6 +642,7 @@ func _start_invincibility(duration: float) -> void:
 func _on_health_changed(new_health: float) -> void:
 	_health_bar.value = new_health
 	_update_regain_bar()
+	_update_low_health_vignette(new_health)
 
 
 func _on_posture_changed(new_posture: float) -> void:
@@ -644,10 +650,27 @@ func _on_posture_changed(new_posture: float) -> void:
 
 
 func _on_no_health() -> void:
+	DamageVignette.stop_low_health_pulse()
 	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
 	hide()
 	remove_from_group("player")
 	get_tree().root.add_child(SCENE_DEATH.instantiate())
+
+
+func _pulse_damage_vignette(damage_amount: float) -> void:
+	var ratio := clampf(damage_amount / stats.max_health, 0.0, 1.0)
+	var intensity := clampf(0.15 + ratio * 1.2, 0.15, 0.85)
+	DamageVignette.pulse(intensity)
+
+func _update_low_health_vignette(new_health: float) -> void:
+	var is_low := new_health > 0.0 and new_health <= stats.max_health * LOW_HEALTH_RATIO
+	if is_low == _low_health_active:
+		return
+	_low_health_active = is_low
+	if is_low:
+		DamageVignette.start_low_health_pulse()
+	else:
+		DamageVignette.stop_low_health_pulse()
 
 
 func _on_posture_broken() -> void:

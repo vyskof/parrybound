@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://g3n2j64oroke"]
+
+[ext_resource type="Script" uid="uid://cfibpon0erl4s" path="res://effects/damage_vignette_overlay.gd" id="1_s6uqo"]
+[ext_resource type="Shader" uid="uid://bi3jcmh420hnb" path="res://effects/vignette.gdshader" id="2_tvlsc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_s6uqo"]
+shader = ExtResource("2_tvlsc")
+shader_parameter/intensity = 0.0
+shader_parameter/radius = 1.10000004899012
+shader_parameter/softness = 0.90000004205148
+shader_parameter/vignette_color = Color(0.46963003, 0.012920001, 0.012920001, 1)
+
+[node name="DamageVignetteLayer" type="CanvasLayer" unique_id=15221576]
+layer = 3
+script = ExtResource("1_s6uqo")
+
+[node name="Rect" type="ColorRect" parent="." unique_id=1076679529]
+material = SubResource("ShaderMaterial_s6uqo")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

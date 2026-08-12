@@ -62,8 +62,3 @@ func _spawn_effect(scene: PackedScene, pos: Vector2) -> void:
 	var effect := scene.instantiate() as Node2D
 	get_parent().add_child(effect)
 	effect.global_position = pos
-
-func _on_posture_broken() -> void:
-	stats.posture        = 0.0
-	_posture_regen_timer = 0.0
-	_state_machine.change_state("Stagger")

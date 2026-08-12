@@ -125,7 +125,11 @@ func _on_posture_broken() -> void:
 	stats.posture = 0.0
 	_posture_regen_timer = 0.0
 	_apply_posture_break_knockback()
+	_on_boss_staggered()
 	_state_machine.change_state("Stagger")
+
+func _on_boss_staggered() -> void:
+	pass  # vec pro boss-specifický vizuál při staggeru (vlastní sprite burst atd.)
 
 func _apply_posture_break_knockback() -> void:
 	if not is_instance_valid(_player):
