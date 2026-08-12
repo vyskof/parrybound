@@ -56,11 +56,7 @@ func _play_armor_break_feedback() -> void:
 	if cam and cam.has_method("shake"):
 		cam.shake(2.0)
 
-	if _visual:
-		var tween := create_tween()
-		tween.tween_property(_visual, "scale", Vector2(1.2, 0.8), 0.1).set_trans(Tween.TRANS_SINE)
-		tween.tween_property(_visual, "scale", Vector2.ONE, 0.3)\
-			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	VisualFX.squash_stretch(_visual, Vector2(1.2, 0.8), 0.1, 0.3)
 
 func _spawn_effect(scene: PackedScene, pos: Vector2) -> void:
 	var effect := scene.instantiate() as Node2D

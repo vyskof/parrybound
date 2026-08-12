@@ -119,10 +119,22 @@ func _on_health_changed(new_health: float) -> void:
 	if bar:
 		bar.value = float(new_health)
 
+var is_vulnerable: bool = false   
+
 func _on_posture_broken() -> void:
 	stats.posture = 0.0
 	_posture_regen_timer = 0.0
+	_apply_posture_break_knockback()
 	_state_machine.change_state("Stagger")
+
+func _apply_posture_break_knockback() -> void:
+	if not is_instance_valid(_player):
+		return
+	var push_dir := (global_position - _player.global_position).normalized()
+	var target := global_position + push_dir * 20.0
+	var tween := create_tween()
+	tween.tween_property(self, "global_position", target, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
 
 func _on_no_health() -> void:
 	_is_dead = true

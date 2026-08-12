@@ -664,9 +664,14 @@ func _on_posture_broken() -> void:
 	_parry_sound.pitch_scale = 1.0
 	_sprite.modulate     = Color(1.0, 0.3, 0.3)  
 	_feedback.play_stagger_feedback(global_position)
+	_play_knockdown_squash()
 	if _in_parry_state:
 		_exit_parry()
 	_playback.start("MoveState", true)
+
+func _play_knockdown_squash() -> void:
+	VisualFX.squash_stretch(_sprite)
+
 
 func _clear_hitbox() -> void:
 	_hitbox.clear_hit_targets()
