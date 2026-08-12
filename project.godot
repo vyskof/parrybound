@@ -17,9 +17,10 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 GameManager="*uid://dj4bch0b7a7ug"
+Hitstop="*uid://bqx8amkujimip"
 EncounterDirector="*uid://bckr700ke087w"
 VignetteOverlay="*uid://dx8g46erl34p7"
-Hitstop="*uid://bqx8amkujimip"
+ChromaticAberration="*uid://51g7y0j1movw"
 
 [display]
 

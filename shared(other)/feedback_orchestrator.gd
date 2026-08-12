@@ -48,6 +48,7 @@ func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.08
 	Hitstop.freeze(hitstop_dur)
 	camera.shake(1.0)
+	ChromaticAberration.pulse(0.006, 0.22)
 
 func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void:
 	if not blood_spray_vfx:
@@ -68,6 +69,7 @@ func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
 	camera.shake(2.2)
+	ChromaticAberration.pulse(0.014, 0.35)
 	Hitstop.freeze(0.22)
 
 func play_boss_parried_feedback(

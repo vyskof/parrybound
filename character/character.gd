@@ -29,7 +29,7 @@ const MICRO_DODGE_COOLDOWN     := 0.5
 
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
-const ATTACK_STAMINA_COST  := 15.0
+const ATTACK_STAMINA_COST      := 15.0
 
 const REGAIN_RATIO             := 0.5    
 const REGAIN_DECAY_DELAY       := 1.0    
@@ -57,6 +57,10 @@ const RIPOSTE_LUNGE_DISTANCE := 14.0
 
 const AFTERIMAGE_INTERVAL := 0.05
 const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
+
+const ATTACK_TRAIL_TINT     := Color(1.0, 0.95, 0.75, 0.55)
+const ATTACK_TRAIL_INTERVAL := 0.05
+const ATTACK_TRAIL_FADE     := 0.16
 
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
@@ -106,6 +110,8 @@ var _parry_buffered     : bool = false
 var _dodge_buffered     : bool = false
 
 var _attack_just_started: bool = false
+var _attack_sequence_id: int = 0
+
 var _is_intro_locked: bool = false
 
 var _in_counter_window  : bool  = false
@@ -333,6 +339,9 @@ func _enter_attack() -> void:
 
 	if is_riposte:
 		_play_riposte_lunge(mouse_dir)
+	
+	_attack_sequence_id += 1
+	_spawn_attack_trail(_attack_sequence_id)
 
 func _play_riposte_lunge(dir: Vector2) -> void:
 	var target := global_position + dir * RIPOSTE_LUNGE_DISTANCE
@@ -588,10 +597,15 @@ func _make_parry_animations_loop() -> void:
 		if lib.has_animation(anim_name):
 			lib.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
 
-func _spawn_afterimage() -> void:
+func _spawn_afterimage(tint: Color = Color(0.6, 0.8, 1.0, 0.5), fade_duration: float = 0.1) -> void:
 	var afterimage := AFTERIMAGE_SCENE.instantiate()
-	afterimage.init(_sprite)
+	afterimage.init(_sprite, tint, fade_duration)
 	get_parent().add_child(afterimage)
+
+func _spawn_attack_trail(sequence_id: int) -> void:
+	while _in_attack_state and _attack_sequence_id == sequence_id:
+		_spawn_afterimage(ATTACK_TRAIL_TINT, ATTACK_TRAIL_FADE)
+		await get_tree().create_timer(ATTACK_TRAIL_INTERVAL, true, false, true).timeout
 
 
 func _update_blend_positions(dir: Vector2) -> void:

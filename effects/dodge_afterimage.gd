@@ -1,6 +1,6 @@
 extends Sprite2D
 
-func init(source: Sprite2D) -> void:
+func init(source: Sprite2D, tint: Color = Color(0.6, 0.8, 1.0, 0.5), fade_duration: float = 0.1) -> void:
 	texture  = source.texture
 	hframes  = source.hframes
 	vframes  = source.vframes
@@ -9,9 +9,9 @@ func init(source: Sprite2D) -> void:
 	
 	global_position = source.global_position
 	
-	modulate = Color(0.6, 0.8, 1.0, 0.5)
+	modulate = tint
 	
 	var tween := create_tween()
-	tween.tween_property(self, "modulate:a", 0.0, 0.1)
+	tween.tween_property(self, "modulate:a", 0.0, fade_duration)
 	await tween.finished
 	queue_free()

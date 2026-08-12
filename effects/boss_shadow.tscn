@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cximkd1p0b0kr"]
+
+[ext_resource type="Script" uid="uid://b82j83lajh5j7" path="res://effects/boss_shadow.gd" id="1_8n51f"]
+
+[node name="BossShadow" type="Node2D" unique_id=1430173529]
+script = ExtResource("1_8n51f")

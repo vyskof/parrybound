@@ -22,6 +22,7 @@
 [ext_resource type="Script" uid="uid://51lwt6sbkgnw" path="res://boss - golem/armor_buff.gd" id="14_hkg3k"]
 [ext_resource type="Script" uid="uid://dl2yr6klv3j77" path="res://boss - golem/dash.gd" id="14_telw5"]
 [ext_resource type="Script" uid="uid://ctnu0dd501v7u" path="res://boss - Reaper/stagger.gd" id="17_xorjc"]
+[ext_resource type="PackedScene" uid="uid://cximkd1p0b0kr" path="res://effects/boss_shadow.tscn" id="23_3nkpl"]
 
 [sub_resource type="Resource" id="Resource_bfmki"]
 script = ExtResource("2_8m5rn")
@@ -676,5 +677,9 @@ script = ExtResource("9_f3cm2")
 
 [node name="Stagger" type="Node2D" parent="FiniteStateMachine" unique_id=757790350]
 script = ExtResource("17_xorjc")
+
+[node name="BossShadow" parent="." unique_id=1430173529 instance=ExtResource("23_3nkpl")]
+position = Vector2(-1, 13)
+shadow_size = Vector2(25, 8)
 
 [connection signal="body_entered" from="PlayerDetection" to="FiniteStateMachine/Idle" method="_on_player_detection_body_entered"]

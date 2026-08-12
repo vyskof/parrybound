@@ -1,5 +1,7 @@
 extends Camera2D
 
+var _intro_active: bool = false
+
 func shake(magnitude: float = 0.7) -> void:
 	for i in 8:
 		offset = Vector2(randf_range(-magnitude, magnitude), randf_range(-magnitude, magnitude))
@@ -7,9 +9,20 @@ func shake(magnitude: float = 0.7) -> void:
 	offset = Vector2.ZERO
 
 
+func zoom_pulse(target_zoom: Vector2 = Vector2(0.88, 0.88), duration: float = 0.4) -> void:
+	if _intro_active:
+		return   # boss intro už řídí zoom — nepřepisovat souběžným pulsem
+	var tween := create_tween()
+	tween.tween_property(self, "zoom", target_zoom, duration * 0.3)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "zoom", Vector2.ONE, duration * 0.7)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+
 var _intro_original_position: Vector2 = Vector2.ZERO
 
 func build_boss_intro_tween(boss_position: Vector2, hold_duration: float = 1.2) -> Tween:
+	_intro_active = true
 	_intro_original_position = position
 	var start_global := global_position
 
@@ -44,3 +57,4 @@ func _restore_after_intro() -> void:
 	top_level = false
 	position = _intro_original_position
 	zoom = Vector2.ONE
+	_intro_active = false

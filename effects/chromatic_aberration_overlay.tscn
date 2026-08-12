@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://51g7y0j1movw"]
+
+[ext_resource type="Script" uid="uid://ba8kgm254etky" path="res://effects/chromatic_aberration_overlay.gd" id="1_nlm40"]
+[ext_resource type="Shader" uid="uid://duddjkvx63ue3" path="res://effects/chromatic_aberration.gdshader" id="2_osox0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nlm40"]
+shader = ExtResource("2_osox0")
+shader_parameter/aberration_amount = 0.0
+
+[node name="ChromaticAberrationLayer" type="CanvasLayer" unique_id=1690584731]
+layer = 2
+script = ExtResource("1_nlm40")
+
+[node name="Rect" type="ColorRect" parent="." unique_id=100497428]
+material = SubResource("ShaderMaterial_nlm40")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
