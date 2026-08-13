@@ -166,7 +166,7 @@ func travel_to(scene_path: String, spawn_point: String = "default", should_save:
 	_change_to_scene(scene_path)
 
 func _change_to_scene(path: String) -> void:
-	get_tree().call_deferred("change_scene_to_file", path)
+	LoadingScreen.transition_to(path)
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  World progress

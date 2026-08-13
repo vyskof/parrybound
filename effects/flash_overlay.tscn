@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://4mohl122ehdq"]
+
+[ext_resource type="Script" uid="uid://dddkpck1trvg3" path="res://effects/flash_overlay.gd" id="1_o6awe"]
+
+[node name="FlashLayer" type="CanvasLayer" unique_id=838514605]
+layer = 4
+script = ExtResource("1_o6awe")
+
+[node name="Rect" type="ColorRect" parent="." unique_id=1354060417]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

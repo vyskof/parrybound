@@ -20,6 +20,10 @@ var _posture_bar: Node
 
 @onready var _visual: Node2D = find_child("*Sprite2D", true, false)
 @onready var _posture_arc: Node = get_node_or_null("PostureArc")
+@onready var _boss_ui: CanvasLayer = get_node_or_null("UI")
+
+var _hp_critical_active: bool = false
+var _hp_critical_tween: Tween
 
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
@@ -34,6 +38,7 @@ func _ready() -> void:
 	set_physics_process(false)
 	_on_boss_ready()
 	_posture_bar = get_node_or_null("UI/TexturePostureBar")
+	
 
 func _on_boss_ready() -> void:
 	pass
@@ -119,17 +124,68 @@ func _on_health_changed(new_health: float) -> void:
 	if bar:
 		bar.value = float(new_health)
 
+	_punch_boss_ui()
+	_update_hp_critical_state(new_health, bar)
+
+func _punch_boss_ui() -> void:
+	if not _boss_ui or _is_dead:
+		return
+	var tween := create_tween()
+	tween.tween_property(_boss_ui, "scale", Vector2(1.05, 1.05), 0.06)\
+		.set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_boss_ui, "scale", Vector2.ONE, 0.18)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+func _update_hp_critical_state(new_health: float, bar: TextureProgressBar) -> void:
+	if not bar:
+		return
+	var is_critical := new_health > 0.0 and new_health <= stats.max_health * 0.25
+	if is_critical == _hp_critical_active:
+		return
+	_hp_critical_active = is_critical
+
+	if is_critical:
+		_hp_critical_tween = create_tween().set_loops()
+		_hp_critical_tween.tween_property(bar, "modulate", Color(1.6, 0.5, 0.5, 1.0), 0.35)
+		_hp_critical_tween.tween_property(bar, "modulate", Color.WHITE, 0.35)
+	elif _hp_critical_tween:
+		_hp_critical_tween.kill()
+		_hp_critical_tween = null
+		bar.modulate = Color.WHITE
+
+
 var is_vulnerable: bool = false   
+
+const StaggerImpactSparks := preload("res://effects/deflect_sparks_effect.tscn")
 
 func _on_posture_broken() -> void:
 	stats.posture = 0.0
 	_posture_regen_timer = 0.0
 	_apply_posture_break_knockback()
+	_play_stagger_screen_feedback()
 	_on_boss_staggered()
 	_state_machine.change_state("Stagger")
 
 func _on_boss_staggered() -> void:
-	pass  # vec pro boss-specifický vizuál při staggeru (vlastní sprite burst atd.)
+	pass   # hook pro boss-specifický vizuál při staggeru (vlastní sprite burst atd.)
+
+func _play_stagger_screen_feedback() -> void:
+	var cam := _player.get_node_or_null("Camera2D") if is_instance_valid(_player) else null
+	if cam and cam.has_method("shake"):
+		cam.shake(2.5)
+	if cam and cam.has_method("zoom_pulse"):
+		cam.zoom_pulse(Vector2(0.85, 0.85), 0.4)
+
+	ChromaticAberration.pulse(0.016, 0.4)
+	FlashOverlay.flash(Color(1.0, 0.95, 0.7, 1.0), 0.05, 0.2)
+	Hitstop.freeze(0.22)
+
+	if _visual:
+		var sparks := StaggerImpactSparks.instantiate()
+		get_parent().add_child(sparks)
+		sparks.global_position = _visual.global_position
+		if sparks.has_method("init"):
+			sparks.init(Color(1.0, 0.9, 0.5, 1.0), 0.02, 0.1)
 
 func _apply_posture_break_knockback() -> void:
 	if not is_instance_valid(_player):
@@ -149,6 +205,9 @@ func _on_no_health() -> void:
 	if posture_bar: posture_bar.visible = false
 	if _posture_arc and _posture_arc.has_method("set_posture_ratio"):
 		_posture_arc.set_posture_ratio(0.0)
+	if _hp_critical_tween:
+		_hp_critical_tween.kill()
+		_hp_critical_tween = null
 	_state_machine.change_state("Death")
 	GameManager.mark_boss_defeated(boss_id)
 	GameManager.save_to_slot()
