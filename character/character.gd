@@ -56,6 +56,10 @@ const RIPOSTE_ATTACK_SPEED   := 1.4
 const RIPOSTE_LUNGE_DISTANCE := 14.0
 
 const LOW_HEALTH_RATIO    := 0.20
+const FOOTSTEP_INTERVAL   := 0.34
+
+const TINNITUS_THRESHOLD_RATIO := 0.3
+const TINNITUS_DURATION        := 2.2
 
 const AFTERIMAGE_INTERVAL := 0.05
 const AFTERIMAGE_SCENE    := preload("res://effects/dodge_afterimage.tscn")
@@ -68,6 +72,7 @@ const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 
 @export var stats: Stats
+@export var footstep_sounds: Array[AudioStreamPlayer2D] = []
 
 var input_vector      := Vector2.ZERO
 var last_input_vector := Vector2.DOWN
@@ -84,6 +89,9 @@ var _micro_dodge_timer: float = 0.0
 var _micro_dodge_cooldown_timer: float = 0.0
 
 var _stamina_blink_tween: Tween = null
+
+var _footstep_timer: float = 0.0
+var _tinnitus_active: bool = false
 
 var is_blocking: bool:
 	get: return _parry_resolver != null and _parry_resolver.is_blocking()
@@ -134,7 +142,10 @@ var _counter_timer      : float = 0.0
 @onready var _hitbox           : Hitbox               = $Hitbox
 @onready var _parry_sound      : AudioStreamPlayer    = $ParrySound
 @onready var _regain_bar       : TextureProgressBar   = $CanvasLayer/RegainBar
-
+@onready var _footstep_player  : AudioStreamPlayer2D  = $FootstepSound
+@onready var _heartbeat_player : AudioStreamPlayer    = $HeartbeatSound
+@onready var _breath_player    : AudioStreamPlayer    = $BreathSound
+@onready var _tinnitus_player  : AudioStreamPlayer    = $TinnitusSound
 
 
 var _playback: AnimationNodeStateMachinePlayback
@@ -270,6 +281,7 @@ func _process_move(_delta: float) -> void:
 
 	velocity = input_vector * SPEED + _knockback_velocity
 	move_and_slide()
+	_tick_footsteps(_delta, input_vector.length())
 
 
 func _process_attack() -> void:
@@ -317,6 +329,7 @@ func _process_parry() -> void:
 
 	velocity = input_vector * SPEED_GUARD + _knockback_velocity
 	move_and_slide()
+	_tick_footsteps(get_physics_process_delta_time(), input_vector.length() * 0.6)
 
 func _enter_attack() -> void:
 	if _in_attack_state:
@@ -515,6 +528,19 @@ func _tick_counter_window(delta: float) -> void:
 		_counter_timer     = 0.0
 		_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
 
+func _tick_footsteps(delta: float, moving_ratio: float) -> void:
+	if moving_ratio <= 0.05 or footstep_sounds.is_empty():
+		_footstep_timer = 0.0
+		return
+
+	_footstep_timer -= delta * moving_ratio
+	if _footstep_timer <= 0.0:
+		_footstep_timer = FOOTSTEP_INTERVAL
+		var selected_player = footstep_sounds.pick_random()
+		if selected_player and selected_player.stream:
+			_footstep_player.stream = selected_player.stream
+			_footstep_player.pitch_scale = randf_range(0.92, 1.08)
+			_footstep_player.play()
 
 func _tick_streak_reset(delta: float) -> void:
 	if _deflect_streak == 0:
@@ -531,8 +557,12 @@ func _on_stamina_changed(new_stamina: float) -> void:
 	_stamina_bar.value = new_stamina
 	if new_stamina <= stats.max_stamina * 0.20:
 		_start_stamina_blink()
+		if _breath_player and not _breath_player.playing:
+			_breath_player.play()
 	else:
 		_stop_stamina_blink()
+		if _breath_player and _breath_player.playing:
+			_breath_player.stop()
 
 func _start_stamina_blink() -> void:
 	if _stamina_blink_tween and _stamina_blink_tween.is_running():
@@ -661,6 +691,33 @@ func _pulse_damage_vignette(damage_amount: float) -> void:
 	var ratio := clampf(damage_amount / stats.max_health, 0.0, 1.0)
 	var intensity := clampf(0.15 + ratio * 1.2, 0.15, 0.85)
 	DamageVignette.pulse(intensity)
+	if ratio >= TINNITUS_THRESHOLD_RATIO:
+		_play_tinnitus()
+
+func _play_tinnitus() -> void:
+	if _tinnitus_active or not _tinnitus_player.stream:
+		return
+	_tinnitus_active = true
+
+	var master_bus := AudioServer.get_bus_index("Master")
+	var filter := AudioEffectLowPassFilter.new()
+	filter.cutoff_hz = 700.0
+	AudioServer.add_bus_effect(master_bus, filter)
+	var effect_index := AudioServer.get_bus_effect_count(master_bus) - 1
+
+	_tinnitus_player.play()
+
+	var tween := create_tween()
+	tween.tween_method(
+		func(hz: float): filter.cutoff_hz = hz,
+		700.0, 20000.0, TINNITUS_DURATION
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tween.finished
+
+	AudioServer.remove_bus_effect(master_bus, effect_index)
+	_tinnitus_active = false	
+
+
 
 func _update_low_health_vignette(new_health: float) -> void:
 	var is_low := new_health > 0.0 and new_health <= stats.max_health * LOW_HEALTH_RATIO
@@ -669,8 +726,12 @@ func _update_low_health_vignette(new_health: float) -> void:
 	_low_health_active = is_low
 	if is_low:
 		DamageVignette.start_low_health_pulse()
+		if _heartbeat_player and not _heartbeat_player.playing:
+			_heartbeat_player.play()
 	else:
 		DamageVignette.stop_low_health_pulse()
+		if _heartbeat_player:
+			_heartbeat_player.stop()
 
 
 func _on_posture_broken() -> void:

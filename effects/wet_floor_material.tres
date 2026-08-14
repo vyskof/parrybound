@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://6accymoxmukw"]
+
+[ext_resource type="Shader" uid="uid://dtebp4p2f017y" path="res://effects/wet_floor.gdshader" id="1_nuthy"]
+
+[resource]
+shader = ExtResource("1_nuthy")
+shader_parameter/shine_speed = 0.30000001425
+shader_parameter/shine_strength = 0.050000002375
+shader_parameter/tint_darken = 0.12
+shader_parameter/tint_color = Color(0.55, 0.65, 0.75, 1)

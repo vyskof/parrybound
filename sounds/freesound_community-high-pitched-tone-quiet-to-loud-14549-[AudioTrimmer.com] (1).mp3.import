@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://d23coi14l0dny"
+path="res://.godot/imported/freesound_community-high-pitched-tone-quiet-to-loud-14549-[AudioTrimmer.com] (1).mp3-341c03475d0e2662669d758cc916b78a.mp3str"
+
+[deps]
+
+source_file="res://sounds/freesound_community-high-pitched-tone-quiet-to-loud-14549-[AudioTrimmer.com] (1).mp3"
+dest_files=["res://.godot/imported/freesound_community-high-pitched-tone-quiet-to-loud-14549-[AudioTrimmer.com] (1).mp3-341c03475d0e2662669d758cc916b78a.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -10,6 +10,7 @@ class_name BossBase extends CharacterBody2D
 @onready var _state_machine = $FiniteStateMachine
 
 signal boss_defeated(id: String)
+signal encounter_started
 
 var direction: Vector2
 var _posture_regen_timer: float = 0.0
