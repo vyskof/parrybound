@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://bdigfucfjg6sw" path="res://boss - Reaper/grim_boss.tscn" id="3_tlwt5"]
 [ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_shared/portal.tscn" id="5_036b0"]
 [ext_resource type="PackedScene" uid="uid://b3asmgdavwjrf" path="res://effects/fog_wall.tscn" id="6_dwbse"]
+[ext_resource type="AudioStream" uid="uid://bijo05560esp8" path="res://sounds/soundreality-catacombs-267216.mp3" id="7_gbfbk"]
+[ext_resource type="Script" uid="uid://cuafvyat32e4p" path="res://world_shared/ambient_bed.gd" id="7_pkg7o"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_aqk2v"]
 texture = ExtResource("2_tlwt5")
@@ -3123,6 +3125,11 @@ position = Vector2(154, 40)
 
 [node name="FogWall" parent="." unique_id=652209357 instance=ExtResource("6_dwbse")]
 position = Vector2(154, 41)
+
+[node name="AmbientBed" type="AudioStreamPlayer2D" parent="." unique_id=268268758]
+stream = ExtResource("7_gbfbk")
+volume_db = -12.0
+script = ExtResource("7_pkg7o")
 
 [connection signal="boss_defeated" from="GrimBoss" to="." method="_on_boss_defeated"]
 [connection signal="encounter_started" from="GrimBoss" to="." method="_on_boss_encounter_started"]

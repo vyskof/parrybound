@@ -703,7 +703,6 @@ func _play_tinnitus() -> void:
 	var filter := AudioEffectLowPassFilter.new()
 	filter.cutoff_hz = 700.0
 	AudioServer.add_bus_effect(master_bus, filter)
-	var effect_index := AudioServer.get_bus_effect_count(master_bus) - 1
 
 	_tinnitus_player.play()
 
@@ -714,8 +713,8 @@ func _play_tinnitus() -> void:
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
 
-	AudioServer.remove_bus_effect(master_bus, effect_index)
-	_tinnitus_active = false	
+	AudioBusUtil.remove_effect_safe(master_bus, filter)
+	_tinnitus_active = false
 
 
 

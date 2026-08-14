@@ -8,6 +8,8 @@
 [ext_resource type="Material" uid="uid://6accymoxmukw" path="res://effects/wet_floor_material.tres" id="3_wys1n"]
 [ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_shared/portal.tscn" id="6_mv2s0"]
 [ext_resource type="PackedScene" uid="uid://b3asmgdavwjrf" path="res://effects/fog_wall.tscn" id="8_yuvu5"]
+[ext_resource type="Script" uid="uid://cuafvyat32e4p" path="res://world_shared/ambient_bed.gd" id="9_eiokd"]
+[ext_resource type="AudioStream" uid="uid://b48q2ou861hck" path="res://sounds/storegraphic-soft-wind-477404.mp3" id="9_ngp3s"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ia432"]
 texture = ExtResource("1_3m1hs")
@@ -695,6 +697,10 @@ position = Vector2(160, -30)
 
 [node name="FogWall" parent="." unique_id=652209357 instance=ExtResource("8_yuvu5")]
 position = Vector2(159, -29)
+
+[node name="AmbientBed" type="AudioStreamPlayer2D" parent="." unique_id=551860815]
+stream = ExtResource("9_ngp3s")
+script = ExtResource("9_eiokd")
 
 [connection signal="boss_defeated" from="GolemBoss" to="." method="_on_boss_defeated"]
 [connection signal="encounter_started" from="GolemBoss" to="." method="_on_boss_encounter_started"]
