@@ -51,7 +51,7 @@ func _default_save(slot: int) -> Dictionary:
 		},
 		"world": {
 			"current_scene":  "res://world.tscn",
-			"spawn_point":    "default",       # jméno Node2D spawn markeru ve scéně
+			"spawn_point":    "DefaultSpawn",       # jméno Node2D spawn markeru ve scéně
 			"defeated_bosses": [],             # ["grim_reaper", "golem", ...]
 			"seen_intros":    [],              # # ["grim_reaper", "golem", ...] — boss intro cutscéna se přehraje jen jednou
 			"unlocked_portals": [],            # pro budoucí použití
@@ -276,7 +276,12 @@ func format_play_time(seconds: float) -> String:
 func get_area_display_name(scene_path: String) -> String:
 	var names := {
 		"res://world.tscn":   "Catacombs",
-		"res://world_2.tscn": "Stone Halls"
+		"res://world_2.tscn": "Stone Halls",
+		"res://hub.tscn":     "Sanctuary"
 		# Přidej sem nové mapy
 	}
 	return names.get(scene_path, "Unknown Area")
+
+func get_current_spawn_point() -> String:
+	return save_data.get("world", {}).get("spawn_point", "DefaultSpawn")
+	

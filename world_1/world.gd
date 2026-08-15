@@ -5,6 +5,7 @@ class_name World1 extends Node2D
 @export var reverb_room_size: float = 0.45
 @onready var portal_spawn_point: Node2D = $PortalSpawnPoint
 @onready var grim_boss: CharacterBody2D = $GrimBoss
+@onready var character: CharacterBody2D = $character
 
 var _reverb_effect: AudioEffectReverb
 var _reverb_bus_index: int = -1
@@ -12,6 +13,7 @@ var _reverb_bus_index: int = -1
 
 func _ready() -> void:
 	_apply_arena_reverb()
+	SpawnPointUtil.apply(character, self, GameManager.get_current_spawn_point())
 	if GameManager.is_boss_defeated("grim_reaper"):
 		grim_boss.queue_free()
 		_spawn_portal()
@@ -47,6 +49,9 @@ func _spawn_portal() -> void:
 	if portal_scene == null:
 		return
 	var portal := portal_scene.instantiate()
+	portal.destination_scene = "res://hub.tscn"
+	portal.destination_spawn = "FromWorld1Spawn"
+	portal.portal_id = "portal_world1_reward"
 	add_child(portal)
 	portal.global_position = portal_spawn_point.global_position
 	portal.scale = Vector2.ZERO

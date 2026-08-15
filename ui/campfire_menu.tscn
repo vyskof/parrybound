@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://607y4devi317"]
+
+[ext_resource type="Script" uid="uid://c6b84el6th72u" path="res://ui/campfire_menu.gd" id="1_usipb"]
+
+[node name="CampfireMenu" type="CanvasLayer" unique_id=293438418]
+layer = 10
+script = ExtResource("1_usipb")
+
+[node name="Background" type="ColorRect" parent="." unique_id=87656017]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.4)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=444299643]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer" unique_id=1356175091]
+layout_mode = 2
+text = "Campfire"
+horizontal_alignment = 1
+
+[node name="RestButton" type="Button" parent="VBoxContainer" unique_id=354412529]
+layout_mode = 2
+text = "Rest"
+
+[node name="TravelButton" type="Button" parent="VBoxContainer" unique_id=1261443635]
+layout_mode = 2
+text = "Travel
+"
+
+[node name="CancelButton" type="Button" parent="VBoxContainer" unique_id=1755201868]
+layout_mode = 2
+text = "Leave"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=501539608]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="World1Button" type="Button" parent="VBoxContainer2" unique_id=392325538]
+layout_mode = 2
+text = "Catacombs"
+
+[node name="World2Button" type="Button" parent="VBoxContainer2" unique_id=1991686141]
+layout_mode = 2
+text = "Stone Halls"
+
+[node name="BackButton" type="Button" parent="VBoxContainer2" unique_id=1442162843]
+layout_mode = 2
+text = "Back"

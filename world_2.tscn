@@ -685,12 +685,13 @@ tile_map_data = PackedByteArray("AAD9/w4AAAAYAAYAAAD9/w8AAAAYAAcAAAD9/xAAAAAYAAg
 tile_set = SubResource("TileSet_3m1hs")
 
 [node name="GolemBoss" parent="." unique_id=323223813 instance=ExtResource("3_hlada")]
-position = Vector2(162, 89)
+position = Vector2(160, 89)
 
 [node name="Character" parent="." unique_id=1833139929 instance=ExtResource("1_u5ktm")]
 position = Vector2(161, 210)
 
 [node name="PlayerSpawn" type="Node2D" parent="." unique_id=1003700176]
+position = Vector2(160, -20)
 
 [node name="PortalSpawnPoint" type="Node2D" parent="." unique_id=266567738]
 position = Vector2(160, -30)
@@ -701,6 +702,15 @@ position = Vector2(159, -29)
 [node name="AmbientBed" type="AudioStreamPlayer2D" parent="." unique_id=551860815]
 stream = ExtResource("9_ngp3s")
 script = ExtResource("9_eiokd")
+
+[node name="DefaultSpawn" type="Node2D" parent="." unique_id=312791329]
+position = Vector2(161, 210)
+
+[node name="Portal" parent="." unique_id=936344337 instance=ExtResource("6_mv2s0")]
+position = Vector2(200, 210)
+destination_scene = "res://hub.tscn"
+destination_spawn = "FromWorld2Spawn"
+portal_id = "portal_world2_to_hub"
 
 [connection signal="boss_defeated" from="GolemBoss" to="." method="_on_boss_defeated"]
 [connection signal="encounter_started" from="GolemBoss" to="." method="_on_boss_encounter_started"]

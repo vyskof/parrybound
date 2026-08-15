@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://o5s86wdefo1s"]
+
+[ext_resource type="Script" uid="uid://bbamnmk1r57l0" path="res://hub_world.gd" id="1_ysrp0"]
+[ext_resource type="PackedScene" uid="uid://d0do6ydtqdbnr" path="res://character/character.tscn" id="2_6eldl"]
+[ext_resource type="PackedScene" uid="uid://bxusj8cay2d36" path="res://world_shared/campfire.tscn" id="3_8xurw"]
+[ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_shared/portal.tscn" id="4_n8ovw"]
+
+[node name="Hub" type="Node2D" unique_id=391624103]
+script = ExtResource("1_ysrp0")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=2043150069]
+anchors_preset = -1
+anchor_left = -160.0
+anchor_top = -90.0
+anchor_right = 160.0
+anchor_bottom = 90.0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.5657284, 0.50638646, 0.4366271, 1)
+
+[node name="DefaultSpawn" type="Node2D" parent="." unique_id=1676055927]
+position = Vector2(0, 40)
+
+[node name="FromWorld1Spawn" type="Node2D" parent="." unique_id=1597175289]
+position = Vector2(-60, 0)
+
+[node name="FromWorld2Spawn" type="Node2D" parent="." unique_id=507214958]
+position = Vector2(60, 0)
+
+[node name="character" parent="." unique_id=1833139929 instance=ExtResource("2_6eldl")]
+position = Vector2(0, 40)
+
+[node name="Campfire" parent="." unique_id=1334063282 instance=ExtResource("3_8xurw")]
+position = Vector2(0, -10)
+
+[node name="PortalToWorld1" parent="." unique_id=936344337 instance=ExtResource("4_n8ovw")]
+position = Vector2(-60, 20)
+destination_scene = "res://world.tscn"
+destination_spawn = "FromHubSpawn"
+portal_id = "portal_hub_to_world1"
+
+[node name="PortalToWorld2" parent="." unique_id=1519346330 instance=ExtResource("4_n8ovw")]
+position = Vector2(60, 20)
+destination_spawn = "PlayerSpawn"
+portal_id = "portal_hub_to_world2"
