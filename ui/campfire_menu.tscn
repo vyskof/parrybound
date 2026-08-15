@@ -45,7 +45,7 @@ text = "Travel
 layout_mode = 2
 text = "Leave"
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=501539608]
+[node name="TravelList" type="VBoxContainer" parent="." unique_id=501539608]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -58,14 +58,17 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="World1Button" type="Button" parent="VBoxContainer2" unique_id=392325538]
+[node name="World1Button" type="Button" parent="TravelList" unique_id=392325538]
 layout_mode = 2
 text = "Catacombs"
 
-[node name="World2Button" type="Button" parent="VBoxContainer2" unique_id=1991686141]
+[node name="World2Button" type="Button" parent="TravelList" unique_id=1991686141]
 layout_mode = 2
 text = "Stone Halls"
 
-[node name="BackButton" type="Button" parent="VBoxContainer2" unique_id=1442162843]
+[node name="BackButton" type="Button" parent="TravelList" unique_id=1442162843]
 layout_mode = 2
 text = "Back"
+
+[node name="BuildButton" type="Button" parent="TravelList" unique_id=534798036]
+layout_mode = 2

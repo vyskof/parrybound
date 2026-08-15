@@ -1,30 +1,100 @@
 [gd_scene format=3 uid="uid://bxusj8cay2d36"]
 
 [ext_resource type="Script" uid="uid://5rnx7u02h8cl" path="res://world_shared/campfire.gd" id="1_hks2d"]
+[ext_resource type="Texture2D" uid="uid://crb0gqfkeuvbf" path="res://save_world tile_sets/campfire-sheet.png" id="2_0k1sx"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nb6vr"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(0, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uhojc"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(32, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6yb4i"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(64, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jtl03"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(96, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4fqnc"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(128, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l154y"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(160, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nh461"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(192, 0, 32, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_56u2r"]
+atlas = ExtResource("2_0k1sx")
+region = Rect2(224, 0, 32, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hks2d"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nb6vr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uhojc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6yb4i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jtl03")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4fqnc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l154y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nh461")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_56u2r")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yf5fn"]
+radius = 9.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_g4v7s"]
 radius = 18.0
 
 [node name="Campfire" type="Area2D" unique_id=1334063282]
-collision_layer = 0
 collision_mask = 3
 script = ExtResource("1_hks2d")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=814316091]
-shape = SubResource("CircleShape2D_g4v7s")
+[node name="CampfireAnimation" type="AnimatedSprite2D" parent="." unique_id=1615774475]
+sprite_frames = SubResource("SpriteFrames_hks2d")
+autoplay = "default"
+frame_progress = 0.009716174
 
-[node name="Placeholder" type="ColorRect" parent="." unique_id=1154652336]
-offset_left = -4.0
-offset_top = -4.0
-offset_right = 4.0
-offset_bottom = 4.0
-color = Color(0.9551545, 0.734698, 0.3491902, 1)
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="." unique_id=1708500601]
+position = Vector2(-1, 13)
+shape = SubResource("CircleShape2D_yf5fn")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=814316091]
+position = Vector2(-1, 11)
+shape = SubResource("CircleShape2D_g4v7s")
 
 [node name="Label" type="Label" parent="." unique_id=587621947]
 offset_left = -14.0
-offset_top = -24.0
+offset_top = -5.0
 offset_right = 14.0
-offset_bottom = -10.0
+offset_bottom = 9.0
 theme_override_font_sizes/font_size = 3
 text = "[ E ] Rest"
 horizontal_alignment = 1
