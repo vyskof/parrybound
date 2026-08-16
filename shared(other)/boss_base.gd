@@ -4,6 +4,7 @@ class_name BossBase extends CharacterBody2D
 @export var posture_regen_delay : float = 2.0
 @export var posture_regen_speed : float = 20.0
 @export var boss_id: String = "unnamed_boss"
+@export var souls_reward: int = 150
 
 
 @onready var _hurtbox: Hurtbox = $Hurtbox
@@ -211,6 +212,9 @@ func _on_no_health() -> void:
 		_hp_critical_tween = null
 	_state_machine.change_state("Death")
 	GameManager.mark_boss_defeated(boss_id)
+	GameManager.add_souls(souls_reward)
+	GameManager.add_attribute_point()
+	GameManager.unlock_talent_for_boss(boss_id)
 	GameManager.save_to_slot()
 	boss_defeated.emit(boss_id)
 

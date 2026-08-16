@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://c2jq7hj87mhhr"]
+
+[ext_resource type="Script" uid="uid://dh688futo4oey" path="res://ui/shop_menu.gd" id="1_6evd7"]
+
+[node name="ShopMenu" type="CanvasLayer" unique_id=1255273272]
+layer = 10
+script = ExtResource("1_6evd7")
+
+[node name="Background" type="ColorRect" parent="." unique_id=2110681170]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2027826710]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -90.0
+offset_top = -50.0
+offset_right = 90.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SoulsLabel" type="Label" parent="VBoxContainer" unique_id=2007633975]
+layout_mode = 2
+
+[node name="ItemList" type="VBoxContainer" parent="VBoxContainer" unique_id=1072553170]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="VBoxContainer" unique_id=915474810]
+layout_mode = 2

@@ -41,6 +41,10 @@ layout_mode = 2
 text = "Travel
 "
 
+[node name="BuildButton" type="Button" parent="VBoxContainer" unique_id=418497194]
+layout_mode = 2
+text = "Build"
+
 [node name="CancelButton" type="Button" parent="VBoxContainer" unique_id=1755201868]
 layout_mode = 2
 text = "Leave"

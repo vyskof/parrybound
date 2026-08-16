@@ -10,6 +10,10 @@
 [ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_shared/portal.tscn" id="4_n8ovw"]
 [ext_resource type="Texture2D" uid="uid://cu5cbi6pml2f0" path="res://save_world tile_sets/Resurrected RPG 1.1/Plants.png" id="6_c2sye"]
 [ext_resource type="Texture2D" uid="uid://c25q6iftoq243" path="res://save_world tile_sets/Resurrected RPG 1.1/PlantShadow.png" id="7_vgunc"]
+[ext_resource type="AudioStream" uid="uid://bylm25lvhdf6" path="res://sounds/sounovamusic-zen-garden-411267.mp3" id="11_0is01"]
+[ext_resource type="Script" uid="uid://6mbe8bh0lbs0" path="res://ambient_bed.gd" id="11_h1qs5"]
+[ext_resource type="PackedScene" uid="uid://ctbl5jcrmstnx" path="res://world_shared/training_dummy.tscn" id="13_c2sye"]
+[ext_resource type="PackedScene" uid="uid://bgmwwj1r6xlxj" path="res://world_shared/merchant.tscn" id="14_vgunc"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vxfsn"]
 texture = ExtResource("2_h1qs5")
@@ -7127,3 +7131,14 @@ portal_id = "portal_hub_to_world1"
 position = Vector2(60, 20)
 destination_spawn = "PlayerSpawn"
 portal_id = "portal_hub_to_world2"
+
+[node name="AmbientBed" type="AudioStreamPlayer2D" parent="." unique_id=1305789895]
+stream = ExtResource("11_0is01")
+volume_db = -10.0
+script = ExtResource("11_h1qs5")
+
+[node name="TrainingDummy" parent="." unique_id=1450162436 instance=ExtResource("13_c2sye")]
+position = Vector2(131, 17)
+
+[node name="Merchant" parent="." unique_id=587024383 instance=ExtResource("14_vgunc")]
+position = Vector2(114, 73)

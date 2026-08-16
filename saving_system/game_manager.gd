@@ -68,7 +68,8 @@ func _default_player() -> Dictionary:
 		"health":     100,
 		"max_health": 100,
 		"posture":    0.0,
-		"max_posture": 100.0 
+		"max_posture": 100.0,
+		"max_stamina": 150.0
 		}
 
 
@@ -94,7 +95,10 @@ func _default_progression() -> Dictionary:
 			"dexterity":  10
 			# "intelligence": 10  ← snadno přidáš
 		},
-		"talents": []  # ["parry_master", "swift_roll", ...]
+		"attribute_points": 0,
+		"unlocked_talents": [],  # ["reapers_resolve", "stone_resolve", ...]
+		"equipped_talents": [],  # max MAX_EQUIPPED_TALENTS aktivních najednou
+		"shop_purchases": {}  # {"vigor_shard": 2, "focus_shard": 1, ...}
 	}
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -181,6 +185,91 @@ func mark_boss_defeated(boss_id: String) -> void:
 func is_boss_defeated(boss_id: String) -> bool:
 	return boss_id in save_data["world"].get("defeated_bosses", [])
 
+signal souls_changed(new_amount: int)
+
+func add_souls(amount: int) -> void:
+	if amount <= 0 or not save_data.has("progression"):
+		return
+	save_data["progression"]["souls"] = get_souls() + amount
+	souls_changed.emit(get_souls())
+
+func spend_souls(amount: int) -> bool:
+	if amount <= 0 or not save_data.has("progression"):
+		return false
+	if get_souls() < amount:
+		return false
+	save_data["progression"]["souls"] = get_souls() - amount
+	souls_changed.emit(get_souls())
+	return true
+
+func get_souls() -> int:
+	return save_data.get("progression", {}).get("souls", 0)
+
+
+# TALENTYYYYYYYYYYYYYYYYYYYYYY 
+
+const MAX_EQUIPPED_TALENTS := 3
+
+const TALENT_DEFS := {
+	"grim_reaper": {"id": "reapers_resolve", "name": "Reaper's Resolve", "desc": "+20% stamina restored on deflect"},
+	"golem":       {"id": "stone_resolve",   "name": "Stone Resolve",   "desc": "-15% posture gained from blocking"},
+}
+
+func unlock_talent_for_boss(boss_id: String) -> void:
+	if not TALENT_DEFS.has(boss_id) or not save_data.has("progression"):
+		return
+	var talent_id: String = TALENT_DEFS[boss_id].id
+	var unlocked := get_unlocked_talents()
+	if talent_id not in unlocked:
+		unlocked.append(talent_id)
+		save_data["progression"]["unlocked_talents"] = unlocked
+
+func get_unlocked_talents() -> Array:
+	return save_data.get("progression", {}).get("unlocked_talents", [])
+
+func get_equipped_talents() -> Array:
+	return save_data.get("progression", {}).get("equipped_talents", [])
+
+func set_talent_equipped(talent_id: String, equip: bool) -> bool:
+	if not save_data.has("progression") or talent_id not in get_unlocked_talents():
+		return false
+	var equipped := get_equipped_talents()
+	if equip:
+		if talent_id in equipped:
+			return true
+		if equipped.size() >= MAX_EQUIPPED_TALENTS:
+			return false
+		equipped.append(talent_id)
+	else:
+		equipped.erase(talent_id)
+	save_data["progression"]["equipped_talents"] = equipped
+	return true
+
+func add_attribute_point(amount: int = 1) -> void:
+	if not save_data.has("progression"):
+		return
+	save_data["progression"]["attribute_points"] = get_attribute_points() + amount
+
+func get_attribute_points() -> int:
+	return save_data.get("progression", {}).get("attribute_points", 0)
+
+func spend_attribute_point() -> bool:
+	if get_attribute_points() <= 0:
+		return false
+	save_data["progression"]["attribute_points"] = get_attribute_points() - 1
+	return true
+
+func get_attribute_level(attr_name: String) -> int:
+	return save_data.get("progression", {}).get("attributes", {}).get(attr_name, 10)
+
+func increase_attribute(attr_name: String) -> void:
+	if not save_data.has("progression"):
+		return
+	var attrs: Dictionary = save_data["progression"].get("attributes", {})
+	attrs[attr_name] = attrs.get(attr_name, 10) + 1
+	save_data["progression"]["attributes"] = attrs
+
+
 func mark_intro_seen(boss_id: String) -> void:
 	if not save_data.has("world"):
 		return
@@ -188,6 +277,17 @@ func mark_intro_seen(boss_id: String) -> void:
 	if boss_id not in seen:
 		seen.append(boss_id)
 		save_data["world"]["seen_intros"] = seen
+
+func get_shop_purchase_count(item_id: String) -> int:
+	return save_data.get("progression", {}).get("shop_purchases", {}).get(item_id, 0)
+
+func record_shop_purchase(item_id: String) -> void:
+	if not save_data.has("progression"):
+		return
+	var purchases: Dictionary = save_data["progression"].get("shop_purchases", {})
+	purchases[item_id] = purchases.get(item_id, 0) + 1
+	save_data["progression"]["shop_purchases"] = purchases
+
 
 func has_seen_intro(boss_id: String) -> bool:
 	if not save_data.has("world"):
@@ -207,8 +307,8 @@ func apply_save_to_player(player: Node) -> void:
 		player.stats.max_health = p.get("max_health", 100)
 		player.stats.health     = p.get("health",     player.stats.max_health)
 		player.stats.max_posture = p.get("max_posture", 100.0)  
-		player.stats.max_posture = p.get("max_posture", 100.0)  
-		
+		player.stats.max_stamina = p.get("max_stamina", 150.0) 
+
 
 func _capture_player_state() -> void:
 	var player := get_tree().get_first_node_in_group("player")
@@ -217,6 +317,7 @@ func _capture_player_state() -> void:
 		save_data["player"]["max_health"]  = player.stats.max_health
 		save_data["player"]["posture"]     = player.stats.posture  
 		save_data["player"]["max_posture"] = player.stats.max_posture
+		
 
 func _on_node_added(node: Node) -> void:
 	# Hráč se přidal do scény – aplikuj save data

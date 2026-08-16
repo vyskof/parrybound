@@ -30,6 +30,8 @@ const MICRO_DODGE_COOLDOWN     := 0.5
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
 const ATTACK_STAMINA_COST      := 15.0
+const BASE_ATTACK_DAMAGE       := 50.0
+
 
 const REGAIN_RATIO             := 0.5    
 const REGAIN_DECAY_DELAY       := 1.0    
@@ -128,6 +130,12 @@ var _is_intro_locked: bool = false
 var _in_counter_window  : bool  = false
 var _counter_timer      : float = 0.0
 
+var _attack_damage_mult: float = 1.0
+var _stamina_regen_bonus: float = 0.0
+var _deflect_stamina_mult: float = 1.0
+var _guard_chip_mult: float = 1.0
+
+
 @onready var _animation_player : AnimationPlayer      = $AnimationPlayer
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
 @onready var _hurtbox          : Hurtbox              = $Hurtbox
@@ -146,6 +154,7 @@ var _counter_timer      : float = 0.0
 @onready var _heartbeat_player : AudioStreamPlayer    = $HeartbeatSound
 @onready var _breath_player    : AudioStreamPlayer    = $BreathSound
 @onready var _tinnitus_player  : AudioStreamPlayer    = $TinnitusSound
+@onready var _souls_label      : Label                = $CanvasLayer/SoulsLabel
 
 
 var _playback: AnimationNodeStateMachinePlayback
@@ -182,7 +191,39 @@ func _ready() -> void:
 	_parrybox.monitoring = false
 
 	GameManager.apply_save_to_player(self)
+	_refresh_bars_after_save_applied()
+	GameManager.souls_changed.connect(_on_souls_changed)
+	_on_souls_changed(GameManager.get_souls())
+	refresh_attribute_bonuses()
+	refresh_talents()
 
+
+func refresh_attribute_bonuses() -> void:
+	var strength_level := GameManager.get_attribute_level("strength")
+	var dexterity_level := GameManager.get_attribute_level("dexterity")
+	_attack_damage_mult  = 1.0 + 0.08 * float(strength_level - 10)
+	_stamina_regen_bonus = maxf(0.0, float(dexterity_level - 10))
+
+func refresh_talents() -> void:
+	_deflect_stamina_mult = 1.0
+	_guard_chip_mult      = 1.0
+	for talent_id in GameManager.get_equipped_talents():
+		match talent_id:
+			"reapers_resolve":
+				_deflect_stamina_mult = 1.2
+			"stone_resolve":
+				_guard_chip_mult = 0.85
+
+
+func _refresh_bars_after_save_applied() -> void:
+	_health_bar.max_value  = stats.max_health
+	_health_bar.value      = stats.health
+	_posture_bar.max_value = float(stats.max_posture)
+	_stamina_bar.max_value = stats.max_stamina
+	stats.stamina = stats.max_stamina
+	_stamina_bar.value = stats.stamina
+	_regain_bar.max_value = stats.max_health
+	_regain_bar.value     = stats.health
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and not get_tree().paused:
@@ -341,6 +382,8 @@ func _enter_attack() -> void:
 	stats.stamina -= ATTACK_STAMINA_COST
 	_stamina_regen_timer = 0.0
 	_attack_buffered = false
+	if _hitbox.combat_data:
+		_hitbox.combat_data.damage = BASE_ATTACK_DAMAGE * _attack_damage_mult
 
 	var is_riposte := _in_counter_window
 	var speed := RIPOSTE_ATTACK_SPEED if is_riposte else (COMBO_ATTACK_SPEED if _combo_pulse_timer > 0.0 else 1.0)
@@ -419,9 +462,9 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			if is_just_frame:
 				posture_mult  = maxf(posture_mult, JUST_FRAME_POSTURE_MULT)
 				counter_dur  += JUST_FRAME_WINDOW_BONUS
-				stats.stamina += DEFLECT_STAMINA_REWARD + JUST_FRAME_STAMINA_BONUS
+				stats.stamina += (DEFLECT_STAMINA_REWARD + JUST_FRAME_STAMINA_BONUS) * _deflect_stamina_mult
 			else:
-				stats.stamina += DEFLECT_STAMINA_REWARD
+				stats.stamina += DEFLECT_STAMINA_REWARD * _deflect_stamina_mult
 				
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
@@ -513,7 +556,7 @@ func _tick_stamina_regen(delta: float) -> void:
 		return
 	_stamina_regen_timer += delta
 	if _stamina_regen_timer >= STAMINA_REGEN_DELAY:
-		stats.stamina += STAMINA_REGEN_RATE * delta
+		stats.stamina += (STAMINA_REGEN_RATE + _stamina_regen_bonus) * delta
 
 func _tick_combo_pulse(delta: float) -> void:
 	if _combo_pulse_timer > 0.0:
@@ -806,3 +849,7 @@ func lock_for_intro(duration: float) -> void:
 
 func skip_intro_lock() -> void:
 	_is_intro_locked = false
+
+func _on_souls_changed(new_amount: int) -> void:
+	if _souls_label:
+		_souls_label.text = str(new_amount)

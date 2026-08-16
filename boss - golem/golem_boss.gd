@@ -2,6 +2,12 @@ extends BossBase
 
 const Hit_effect := preload("res://effects/hit_effect.tscn")
 const ArmorBreakSparks := preload("res://effects/deflect_sparks_effect.tscn")
+const TauntLabel := preload("res://effects/boss_intro_label.tscn")
+
+const ARMOR_TAUNT_LINES := [
+	"My shell will not fall.",
+	"Is that all?",
+]
 
 const ARMOR_MAX_HEALTH:          float = 60.0
 const ARMOR_BREAK_POSTURE_BURST: float = 25.0
@@ -34,7 +40,14 @@ func _on_boss_hit(_combat_data: CombatData) -> void:
 		armor_used   = true
 		DEF          = 5
 		armor_health = ARMOR_MAX_HEALTH
+		_show_taunt(ARMOR_TAUNT_LINES)
 		_state_machine.change_state("ArmorBuff")
+
+func _show_taunt(lines: Array) -> void:
+	var label := TauntLabel.instantiate()
+	get_tree().current_scene.add_child(label)
+	if label.has_method("set_boss_name"):
+		label.set_boss_name(lines[randi() % lines.size()])
 
 func _damage_armor(raw_damage: float) -> void:
 	armor_health = maxf(0.0, armor_health - raw_damage)

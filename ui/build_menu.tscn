@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://k1v2ed76451l"]
+
+[ext_resource type="Script" uid="uid://o6h13qtu5b8m" path="res://ui/build_menu.gd" id="1_8vqxn"]
+
+[node name="BuildMenu" type="CanvasLayer" unique_id=2097044215]
+layer = 10
+script = ExtResource("1_8vqxn")
+
+[node name="Background" type="ColorRect" parent="." unique_id=402578408]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1819713330]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -70.0
+offset_right = 100.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PointsLabel" type="Label" parent="VBoxContainer" unique_id=1062514178]
+layout_mode = 2
+text = "Attribute Points: 0"
+
+[node name="AttributeList" type="VBoxContainer" parent="VBoxContainer" unique_id=1324760672]
+layout_mode = 2
+
+[node name="TalentList" type="VBoxContainer" parent="VBoxContainer" unique_id=542687925]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="VBoxContainer" unique_id=1158840378]
+layout_mode = 2
+text = "Close"

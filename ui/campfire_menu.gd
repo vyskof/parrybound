@@ -2,10 +2,13 @@ class_name CampfireMenu extends CanvasLayer
 
 signal closed
 
+const BuildMenuScene := preload("res://ui/build_menu.tscn")
+
 @onready var _main_options: VBoxContainer = $VBoxContainer
 @onready var _travel_list: VBoxContainer = $TravelList
 @onready var _rest_button: Button = $VBoxContainer/RestButton
 @onready var _travel_button: Button = $VBoxContainer/TravelButton
+@onready var _build_button: Button = $VBoxContainer/BuildButton
 @onready var _cancel_button: Button = $VBoxContainer/CancelButton
 @onready var _world1_button: Button = $TravelList/World1Button
 @onready var _world2_button: Button = $TravelList/World2Button
@@ -18,10 +21,15 @@ func _ready() -> void:
 
 	_rest_button.pressed.connect(_on_rest_pressed)
 	_travel_button.pressed.connect(_on_travel_pressed)
+	_build_button.pressed.connect(_on_build_pressed)
 	_cancel_button.pressed.connect(_on_cancel_pressed)
 	_world1_button.pressed.connect(_on_travel_to.bind("res://world.tscn"))
 	_world2_button.pressed.connect(_on_travel_to.bind("res://world_2.tscn"))
 	_back_button.pressed.connect(_on_travel_back_pressed)
+
+func _on_build_pressed() -> void:
+	var menu := BuildMenuScene.instantiate()
+	get_tree().root.add_child(menu)
 
 func _on_rest_pressed() -> void:
 	var player := get_tree().get_first_node_in_group("player")

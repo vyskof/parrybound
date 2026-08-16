@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://ctbl5jcrmstnx"]
+
+[ext_resource type="Script" uid="uid://baorwf5p2vt0k" path="res://world_shared/training_dummy.gd" id="1_lwc0r"]
+[ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="2_xhaq6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(10, 20)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_g4v7s"]
+radius = 9.0
+
+[node name="TrainingDummy" type="StaticBody2D" unique_id=1450162436]
+collision_layer = 4
+collision_mask = 4
+script = ExtResource("1_lwc0r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=171604251]
+shape = SubResource("RectangleShape2D_g4v7s")
+
+[node name="Sprite" type="ColorRect" parent="." unique_id=219921425]
+anchors_preset = -1
+offset_left = -5.0
+offset_top = -20.0
+offset_right = 5.0
+color = Color(0.735357, 0.6262097, 0.48452926, 1)
+
+[node name="HitCountLabel" type="Label" parent="." unique_id=1418660305]
+anchors_preset = -1
+offset_left = -20.0
+offset_top = -34.0
+offset_right = 20.0
+offset_bottom = -22.0
+theme_override_font_sizes/font_size = 3
+text = "Hits: 0"
+horizontal_alignment = 1
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=559526431]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("2_xhaq6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1332017296]
+shape = SubResource("CircleShape2D_g4v7s")
