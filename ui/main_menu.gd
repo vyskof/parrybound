@@ -36,7 +36,7 @@ func _connect_slot_buttons() -> void:
 func _refresh_slots() -> void:
 	_slot_metas.clear()
 	for i in GameManager.NUM_SLOTS:
-		var meta := GameManager.get_slot_meta(i)
+		var meta: Dictionary = GameManager.get_slot_meta(i)
 		_slot_metas.append(meta)
 		_update_slot_ui(i, meta)
 
@@ -55,7 +55,9 @@ func _update_slot_ui(slot: int, meta: Dictionary) -> void:
 		new_btn.visible    = true
 	else:
 		var area: String   = meta.get("area_name", "Unknown")
-		var play_time      := GameManager.format_play_time(meta.get("play_time", 0.0))
+		var play_time: String = GameManager.format_play_time(
+	float(meta.get("play_time", 0.0))
+	)
 		info_label.text    = "Slot %d  ·  %s  ·  %s" % [slot + 1, area, play_time]
 		load_btn.visible   = true
 		delete_btn.visible = true
@@ -97,7 +99,7 @@ func _on_new_game_pressed() -> void:
 		if _slot_metas[i].is_empty():
 			GameManager.new_game(i)
 			return
-	GameManager.new_game(0)
+	push_warning("Všechny save sloty jsou obsazené. Vyber slot ručně.")
 
 func _on_new_game_in_slot(slot: int) -> void:
 	GameManager.new_game(slot)

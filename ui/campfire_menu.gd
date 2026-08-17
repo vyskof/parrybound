@@ -18,6 +18,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 	_travel_list.visible = false
+	_world2_button.disabled = not GameManager.is_boss_defeated("grim_reaper")
 
 	_rest_button.pressed.connect(_on_rest_pressed)
 	_travel_button.pressed.connect(_on_travel_pressed)
@@ -28,8 +29,13 @@ func _ready() -> void:
 	_back_button.pressed.connect(_on_travel_back_pressed)
 
 func _on_build_pressed() -> void:
+	visible = false
 	var menu := BuildMenuScene.instantiate()
 	get_tree().root.add_child(menu)
+	menu.closed.connect(_on_build_menu_closed)
+
+func _on_build_menu_closed() -> void:
+	visible = true
 
 func _on_rest_pressed() -> void:
 	var player := get_tree().get_first_node_in_group("player")

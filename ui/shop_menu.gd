@@ -55,6 +55,7 @@ func _on_buy_pressed(item: Dictionary) -> void:
 
 	GameManager.record_shop_purchase(item.id)
 	_apply_item_effect(item.id)
+	GameManager.save_to_slot()
 	_rebuild_list()
 
 func _apply_item_effect(item_id: String) -> void:

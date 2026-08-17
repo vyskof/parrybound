@@ -23,8 +23,6 @@ func try_start_deflect() -> void:
 	_is_deflect_active = true
 	_is_blocking = true
 	_deflect_timer = 0.0
-	_spam_count = 0
-	_spam_decay_timer = 0.0
 
 
 func start_block() -> void:
@@ -46,6 +44,8 @@ func tick(delta: float) -> void:
 	_deflect_timer += delta
 	if _deflect_timer >= get_current_deflect_window():
 		_is_deflect_active = false
+		_spam_count = mini(_spam_count + 1, spam_max_count)
+		_spam_decay_timer = 0.0
 
 func get_current_deflect_window() -> float:
 	match _spam_count:
@@ -60,12 +60,14 @@ func evaluate(combat_data: CombatData) -> Result:
 		return Result.NONE   
 
 	if _is_deflect_active:
-		_spam_count       = 0  
-		_spam_decay_timer = 0.0
+		_last_just_frame   = _deflect_timer <= just_frame_window
+		_spam_count        = 0  
+		_spam_decay_timer  = 0.0
 		_is_deflect_active = false
 		return Result.DEFLECT
 
 	if _is_blocking:
+		_last_just_frame = false
 		_spam_count = mini(_spam_count + 1, spam_max_count)
 		return Result.BLOCK
 	return Result.NONE

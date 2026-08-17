@@ -187,7 +187,6 @@ func _ready() -> void:
 
 	_hurtbox.hurt.connect(_on_hurt)
 	_hitbox.hit_landed.connect(_on_own_hitbox_landed)
-	_parrybox.parried.connect(_on_parrybox_parried)
 	_parrybox.monitoring = false
 
 	GameManager.apply_save_to_player(self)
@@ -477,6 +476,9 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			
 			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak, is_just_frame)
 			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
+			if hitbox.owner.has_method("receive_parry"):
+				var reward := combat_data.parry_posture_reward if combat_data else 35.0
+				hitbox.owner.receive_parry(reward)
 
 		ParryResolver.Result.BLOCK:
 			if combat_data:
@@ -501,16 +503,6 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			if not _is_staggered:
 				_flash_red()
 			_start_invincibility(0.5)
-
-
-func _on_parrybox_parried(hitbox: Area2D) -> void:
-	if not hitbox is Hitbox:
-		return
-	if not hitbox.owner.has_method("receive_parry"):
-		return
-	var typed  := hitbox as Hitbox
-	var reward := typed.combat_data.parry_posture_reward if typed.combat_data else 35.0
-	hitbox.owner.receive_parry(reward)
 
 
 func _apply_knockback(hitbox: Hitbox, data: CombatData) -> void:
@@ -853,3 +845,7 @@ func skip_intro_lock() -> void:
 func _on_souls_changed(new_amount: int) -> void:
 	if _souls_label:
 		_souls_label.text = str(new_amount)
+
+func on_minion_blocked() -> void:
+	stats.stamina += DEFLECT_STAMINA_REWARD * _deflect_stamina_mult
+	

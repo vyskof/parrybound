@@ -50,7 +50,7 @@ func _default_save(slot: int) -> Dictionary:
 			"area_name":  "Catacombs" # zobrazeno v menu
 		},
 		"world": {
-			"current_scene":  "res://world.tscn",
+			"current_scene":  "res://hub.tscn",
 			"spawn_point":    "DefaultSpawn",       # jméno Node2D spawn markeru ve scéně
 			"defeated_bosses": [],             # ["grim_reaper", "golem", ...]
 			"seen_intros":    [],              # # ["grim_reaper", "golem", ...] — boss intro cutscéna se přehraje jen jednou
@@ -317,7 +317,7 @@ func _capture_player_state() -> void:
 		save_data["player"]["max_health"]  = player.stats.max_health
 		save_data["player"]["posture"]     = player.stats.posture  
 		save_data["player"]["max_posture"] = player.stats.max_posture
-		
+		save_data["player"]["max_stamina"] = player.stats.max_stamina
 
 func _on_node_added(node: Node) -> void:
 	# Hráč se přidal do scény – aplikuj save data

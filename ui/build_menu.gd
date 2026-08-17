@@ -96,6 +96,5 @@ func _on_toggle_talent(talent_id: String, equip: bool) -> void:
 	_rebuild()
 
 func _on_close_pressed() -> void:
-	get_tree().paused = false
 	closed.emit()
 	queue_free()

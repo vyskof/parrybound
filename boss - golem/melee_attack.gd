@@ -19,6 +19,8 @@ func exit() -> void:
 	super.exit()
 	owner.set_physics_process(false)
 	is_active = false
+	if hitbox:
+		hitbox.clear_hit_targets()
 
 func _setup_hitbox() -> void:
 	if hitbox.combat_data:
