@@ -1,12 +1,8 @@
 extends CharacterBody2D
 
-const CombatDataResource := preload("res://shared(other)/combat_data.gd")
-
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var character = get_tree().get_first_node_in_group("player")
 @onready var animation = $AnimatedSprite2D
-
-@onready var hitbox: Hitbox = $Hitbox
 
 func _ready() -> void:
 	hurtbox.hurt.connect(take_damage)
@@ -24,10 +20,7 @@ func _physics_process(_delta: float) -> void:
 		var collider = get_slide_collision(i).get_collider()
 		if collider.is_in_group("player"):
 			if not collider.is_invincible:
-				if collider.is_blocking and collider.has_method("on_minion_blocked"):
-					collider.on_minion_blocked()
-				elif not collider.is_blocking:
-					collider.take_hit_raw(10.0)
+				collider.take_hit_raw(10.0)
 			queue_free()
 
 func take_damage(_combat_data: CombatData, _hitbox: Hitbox) -> void:

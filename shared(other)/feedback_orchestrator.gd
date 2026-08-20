@@ -20,26 +20,17 @@ func play_parry_feedback(
 	result: ParryResolver.Result,
 	position: Vector2,
 	combat_data: CombatData = null,
-	streak: int = 1,
-	is_just_frame: bool = false
+	streak: int = 1
 ) -> void:
+	if result != ParryResolver.Result.DEFLECT:
+		return
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.10
-	match result:
-		ParryResolver.Result.DEFLECT:
-			_spawn_vfx(perfect_parry_vfx, position)
-			_spawn_deflect_sparks(position, streak, is_just_frame)
-			_play_sfx(perfect_parry_sfx, 0.10)
-			var shake_mag := 0.3 + (mini(streak, 4) - 1) * 0.3
-			if is_just_frame:
-				shake_mag = 1.6
-			camera.shake(shake_mag)
-			Hitstop.freeze(hitstop_dur)
-		ParryResolver.Result.BLOCK:
-			_spawn_vfx(guard_vfx, position)
-			_play_sfx(guard_sfx, 0.5)
-			Hitstop.freeze(hitstop_dur * 0.5)
-		_:
-			pass
+	_spawn_vfx(perfect_parry_vfx, position)
+	_spawn_deflect_sparks(position, streak)
+	_play_sfx(perfect_parry_sfx, 0.10)
+	var shake_mag := 0.3 + (mini(streak, 4) - 1) * 0.3
+	camera.shake(shake_mag)
+	Hitstop.freeze(hitstop_dur)
 
 func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source_position: Vector2 = Vector2.ZERO) -> void:
 	_spawn_vfx(player_hit_vfx, position)
@@ -75,12 +66,9 @@ func play_stagger_feedback(position: Vector2) -> void:
 func play_boss_parried_feedback(
 	result: ParryResolver.Result,
 	position: Vector2
-) ->void:
-	match result:
-		ParryResolver.Result.DEFLECT:
-			_spawn_vfx(perfect_parry_vfx, position)
-		ParryResolver.Result.BLOCK:
-			_spawn_vfx(guard_vfx, position)
+) -> void:
+	if result == ParryResolver.Result.DEFLECT:
+		_spawn_vfx(perfect_parry_vfx, position)
 
 
 func _spawn_vfx(scene: PackedScene, pos: Vector2) -> void:
@@ -106,14 +94,9 @@ func _play_sfx(
 		)
 	player.play()
 
-func _spawn_deflect_sparks(pos: Vector2, streak: int, is_just_frame: bool) -> void:
+func _spawn_deflect_sparks(pos: Vector2, streak: int) -> void:
 	if not deflect_sparks_vfx:
 		return
-	if is_just_frame:
-		_spawn_single_spark(pos, Color(0.9, 1.0, 1.0), 2.5, 1.2)
-		_spawn_single_spark(pos, Color(1.0, 0.992, 0.959), 1.2, 0.9)
-		return
-	
 	var cfg := _get_streak_config(streak)
 	_spawn_single_spark(pos, cfg.color, cfg.amount_mult, cfg.size_mult)
 

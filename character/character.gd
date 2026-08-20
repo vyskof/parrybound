@@ -1,7 +1,6 @@
 class_name Character extends CharacterBody2D
 
 const SPEED                := 150.0
-const SPEED_GUARD          := 80.0
 const POSTURE_REGEN_RATE   := 15.0
 const POSTURE_REGEN_DELAY  := 2.5
 const STAGGER_DURATION     := 1.8
@@ -10,22 +9,22 @@ const PARRY_POSTURE_RESTORE:= 8.0
 const KNOCKBACK_FRICTION   := 400.0
 
 const DEFLECT_PUSHBACK     := 90.0
-const BLOCK_PUSHBACK       := 45.0
 
 const DEFLECT_STAMINA_REWARD := 12.0
+const PARRY_ACTION_DURATION  := 0.25   # délka celé "deflect akce" — odpovídá délce parry animací
 
-const DODGE_SPEED          := 300.0   
-const DODGE_DURATION       := 0.18    
-const DODGE_IFRAMES        := 0.14    
-const DODGE_STAMINA_COST   := 25.0    
-const STAMINA_REGEN_RATE   := 40.0    
-const STAMINA_REGEN_DELAY  := 1.0     
+const DODGE_SPEED          := 400.0
+const DODGE_DURATION       := 0.11
+const DODGE_IFRAMES        := 0.10
+const DODGE_STAMINA_COST   := 25.0
+const STAMINA_REGEN_RATE   := 40.0
+const STAMINA_REGEN_DELAY  := 1.0
 const DODGE_COOLDOWN       := 0.25
 
-const MICRO_DODGE_DISTANCE     := 25.0
-const MICRO_DODGE_DURATION     := 0.10
-const MICRO_DODGE_STAMINA_COST := 8.0
-const MICRO_DODGE_COOLDOWN     := 0.5
+const FAST_MOVE_SPEED           := 350.0
+const FAST_MOVE_DURATION        := 0.40
+const FAST_MOVE_STAMINA_COST    := 30.0
+const FAST_MOVE_COOLDOWN        := 3.0
 
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
@@ -41,10 +40,6 @@ const POSTURE_RECOVERY_ON_HIT  := 4.0
 const COUNTER_WINDOW_DURATION  := 0.30
 const COUNTER_POSTURE_MULT     := 1.5
 const BASE_ATTACK_POSTURE_DMG  := 10.0
-
-const JUST_FRAME_STAMINA_BONUS  := 8.0
-const JUST_FRAME_POSTURE_MULT   := 2.2   
-const JUST_FRAME_WINDOW_BONUS   := 0.15 
 
 const STREAK_RESET_TIME         := 2.5    
 const STREAK_MAX                := 4      
@@ -85,18 +80,14 @@ var _dodge_direction   := Vector2.ZERO
 var _stamina_regen_timer : float = 0.0
 var _dodge_cooldown_timer : float = 0.0
 
-var _is_micro_dodging: bool = false
-var _micro_dodge_direction: Vector2 = Vector2.ZERO
-var _micro_dodge_timer: float = 0.0
-var _micro_dodge_cooldown_timer: float = 0.0
+var _is_fast_moving: bool = false
+var _fast_move_direction: Vector2 = Vector2.ZERO
+var _fast_move_cooldown_timer: float = 0.0
 
 var _stamina_blink_tween: Tween = null
 
 var _footstep_timer: float = 0.0
 var _tinnitus_active: bool = false
-
-var is_blocking: bool:
-	get: return _parry_resolver != null and _parry_resolver.is_blocking()
 
 var is_parrying: bool:
 	get: return _in_parry_state
@@ -161,8 +152,6 @@ var _playback: AnimationNodeStateMachinePlayback
 
 func _ready() -> void:
 	_playback = _animation_tree.get("parameters/StateMachine/playback")
-
-	_make_parry_animations_loop()
 
 	stats.health  = stats.max_health
 	stats.posture = 0.0
@@ -240,7 +229,7 @@ func _physics_process(delta: float) -> void:
 	_tick_stagger(delta)
 	_tick_stamina_regen(delta)
 	_tick_dodge_cooldown(delta)
-	_tick_micro_dodge_cooldown(delta)
+	_tick_fast_move_cooldown(delta)
 	_tick_combo_pulse(delta)
 	_tick_counter_window(delta)
 	_tick_streak_reset(delta)
@@ -267,12 +256,9 @@ func _physics_process(delta: float) -> void:
 	_was_in_attack = _in_attack_state
 
 
-	if _is_micro_dodging:
-		_micro_dodge_timer -= delta
-		velocity = _micro_dodge_direction * (MICRO_DODGE_DISTANCE / MICRO_DODGE_DURATION) + _knockback_velocity
+	if _is_fast_moving:
+		velocity = _fast_move_direction * FAST_MOVE_SPEED + _knockback_velocity
 		move_and_slide()
-		if _micro_dodge_timer <= 0.0:
-			_is_micro_dodging = false
 		return
 
 
@@ -319,6 +305,10 @@ func _process_move(_delta: float) -> void:
 		_enter_dodge()
 		return
 
+	if Input.is_action_just_pressed("fast_move"):
+		_enter_fast_move()
+		return
+
 	velocity = input_vector * SPEED + _knockback_velocity
 	move_and_slide()
 	_tick_footsteps(_delta, input_vector.length())
@@ -352,24 +342,8 @@ func _process_attack() -> void:
 
 func _process_parry() -> void:
 	_parrybox.monitoring = _parry_resolver.is_deflect_active()
-
-	if Input.is_action_just_pressed("dodge") and _try_micro_dodge():
-		return
-
-	if Input.is_action_pressed("parry"):
-		_parry_resolver.start_block()
-	else:
-		_exit_parry()
-		return
-
-	input_vector = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	if input_vector != Vector2.ZERO:
-		last_input_vector = input_vector
-		_update_blend_positions(Vector2(input_vector.x, -input_vector.y))
-
-	velocity = input_vector * SPEED_GUARD + _knockback_velocity
+	velocity = _knockback_velocity
 	move_and_slide()
-	_tick_footsteps(get_physics_process_delta_time(), input_vector.length() * 0.6)
 
 func _enter_attack() -> void:
 	if _in_attack_state:
@@ -422,11 +396,14 @@ func _enter_parry() -> void:
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_update_blend_positions(Vector2(mouse_dir.x, -mouse_dir.y))
 	_playback.travel("ParryState")
+	await get_tree().create_timer(PARRY_ACTION_DURATION, true, false, true).timeout
+	if _in_parry_state:
+		_exit_parry()
 
 
 func _exit_parry() -> void:
 	_in_parry_state = false
-	_parry_resolver.stop_block()
+	_parry_resolver.stop_deflect()
 	_parrybox.monitoring = false
 	_playback.start("MoveState", true)
 
@@ -453,40 +430,24 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 		ParryResolver.Result.DEFLECT:
 			_deflect_streak     = mini(_deflect_streak + 1, STREAK_MAX)
 			_streak_reset_timer = 0.0
-			
-			var is_just_frame  := _parry_resolver.was_just_frame()
-			var posture_mult   := _get_streak_posture_mult()
-			var counter_dur    := COUNTER_WINDOW_DURATION
-			
-			if is_just_frame:
-				posture_mult  = maxf(posture_mult, JUST_FRAME_POSTURE_MULT)
-				counter_dur  += JUST_FRAME_WINDOW_BONUS
-				stats.stamina += (DEFLECT_STAMINA_REWARD + JUST_FRAME_STAMINA_BONUS) * _deflect_stamina_mult
-			else:
-				stats.stamina += DEFLECT_STAMINA_REWARD * _deflect_stamina_mult
-				
+
+			var posture_mult := _get_streak_posture_mult()
+			stats.stamina += DEFLECT_STAMINA_REWARD * _deflect_stamina_mult
+
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
 			_in_counter_window = true
-			_counter_timer     = counter_dur
+			_counter_timer     = COUNTER_WINDOW_DURATION
 			_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG * posture_mult
-			
+
 			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
-			
-			
-			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak, is_just_frame)
+
+			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak)
 			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
+
 			if hitbox.owner.has_method("receive_parry"):
 				var reward := combat_data.parry_posture_reward if combat_data else 35.0
 				hitbox.owner.receive_parry(reward)
-
-		ParryResolver.Result.BLOCK:
-			if combat_data:
-				stats.posture += combat_data.guard_chip
-			_posture_regen_timer = 0.0
-			_feedback.play_parry_feedback(ParryResolver.Result.BLOCK, global_position, combat_data)
-			_apply_parry_pushback(hitbox, BLOCK_PUSHBACK)
-			_flash_posture_bar()
 
 		ParryResolver.Result.NONE:
 			var dmg  := combat_data.damage          if combat_data else (hitbox.damage if hitbox else 10.0)
@@ -536,8 +497,6 @@ func _tick_stagger(delta: float) -> void:
 func _tick_posture_regen(delta: float) -> void:
 	if stats.posture <= 0.0 or _is_staggered:
 		_posture_regen_timer = 0.0
-		return
-	if is_blocking:
 		return
 	_posture_regen_timer += delta
 	if _posture_regen_timer >= POSTURE_REGEN_DELAY:
@@ -641,31 +600,32 @@ func _tick_dodge_cooldown(delta: float) -> void:
 	if _dodge_cooldown_timer > 0.0:
 		_dodge_cooldown_timer -= delta
 
-func _try_micro_dodge() -> bool:
-	if _is_micro_dodging or _micro_dodge_cooldown_timer > 0.0:
-		return false
-	if stats.stamina < MICRO_DODGE_STAMINA_COST:
-		return false
+func _enter_fast_move() -> void:
+	if _is_fast_moving or _fast_move_cooldown_timer > 0.0:
+		return
+	if stats.stamina < FAST_MOVE_STAMINA_COST:
+		return
 
-	stats.stamina -= MICRO_DODGE_STAMINA_COST
+	stats.stamina -= FAST_MOVE_STAMINA_COST
 	_stamina_regen_timer = 0.0
-	_micro_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
-	_micro_dodge_timer = MICRO_DODGE_DURATION
-	_micro_dodge_cooldown_timer = MICRO_DODGE_COOLDOWN
-	_is_micro_dodging = true
-	return true
+	_is_fast_moving = true
+	_fast_move_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
+	_fast_move_cooldown_timer = FAST_MOVE_COOLDOWN
+	_sprite.modulate.a = 0.6
 
-func _tick_micro_dodge_cooldown(delta: float) -> void:
-	if _micro_dodge_cooldown_timer > 0.0:
-		_micro_dodge_cooldown_timer -= delta
+	var elapsed := 0.0
+	while elapsed < FAST_MOVE_DURATION:
+		_spawn_afterimage(Color(1.0, 0.85, 0.4, 0.5), 0.12)
+		await get_tree().create_timer(AFTERIMAGE_INTERVAL, true, false, true).timeout
+		elapsed += AFTERIMAGE_INTERVAL
 
+	_is_fast_moving = false
+	_sprite.modulate.a = 1.0
 
+func _tick_fast_move_cooldown(delta: float) -> void:
+	if _fast_move_cooldown_timer > 0.0:
+		_fast_move_cooldown_timer -= delta
 
-func _make_parry_animations_loop() -> void:
-	var lib := _animation_player.get_animation_library("")
-	for anim_name: String in ["parry_down", "parry_left", "parry_right", "parry_up"]:
-		if lib.has_animation(anim_name):
-			lib.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
 
 func _spawn_afterimage(tint: Color = Color(0.6, 0.8, 1.0, 0.5), fade_duration: float = 0.1) -> void:
 	var afterimage := AFTERIMAGE_SCENE.instantiate()
@@ -829,11 +789,6 @@ func _on_own_hitbox_landed(_target: Node) -> void:
 	stats.posture = maxf(0.0, stats.posture - POSTURE_RECOVERY_ON_HIT)
 	_posture_regen_timer = 0.0
 
-func _flash_posture_bar() -> void:
-	var tween := create_tween()
-	tween.tween_property(_posture_bar, "modulate", Color(1.6, 1.6, 1.6, 1.0), 0.05)
-	tween.tween_property(_posture_bar, "modulate", Color.WHITE, 0.15)
-
 func lock_for_intro(duration: float) -> void:
 	_is_intro_locked = true
 	await get_tree().create_timer(duration, true, false, true).timeout
@@ -845,7 +800,3 @@ func skip_intro_lock() -> void:
 func _on_souls_changed(new_amount: int) -> void:
 	if _souls_label:
 		_souls_label.text = str(new_amount)
-
-func on_minion_blocked() -> void:
-	stats.stamina += DEFLECT_STAMINA_REWARD * _deflect_stamina_mult
-	
