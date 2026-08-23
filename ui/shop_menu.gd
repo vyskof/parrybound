@@ -66,9 +66,13 @@ func _apply_item_effect(item_id: String) -> void:
 		"vigor_shard":
 			player.stats.max_health += 10.0
 			player.stats.health += 10.0
+			if player.has_method("refresh_max_value_bars"):
+				player.refresh_max_value_bars()
 		"focus_shard":
 			player.stats.max_stamina += 10.0
 			player.stats.stamina += 10.0
+			if player.has_method("refresh_max_value_bars"):
+				player.refresh_max_value_bars()
 
 func _on_close_pressed() -> void:
 	get_tree().paused = false

@@ -2,11 +2,19 @@ extends Camera2D
 
 var _intro_active: bool = false
 
+var _shake_strength: float = 0.0
+const SHAKE_DECAY := 5.0   
+
+func _process(delta: float) -> void:
+	if _shake_strength <= 0.0:
+		return
+	offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _shake_strength
+	_shake_strength = maxf(0.0, _shake_strength - SHAKE_DECAY * delta)
+	if _shake_strength <= 0.0:
+		offset = Vector2.ZERO
+
 func shake(magnitude: float = 0.7) -> void:
-	for i in 8:
-		offset = Vector2(randf_range(-magnitude, magnitude), randf_range(-magnitude, magnitude))
-		await get_tree().create_timer(0.02, true, false, true).timeout
-	offset = Vector2.ZERO
+	_shake_strength = maxf(_shake_strength, magnitude)
 
 
 func zoom_pulse(target_zoom: Vector2 = Vector2(0.88, 0.88), duration: float = 0.4) -> void:

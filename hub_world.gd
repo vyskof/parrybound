@@ -8,6 +8,7 @@ var _reverb_effect: AudioEffectReverb
 var _reverb_bus_index: int = -1
 
 func _ready() -> void:
+	_apply_arena_reverb()
 	SpawnPointUtil.apply(character, self, GameManager.get_current_spawn_point())
 
 func _apply_arena_reverb() -> void:
@@ -18,3 +19,8 @@ func _apply_arena_reverb() -> void:
 	_reverb_effect.damping = 0.6
 	AudioServer.add_bus_effect(_reverb_bus_index, _reverb_effect)
 	
+
+func _exit_tree() -> void:
+	if is_instance_valid(_reverb_effect) and _reverb_bus_index >= 0:
+		AudioBusUtil.remove_effect_safe(_reverb_bus_index, _reverb_effect)
+		

@@ -28,7 +28,7 @@ func play_parry_feedback(
 	_spawn_vfx(perfect_parry_vfx, position)
 	_spawn_deflect_sparks(position, streak)
 	_play_sfx(perfect_parry_sfx, 0.10)
-	var shake_mag := 0.3 + (mini(streak, 4) - 1) * 0.3
+	var shake_mag := 1.0 + (mini(streak, 4) - 1) * 0.6
 	camera.shake(shake_mag)
 	Hitstop.freeze(hitstop_dur)
 
@@ -38,7 +38,7 @@ func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source
 	_play_sfx(hit_sfx)
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.08
 	Hitstop.freeze(hitstop_dur)
-	camera.shake(1.0)
+	camera.shake(2.5)
 	ChromaticAberration.pulse(0.006, 0.22)
 
 func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void:
@@ -59,7 +59,7 @@ func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void
 
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
-	camera.shake(2.2)
+	camera.shake(4.0)
 	ChromaticAberration.pulse(0.014, 0.35)
 	Hitstop.freeze(0.22)
 

@@ -837,9 +837,10 @@ volume_db = -10.0
 
 [node name="RegainBar" type="TextureProgressBar" parent="CanvasLayer" unique_id=1785816104]
 self_modulate = Color(0.4, 1, 0.5, 1)
-offset_left = 81.0
+anchors_preset = -1
+offset_left = 10.0
 offset_top = 249.0
-offset_right = 118.0
+offset_right = 74.0
 offset_bottom = 255.0
 nine_patch_stretch = true
 stretch_margin_left = 3

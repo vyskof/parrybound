@@ -3137,11 +3137,5 @@ position = Vector2(161, 90)
 [node name="FromHubSpawn" type="Node2D" parent="." unique_id=1146051500]
 position = Vector2(161, 90)
 
-[node name="PortalToHub" parent="." unique_id=936344337 instance=ExtResource("5_036b0")]
-position = Vector2(120, 90)
-destination_scene = "res://hub.tscn"
-destination_spawn = "FromWorld1Spawn"
-portal_id = "portal_world1_to_hub"
-
 [connection signal="boss_defeated" from="GrimBoss" to="." method="_on_boss_defeated"]
 [connection signal="encounter_started" from="GrimBoss" to="." method="_on_boss_encounter_started"]

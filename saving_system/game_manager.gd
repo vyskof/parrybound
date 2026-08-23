@@ -89,15 +89,16 @@ func _default_progression() -> Dictionary:
 		"level":  1,
 		"souls":  0,
 		"attributes": {
-			"vitality":   10,
-			"endurance":  10,
-			"strength":   10,
-			"dexterity":  10
+			"vitality":   0,
+			"endurance":  0,
+			"strength":   0,
+			"dexterity":  0
 			# "intelligence": 10  ← snadno přidáš
 		},
-		"attribute_points": 0,
-		"unlocked_talents": [],  # ["reapers_resolve", "stone_resolve", ...]
-		"equipped_talents": [],  # max MAX_EQUIPPED_TALENTS aktivních najednou
+		"attribute_points": 10,
+		"talent_slots": 0,       # roste +1 s každým levelem (zabitým bossem)
+		"unlocked_talents": [],  # ["reapers_resolve", "stone_resolve", ...] — natrvalo naučené
+		"equipped_talents": [],  # aktivní, max talent_slots najednou
 		"shop_purchases": {}  # {"vigor_shard": 2, "focus_shard": 1, ...}
 	}
 
@@ -186,6 +187,7 @@ func is_boss_defeated(boss_id: String) -> bool:
 	return boss_id in save_data["world"].get("defeated_bosses", [])
 
 signal souls_changed(new_amount: int)
+signal leveled_up(choices: Array)
 
 func add_souls(amount: int) -> void:
 	if amount <= 0 or not save_data.has("progression"):
@@ -208,21 +210,117 @@ func get_souls() -> int:
 
 # TALENTYYYYYYYYYYYYYYYYYYYYYY 
 
-const MAX_EQUIPPED_TALENTS := 3
+const LEVEL_UP_ATTRIBUTE_POINTS := 5
+const TALENT_CHOICES_PER_LEVEL  := 4
 
-const TALENT_DEFS := {
-	"grim_reaper": {"id": "reapers_resolve", "name": "Reaper's Resolve", "desc": "+20% stamina restored on deflect"},
-	"golem":       {"id": "stone_resolve",   "name": "Stone Resolve",   "desc": "-15% posture gained from blocking"},
+# Centrální registr všech talentů ve hře. Obsah (name/desc/rarity) je zatím
+# placeholder — klidně přepiš cokoliv, architektura (náhodný výběr, ukládání,
+# equip sloty) na konkrétním obsahu nezávisí. "rarity" je zatím jen metadata
+# pro budoucí vážený výběr (teď je výběr rovnoměrně náhodný).
+const TALENT_POOL := {
+	"reapers_resolve": {
+		"name": "Reaper's Resolve",
+		"desc": "+20% stamina restored on a successful deflect",
+		"rarity": "common",
+	},
+	"stone_resolve": {
+		"name": "Stone Resolve",
+		"desc": "-25% posture damage from hits you fail to deflect",
+		"rarity": "common",
+	},
+	"swift_recovery": {
+		"name": "Swift Recovery",
+		"desc": "+30% stamina regeneration rate",
+		"rarity": "common",
+	},
+	"light_footed": {
+		"name": "Light Footed",
+		"desc": "-25% dodge stamina cost",
+		"rarity": "common",
+	},
+	"patient_blade": {
+		"name": "Patient Blade",
+		"desc": "+0.15s counter window after a successful deflect",
+		"rarity": "rare",
+	},
+	"momentum": {
+		"name": "Momentum",
+		"desc": "+15% attack damage while your deflect streak is active",
+		"rarity": "rare",
+	},
+	"windrunner": {
+		"name": "Windrunner",
+		"desc": "-30% fast move cooldown",
+		"rarity": "rare",
+	},
+	"iron_lungs": {
+		"name": "Iron Lungs",
+		"desc": "-60% low-stamina movement speed penalty",
+		"rarity": "legendary",
+	},
 }
 
-func unlock_talent_for_boss(boss_id: String) -> void:
-	if not TALENT_DEFS.has(boss_id) or not save_data.has("progression"):
+func get_level() -> int:
+	return save_data.get("progression", {}).get("level", 1)
+
+func get_talent_slots() -> int:
+	return save_data.get("progression", {}).get("talent_slots", 0)
+
+func get_talent_def(talent_id: String) -> Dictionary:
+	if not TALENT_POOL.has(talent_id):
+		return {}
+	var def: Dictionary = TALENT_POOL[talent_id]
+	return {
+		"id": talent_id,
+		"name": def.name,
+		"desc": def.desc,
+		"rarity": def.get("rarity", "common"),
+	}
+
+# Voláno po zabití bosse. Level +1, rovnou 5 attribute pointů, +1 talent slot.
+# Pokud v poolu zbývá aspoň jeden nevlastněný talent, nabídne se výběr
+# (až 4 náhodné) přes signál leveled_up — UI si na něj napojí popup okno
+# a po výběru zavolá choose_talent().
+func level_up() -> void:
+	if not save_data.has("progression"):
 		return
-	var talent_id: String = TALENT_DEFS[boss_id].id
+	save_data["progression"]["level"] = get_level() + 1
+	add_attribute_point(LEVEL_UP_ATTRIBUTE_POINTS)
+	save_data["progression"]["talent_slots"] = get_talent_slots() + 1
+
+	var choices := _roll_talent_choices(TALENT_CHOICES_PER_LEVEL)
+	if choices.is_empty():
+		return
+	leveled_up.emit(choices)
+
+func _roll_talent_choices(count: int) -> Array:
+	var unlocked := get_unlocked_talents()
+	var available: Array = []
+	for talent_id in TALENT_POOL:
+		if talent_id not in unlocked:
+			available.append(talent_id)
+	available.shuffle()
+	return available.slice(0, mini(count, available.size()))
+
+# Zavolá UI popup poté, co si hráč vybere jeden ze 4 nabídnutých talentů.
+# Talent se natrvalo přidá mezi unlocked_talents, a pokud je volný equip
+# slot, rovnou se i vybaví — ať nový talent hned něco dělá.
+func choose_talent(talent_id: String) -> void:
+	if not TALENT_POOL.has(talent_id) or not save_data.has("progression"):
+		return
 	var unlocked := get_unlocked_talents()
 	if talent_id not in unlocked:
 		unlocked.append(talent_id)
 		save_data["progression"]["unlocked_talents"] = unlocked
+
+	if get_equipped_talents().size() < get_talent_slots():
+		set_talent_equipped(talent_id, true)
+
+	save_to_slot()
+
+	var player := get_tree().get_first_node_in_group("player")
+	if player and player.has_method("refresh_talents"):
+		player.refresh_talents()
 
 func get_unlocked_talents() -> Array:
 	return save_data.get("progression", {}).get("unlocked_talents", [])
@@ -237,7 +335,7 @@ func set_talent_equipped(talent_id: String, equip: bool) -> bool:
 	if equip:
 		if talent_id in equipped:
 			return true
-		if equipped.size() >= MAX_EQUIPPED_TALENTS:
+		if equipped.size() >= get_talent_slots():
 			return false
 		equipped.append(talent_id)
 	else:

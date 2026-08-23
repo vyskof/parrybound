@@ -706,11 +706,5 @@ script = ExtResource("9_eiokd")
 [node name="DefaultSpawn" type="Node2D" parent="." unique_id=312791329]
 position = Vector2(161, 210)
 
-[node name="Portal" parent="." unique_id=936344337 instance=ExtResource("6_mv2s0")]
-position = Vector2(200, 210)
-destination_scene = "res://hub.tscn"
-destination_spawn = "FromWorld2Spawn"
-portal_id = "portal_world2_to_hub"
-
 [connection signal="boss_defeated" from="GolemBoss" to="." method="_on_boss_defeated"]
 [connection signal="encounter_started" from="GolemBoss" to="." method="_on_boss_encounter_started"]

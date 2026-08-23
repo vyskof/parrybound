@@ -1,6 +1,6 @@
 extends Area2D
 
-const CampfireMenu := preload("res://ui/campfire_menu.tscn")
+const CampfireMenuScene := preload("res://ui/campfire_menu.tscn")
 
 @onready var label: Label = $Label
 
@@ -31,7 +31,7 @@ func _on_body_exited(body: Node2D) -> void:
 func _open_menu() -> void:
 	_menu_open = true
 	label.visible = false
-	var menu := CampfireMenu.instantiate()
+	var menu := CampfireMenuScene.instantiate()
 	get_tree().root.add_child(menu)
 	menu.closed.connect(_on_menu_closed)
 

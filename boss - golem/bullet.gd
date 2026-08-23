@@ -1,13 +1,14 @@
 extends Area2D
 
 @onready var hurtbox: Hurtbox = $Hurtbox
-@export var damage: float = 20
+@onready var hitbox: Hitbox = $Hitbox
 
 var _player: Node2D = null
 var velocity: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	hurtbox.hurt.connect(take_damage)
+	hitbox.hit_landed.connect(_on_hit_landed)
 	_player = get_tree().get_first_node_in_group("player")
 
 func _physics_process(delta: float) -> void:
@@ -24,21 +25,6 @@ func take_damage(_combat_data: CombatData, _hitbox: Hitbox) -> void:
 	set_physics_process(false)
 	queue_free()
 
-func _on_parried(_combat_data: CombatData, _hitbox: Hitbox) -> void:
-	set_physics_process(false)
-	queue_free()
-
-func _on_body_entered(body: Node2D) -> void:
-	_deal_damage_to_player(body)
-
-func _on_area_entered(area: Area2D) -> void:
-	if area is Hurtbox:
-		_deal_damage_to_player(area.get_parent())
-
-func _deal_damage_to_player(target: Node) -> void:
-	if not is_instance_valid(target) or not target.is_in_group("player"):
-		return
-	if target.has_method("take_hit_raw"):
-		target.take_hit_raw(damage)
+func _on_hit_landed(_target: Node) -> void:
 	set_physics_process(false)
 	queue_free()

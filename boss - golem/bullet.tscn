@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://cto7nl6wdg5f4" path="res://boss - golem/bullet.gd" id="1_ot2qh"]
 [ext_resource type="Texture2D" uid="uid://bm6s5213r3ccv" path="res://assets/weapon PNG/arm_projectile_glowing.png" id="2_bpqgw"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="3_bpqgw"]
+[ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="4_usr26"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="5_lowb2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_usr26"]
 atlas = ExtResource("2_bpqgw")
@@ -61,6 +63,16 @@ size = Vector2(22, 4)
 radius = 4.0092044
 height = 28.0
 
+[sub_resource type="Resource" id="Resource_lowb2"]
+script = ExtResource("5_lowb2")
+damage = 20.0
+posture_damage = 6.0
+is_unblockable = true
+metadata/_custom_type_script = "uid://dxnjmcdy603mm"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(20, 8)
+
 [node name="bullet" type="Area2D" unique_id=1807967099]
 collision_mask = 2
 script = ExtResource("1_ot2qh")
@@ -84,5 +96,12 @@ position = Vector2(27.999998, -13)
 rotation = 1.5614123
 shape = SubResource("CapsuleShape2D_bpqgw")
 
-[connection signal="area_entered" from="." to="." method="_on_area_entered"]
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[node name="Hitbox" type="Area2D" parent="." unique_id=636187483]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("4_usr26")
+combat_data = SubResource("Resource_lowb2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=243202963]
+position = Vector2(28, -13)
+shape = SubResource("RectangleShape2D_g4v7s")

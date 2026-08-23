@@ -83,7 +83,7 @@ func _interrupt_current_action() -> void:
 	$InterruptTimer.start()
 
 func _on_interrupt_timeout() -> void:
-	if not _is_dead:
+	if not _is_dead and not is_vulnerable:
 		set_physics_process(true)
 
 
@@ -174,7 +174,7 @@ func _on_boss_staggered() -> void:
 func _play_stagger_screen_feedback() -> void:
 	var cam := _player.get_node_or_null("Camera2D") if is_instance_valid(_player) else null
 	if cam and cam.has_method("shake"):
-		cam.shake(2.5)
+		cam.shake(4.5)
 	if cam and cam.has_method("zoom_pulse"):
 		cam.zoom_pulse(Vector2(0.85, 0.85), 0.4)
 
@@ -213,8 +213,7 @@ func _on_no_health() -> void:
 	_state_machine.change_state("Death")
 	GameManager.mark_boss_defeated(boss_id)
 	GameManager.add_souls(souls_reward)
-	GameManager.add_attribute_point()
-	GameManager.unlock_talent_for_boss(boss_id)
+	GameManager.level_up()
 	GameManager.save_to_slot()
 	boss_defeated.emit(boss_id)
 

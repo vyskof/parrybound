@@ -27,7 +27,11 @@ func _rebuild() -> void:
 	for child in _talent_list.get_children():
 		child.queue_free()
 
-	_points_label.text = "Attribute Points: %d" % GameManager.get_attribute_points()
+	_points_label.text = "Attribute Points: %d   |   Talent Slots: %d / %d" % [
+		GameManager.get_attribute_points(),
+		GameManager.get_equipped_talents().size(),
+		GameManager.get_talent_slots(),
+	]
 
 	for attr in ATTRIBUTE_NAMES:
 		var row := HBoxContainer.new()
@@ -42,7 +46,7 @@ func _rebuild() -> void:
 		_attr_list.add_child(row)
 
 	for talent_id in GameManager.get_unlocked_talents():
-		var def := _find_talent_def(talent_id)
+		var def := GameManager.get_talent_def(talent_id)
 		if def.is_empty():
 			continue
 		var row := HBoxContainer.new()
@@ -56,12 +60,6 @@ func _rebuild() -> void:
 		row.add_child(btn)
 		_talent_list.add_child(row)
 
-func _find_talent_def(talent_id: String) -> Dictionary:
-	for boss_id in GameManager.TALENT_DEFS:
-		var def: Dictionary = GameManager.TALENT_DEFS[boss_id]
-		if def.id == talent_id:
-			return def
-	return {}
 
 func _on_increase_attribute(attr_name: String) -> void:
 	if not GameManager.spend_attribute_point():
@@ -79,9 +77,13 @@ func _apply_attribute_to_player(attr_name: String) -> void:
 		"vitality":
 			player.stats.max_health += 8.0
 			player.stats.health += 8.0
+			if player.has_method("refresh_max_value_bars"):
+				player.refresh_max_value_bars()
 		"endurance":
 			player.stats.max_stamina += 8.0
 			player.stats.stamina += 8.0
+			if player.has_method("refresh_max_value_bars"):
+				player.refresh_max_value_bars()
 		"strength", "dexterity":
 			if player.has_method("refresh_attribute_bonuses"):
 				player.refresh_attribute_bonuses()

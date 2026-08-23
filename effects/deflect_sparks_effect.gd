@@ -1,7 +1,7 @@
 extends CPUParticles2D
 
-func init(color: Color, scale_mult: float = 1.0, size_mult: float = 1.0) -> void:
-	modulate = color
+func init(tint_color: Color, scale_mult: float = 1.0, size_mult: float = 1.0) -> void:
+	modulate = tint_color
 	amount   = maxi(1, int(15 * scale_mult))
 	initial_velocity_min = 60.0  * scale_mult
 	initial_velocity_max = 120.0 * scale_mult

@@ -21,9 +21,9 @@ var _boss_active: bool = false
 func _on_player_detection_body_entered(_body: Node2D) -> void:
 	character_entered = true 
 	audio_stream_player_2d.play()
-	owner.emit_signal("encounter_started")
+	owner.encounter_started.emit()
 	_play_intro()
-
+	
 func _play_intro() -> void:
 	await EncounterDirector.play_intro(owner, BOSS_DISPLAY_NAME, owner.boss_id)
 	_boss_active = true

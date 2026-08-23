@@ -21,10 +21,14 @@ const STAMINA_REGEN_RATE   := 40.0
 const STAMINA_REGEN_DELAY  := 1.0
 const DODGE_COOLDOWN       := 0.25
 
-const FAST_MOVE_SPEED           := 350.0
-const FAST_MOVE_DURATION        := 0.40
+const FAST_MOVE_SPEED           := 300
+const FAST_MOVE_DURATION        := 1
 const FAST_MOVE_STAMINA_COST    := 30.0
-const FAST_MOVE_COOLDOWN        := 3.0
+const FAST_MOVE_COOLDOWN        := 2.0
+
+const LOW_STAMINA_RATIO         := 0.25
+const LOW_STAMINA_SPEED_MULT    := 0.85
+
 
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
@@ -65,8 +69,12 @@ const ATTACK_TRAIL_TINT     := Color(1.0, 0.95, 0.75, 0.55)
 const ATTACK_TRAIL_INTERVAL := 0.05
 const ATTACK_TRAIL_FADE     := 0.16
 
+const FAST_MOVE_TRAIL_TINT := Color(1.0, 0.85, 0.4, 0.5)
+const FAST_MOVE_AFTERIMAGE_INTERVAL := 0.04
+
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
+const SCENE_TALENT_CHOICE := preload("res://ui/talent_choice_menu.tscn")
 
 @export var stats: Stats
 @export var footstep_sounds: Array[AudioStreamPlayer2D] = []
@@ -81,8 +89,9 @@ var _stamina_regen_timer : float = 0.0
 var _dodge_cooldown_timer : float = 0.0
 
 var _is_fast_moving: bool = false
-var _fast_move_direction: Vector2 = Vector2.ZERO
+var _fast_move_timer: float = 0.0
 var _fast_move_cooldown_timer: float = 0.0
+var _fast_move_afterimage_timer: float = 0.0
 
 var _stamina_blink_tween: Tween = null
 
@@ -124,10 +133,15 @@ var _counter_timer      : float = 0.0
 var _attack_damage_mult: float = 1.0
 var _stamina_regen_bonus: float = 0.0
 var _deflect_stamina_mult: float = 1.0
-var _guard_chip_mult: float = 1.0
+var _hit_posture_mult: float = 1.0
+var _stamina_regen_mult: float = 1.0
+var _counter_window_bonus: float = 0.0
+var _streak_damage_mult: float = 1.0
+var _dodge_stamina_mult: float = 1.0
+var _fast_move_cooldown_mult: float = 1.0
+var _low_stamina_penalty_mult: float = 1.0
 
 
-@onready var _animation_player : AnimationPlayer      = $AnimationPlayer
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
 @onready var _hurtbox          : Hurtbox              = $Hurtbox
 @onready var _parrybox         : Parrybox             = $Parrybox
@@ -182,8 +196,14 @@ func _ready() -> void:
 	_refresh_bars_after_save_applied()
 	GameManager.souls_changed.connect(_on_souls_changed)
 	_on_souls_changed(GameManager.get_souls())
+	GameManager.leveled_up.connect(_on_leveled_up)
 	refresh_attribute_bonuses()
 	refresh_talents()
+
+func _on_leveled_up(choices: Array) -> void:
+	var menu = SCENE_TALENT_CHOICE.instantiate()
+	get_tree().root.add_child(menu)
+	menu.setup(choices)
 
 
 func refresh_attribute_bonuses() -> void:
@@ -193,14 +213,38 @@ func refresh_attribute_bonuses() -> void:
 	_stamina_regen_bonus = maxf(0.0, float(dexterity_level - 10))
 
 func refresh_talents() -> void:
-	_deflect_stamina_mult = 1.0
-	_guard_chip_mult      = 1.0
+	_deflect_stamina_mult      = 1.0
+	_hit_posture_mult          = 1.0
+	_stamina_regen_mult        = 1.0
+	_counter_window_bonus      = 0.0
+	_streak_damage_mult        = 1.0
+	_dodge_stamina_mult        = 1.0
+	_fast_move_cooldown_mult   = 1.0
+	_low_stamina_penalty_mult  = 1.0
+
 	for talent_id in GameManager.get_equipped_talents():
 		match talent_id:
 			"reapers_resolve":
 				_deflect_stamina_mult = 1.2
 			"stone_resolve":
-				_guard_chip_mult = 0.85
+				_hit_posture_mult = 0.8
+			"swift_recovery":
+				_stamina_regen_mult = 1.3
+			"patient_blade":
+				_counter_window_bonus = 0.15
+			"momentum":
+				_streak_damage_mult = 1.15
+			"light_footed":
+				_dodge_stamina_mult = 0.75
+			"windrunner":
+				_fast_move_cooldown_mult = 0.7
+			"iron_lungs":
+				_low_stamina_penalty_mult = 0.4  # zbyde jen 40% původní penalty = "-60%"
+
+func refresh_max_value_bars() -> void:
+	_health_bar.max_value  = stats.max_health
+	_stamina_bar.max_value = stats.max_stamina
+	_regain_bar.max_value  = stats.max_health
 
 
 func _refresh_bars_after_save_applied() -> void:
@@ -229,7 +273,7 @@ func _physics_process(delta: float) -> void:
 	_tick_stagger(delta)
 	_tick_stamina_regen(delta)
 	_tick_dodge_cooldown(delta)
-	_tick_fast_move_cooldown(delta)
+	_tick_fast_move(delta)
 	_tick_combo_pulse(delta)
 	_tick_counter_window(delta)
 	_tick_streak_reset(delta)
@@ -254,12 +298,6 @@ func _physics_process(delta: float) -> void:
 			_enter_attack()
 	_attack_just_started = false
 	_was_in_attack = _in_attack_state
-
-
-	if _is_fast_moving:
-		velocity = _fast_move_direction * FAST_MOVE_SPEED + _knockback_velocity
-		move_and_slide()
-		return
 
 
 	if _is_dodging:
@@ -306,10 +344,14 @@ func _process_move(_delta: float) -> void:
 		return
 
 	if Input.is_action_just_pressed("fast_move"):
-		_enter_fast_move()
-		return
+		_try_start_fast_move()
 
-	velocity = input_vector * SPEED + _knockback_velocity
+	var move_speed = FAST_MOVE_SPEED if _is_fast_moving else SPEED
+	if stats.stamina <= stats.max_stamina * LOW_STAMINA_RATIO:
+		var penalty := 1.0 - LOW_STAMINA_SPEED_MULT
+		move_speed *= 1.0 - penalty * _low_stamina_penalty_mult
+
+	velocity = input_vector * move_speed + _knockback_velocity
 	move_and_slide()
 	_tick_footsteps(_delta, input_vector.length())
 
@@ -355,8 +397,9 @@ func _enter_attack() -> void:
 	stats.stamina -= ATTACK_STAMINA_COST
 	_stamina_regen_timer = 0.0
 	_attack_buffered = false
+	var streak_bonus := _streak_damage_mult if _deflect_streak > 0 else 1.0
 	if _hitbox.combat_data:
-		_hitbox.combat_data.damage = BASE_ATTACK_DAMAGE * _attack_damage_mult
+		_hitbox.combat_data.damage = BASE_ATTACK_DAMAGE * _attack_damage_mult * streak_bonus
 
 	var is_riposte := _in_counter_window
 	var speed := RIPOSTE_ATTACK_SPEED if is_riposte else (COMBO_ATTACK_SPEED if _combo_pulse_timer > 0.0 else 1.0)
@@ -437,7 +480,7 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
 			_posture_regen_timer = 0.0
 			_in_counter_window = true
-			_counter_timer     = COUNTER_WINDOW_DURATION
+			_counter_timer     = COUNTER_WINDOW_DURATION + _counter_window_bonus
 			_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG * posture_mult
 
 			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
@@ -455,7 +498,7 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			stats.health  -= dmg
 			_add_regain_pool(dmg)
 			_pulse_damage_vignette(dmg)
-			stats.posture += pdmg
+			stats.posture += pdmg * _hit_posture_mult
 			_posture_regen_timer = 0.0
 			if hitbox and combat_data and combat_data.knockback_force > 0.0:
 				_apply_knockback(hitbox, combat_data)
@@ -507,7 +550,7 @@ func _tick_stamina_regen(delta: float) -> void:
 		return
 	_stamina_regen_timer += delta
 	if _stamina_regen_timer >= STAMINA_REGEN_DELAY:
-		stats.stamina += (STAMINA_REGEN_RATE + _stamina_regen_bonus) * delta
+		stats.stamina += (STAMINA_REGEN_RATE + _stamina_regen_bonus) * _stamina_regen_mult * delta
 
 func _tick_combo_pulse(delta: float) -> void:
 	if _combo_pulse_timer > 0.0:
@@ -577,9 +620,10 @@ func _enter_dodge() -> void:
 		return
 	if _dodge_cooldown_timer > 0.0:
 		return
-	if stats.stamina < DODGE_STAMINA_COST:
+	var dodge_cost := DODGE_STAMINA_COST * _dodge_stamina_mult
+	if stats.stamina < dodge_cost:
 		return
-	stats.stamina -= DODGE_STAMINA_COST
+	stats.stamina -= dodge_cost
 	_stamina_regen_timer = 0.0
 	_is_dodging = true
 	_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
@@ -600,7 +644,7 @@ func _tick_dodge_cooldown(delta: float) -> void:
 	if _dodge_cooldown_timer > 0.0:
 		_dodge_cooldown_timer -= delta
 
-func _enter_fast_move() -> void:
+func _try_start_fast_move() -> void:
 	if _is_fast_moving or _fast_move_cooldown_timer > 0.0:
 		return
 	if stats.stamina < FAST_MOVE_STAMINA_COST:
@@ -609,22 +653,28 @@ func _enter_fast_move() -> void:
 	stats.stamina -= FAST_MOVE_STAMINA_COST
 	_stamina_regen_timer = 0.0
 	_is_fast_moving = true
-	_fast_move_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
-	_fast_move_cooldown_timer = FAST_MOVE_COOLDOWN
+	_fast_move_timer = FAST_MOVE_DURATION
 	_sprite.modulate.a = 0.6
 
-	var elapsed := 0.0
-	while elapsed < FAST_MOVE_DURATION:
-		_spawn_afterimage(Color(1.0, 0.85, 0.4, 0.5), 0.12)
-		await get_tree().create_timer(AFTERIMAGE_INTERVAL, true, false, true).timeout
-		elapsed += AFTERIMAGE_INTERVAL
 
-	_is_fast_moving = false
-	_sprite.modulate.a = 1.0
-
-func _tick_fast_move_cooldown(delta: float) -> void:
+func _tick_fast_move(delta: float) -> void:
 	if _fast_move_cooldown_timer > 0.0:
 		_fast_move_cooldown_timer -= delta
+
+	if not _is_fast_moving:
+		return
+
+	_fast_move_timer -= delta
+
+	_fast_move_afterimage_timer -= delta
+	if _fast_move_afterimage_timer <= 0.0:
+		_fast_move_afterimage_timer = FAST_MOVE_AFTERIMAGE_INTERVAL
+		_spawn_afterimage(FAST_MOVE_TRAIL_TINT, 0.09)
+
+	if _fast_move_timer <= 0.0:
+		_is_fast_moving = false
+		_fast_move_cooldown_timer = FAST_MOVE_COOLDOWN * _fast_move_cooldown_mult
+		_sprite.modulate.a = 1.0
 
 
 func _spawn_afterimage(tint: Color = Color(0.6, 0.8, 1.0, 0.5), fade_duration: float = 0.1) -> void:

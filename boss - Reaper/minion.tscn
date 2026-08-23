@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://mficd41fvopo" path="res://assets/Undead executioner/Undead executioner puppet/png/summonAppear.png" id="1_oe71c"]
 [ext_resource type="Texture2D" uid="uid://yjgqfuer0vds" path="res://assets/Undead executioner/Undead executioner puppet/png/summonIdle.png" id="2_har0e"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="4_arrtk"]
+[ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="5_lgcyj"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="6_r2ctt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_har0e"]
 atlas = ExtResource("1_oe71c")
@@ -66,7 +68,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_r2ctt")
 }],
-"loop": false,
+"loop": 0,
 "name": &"default",
 "speed": 8.0
 }, {
@@ -83,7 +85,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_odaef")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle",
 "speed": 5.0
 }]
@@ -92,6 +94,14 @@ animations = [{
 radius = 4.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kixaf"]
+radius = 8.0
+
+[sub_resource type="Resource" id="Resource_g4v7s"]
+script = ExtResource("6_r2ctt")
+posture_damage = 5.0
+metadata/_custom_type_script = "uid://dxnjmcdy603mm"
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_g4v7s"]
 radius = 8.0
 
 [node name="minion" type="CharacterBody2D" unique_id=1311235423]
@@ -118,3 +128,13 @@ metadata/_custom_type_script = "uid://bgq0ro64cif2y"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=736014974]
 position = Vector2(-1, 5)
 shape = SubResource("CircleShape2D_kixaf")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=1839826629]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("5_lgcyj")
+combat_data = SubResource("Resource_g4v7s")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=798073804]
+position = Vector2(-1, 5)
+shape = SubResource("CircleShape2D_g4v7s")

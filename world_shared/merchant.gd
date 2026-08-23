@@ -1,6 +1,6 @@
 extends Area2D
 
-const ShopMenu := preload("res://ui/shop_menu.tscn")
+const ShopMenuScene := preload("res://ui/shop_menu.tscn")
 
 @onready var label: Label = $Label
 
@@ -31,7 +31,7 @@ func _on_body_exited(body: Node2D) -> void:
 func _open_menu() -> void:
 	_menu_open = true
 	label.visible = false
-	var menu := ShopMenu.instantiate()
+	var menu := ShopMenuScene.instantiate()
 	get_tree().root.add_child(menu)
 	menu.closed.connect(_on_menu_closed)
 
