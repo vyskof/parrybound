@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://dp6y8y5uoe22b"]
+
+[ext_resource type="Script" uid="uid://bp1lasgrpn1eh" path="res://ui/character_menu.gd" id="1_oorfk"]
+
+[node name="CharacterMenu" type="CanvasLayer" unique_id=1470699253]
+script = ExtResource("1_oorfk")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1093638673]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=605125967]
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -202.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=773828788]
+layout_mode = 2
+text = "Character"
+horizontal_alignment = 1
+
+[node name="StatsList" type="VBoxContainer" parent="VBoxContainer" unique_id=835244916]
+layout_mode = 2
+
+[node name="AttributeList" type="VBoxContainer" parent="VBoxContainer" unique_id=1922214229]
+layout_mode = 2
+
+[node name="TalentList" type="VBoxContainer" parent="VBoxContainer" unique_id=655052871]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="VBoxContainer" unique_id=445046333]
+layout_mode = 2
+text = "Close"

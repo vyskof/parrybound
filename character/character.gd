@@ -75,6 +75,7 @@ const FAST_MOVE_AFTERIMAGE_INTERVAL := 0.04
 const SCENE_DEATH := preload("res://ui/deathscreen.tscn")
 const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 const SCENE_TALENT_CHOICE := preload("res://ui/talent_choice_menu.tscn")
+const SCENE_CHARACTER_MENU  := preload("res://ui/character_menu.tscn")
 
 @export var stats: Stats
 @export var footstep_sounds: Array[AudioStreamPlayer2D] = []
@@ -201,16 +202,19 @@ func _ready() -> void:
 	refresh_talents()
 
 func _on_leveled_up(choices: Array) -> void:
-	var menu = SCENE_TALENT_CHOICE.instantiate()
+	await get_tree().create_timer(2.0, true, false, true).timeout
+	var menu := SCENE_TALENT_CHOICE.instantiate()
 	get_tree().root.add_child(menu)
 	menu.setup(choices)
 
+func get_current_attack_damage() -> float:
+	return BASE_ATTACK_DAMAGE * _attack_damage_mult
 
 func refresh_attribute_bonuses() -> void:
 	var strength_level := GameManager.get_attribute_level("strength")
-	var dexterity_level := GameManager.get_attribute_level("dexterity")
+	var agility_level := GameManager.get_attribute_level("agility")
 	_attack_damage_mult  = 1.0 + 0.08 * float(strength_level - 10)
-	_stamina_regen_bonus = maxf(0.0, float(dexterity_level - 10))
+	_stamina_regen_bonus = maxf(0.0, float(agility_level - 10))
 
 func refresh_talents() -> void:
 	_deflect_stamina_mult      = 1.0
@@ -260,6 +264,10 @@ func _refresh_bars_after_save_applied() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and not get_tree().paused:
 		get_tree().root.add_child(SCENE_PAUSE.instantiate())
+	if event.is_action_pressed("character_menu") and not get_tree().paused:
+		var menu := SCENE_CHARACTER_MENU.instantiate()
+		get_tree().root.add_child(menu)
+		menu.setup(self)
 
 # ─── Main loop ────────────────────────────────────────────────────────────────
 func _physics_process(delta: float) -> void:

@@ -29,5 +29,5 @@ grow_vertical = 2
 [node name="TitleLabel" type="Label" parent="VBoxContainer" unique_id=2132802441]
 layout_mode = 2
 
-[node name="ChoiceList" type="VBoxContainer" parent="VBoxContainer" unique_id=375333730]
+[node name="ChoiceList" type="HBoxContainer" parent="VBoxContainer" unique_id=261594071]
 layout_mode = 2

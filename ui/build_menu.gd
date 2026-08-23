@@ -2,12 +2,12 @@ class_name BuildMenu extends CanvasLayer
 
 signal closed
 
-const ATTRIBUTE_NAMES := ["vitality", "endurance", "strength", "dexterity"]
+const ATTRIBUTE_NAMES := ["fortitude", "tempo", "strength", "agility"]
 const ATTRIBUTE_LABELS := {
-	"vitality":   "Vitality (+8 Max HP)",
-	"endurance":  "Endurance (+8 Max Stamina)",
-	"strength":   "Strength (+8% Attack Dmg)",
-	"dexterity":  "Dexterity (+1 Stamina Regen/s)",
+	"fortitude": "Fortitude (+8 Max HP)",
+	"tempo":     "Tempo (+8 Max Stamina)",
+	"strength":  "Strength (+8% Attack Dmg)",
+	"agility":   "Agility (+1 Stamina Regen/s)",
 }
 
 @onready var _points_label: Label = $VBoxContainer/PointsLabel
@@ -74,17 +74,17 @@ func _apply_attribute_to_player(attr_name: String) -> void:
 	if not player or not player.stats:
 		return
 	match attr_name:
-		"vitality":
+		"fortitude":
 			player.stats.max_health += 8.0
 			player.stats.health += 8.0
 			if player.has_method("refresh_max_value_bars"):
 				player.refresh_max_value_bars()
-		"endurance":
+		"tempo":
 			player.stats.max_stamina += 8.0
 			player.stats.stamina += 8.0
 			if player.has_method("refresh_max_value_bars"):
 				player.refresh_max_value_bars()
-		"strength", "dexterity":
+		"strength", "agility":
 			if player.has_method("refresh_attribute_bonuses"):
 				player.refresh_attribute_bonuses()
 

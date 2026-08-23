@@ -89,10 +89,10 @@ func _default_progression() -> Dictionary:
 		"level":  1,
 		"souls":  0,
 		"attributes": {
-			"vitality":   0,
-			"endurance":  0,
-			"strength":   0,
-			"dexterity":  0
+			"fortitude": 0,
+			"tempo":     0,
+			"strength":  0,
+			"agility":   0
 			# "intelligence": 10  ← snadno přidáš
 		},
 		"attribute_points": 10,
@@ -434,8 +434,30 @@ func _migrate_save(data: Dictionary) -> Dictionary:
 	var defaults := _default_save(data.get("meta", {}).get("slot", 0))
 	_deep_merge(defaults, data)
 
+	_rename_legacy_attribute_keys(data)
+
 	data["meta"]["version"] = SAVE_VERSION
 	return data
+
+# Staré save soubory měly atributy pojmenované vitality/endurance/dexterity —
+# přejmenováno na fortitude/tempo/agility. Tahle funkce převede staré klíče
+# na nové, aby hráč nepřišel o body, co už do nich investoval.
+func _rename_legacy_attribute_keys(data: Dictionary) -> void:
+	if not data.has("progression"):
+		return
+	var attrs: Dictionary = data["progression"].get("attributes", {})
+	var renames := {
+		"vitality": "fortitude",
+		"endurance": "tempo",
+		"dexterity": "agility",
+	}
+	for old_key in renames:
+		if attrs.has(old_key):
+			var new_key: String = renames[old_key]
+			if not attrs.has(new_key) or attrs[new_key] == 10:
+				attrs[new_key] = attrs[old_key]
+			attrs.erase(old_key)
+	data["progression"]["attributes"] = attrs
 
 # Rekurzivně doplní chybějící klíče z 'defaults' do 'target'
 func _deep_merge(defaults: Dictionary, target: Dictionary) -> void:
