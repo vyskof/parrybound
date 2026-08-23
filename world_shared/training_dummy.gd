@@ -7,7 +7,7 @@ const HIT_FLASH_COLOR := Color(1.6, 0.5, 0.5, 1.0)
 @onready var _sprite: ColorRect = $Sprite
 @onready var _label: Label = $HitCountLabel
 
-var _hit_count: int = 0
+var _damage: int = 0
 var _regen_timer: float = 0.0
 
 func _ready() -> void:
@@ -15,22 +15,22 @@ func _ready() -> void:
 	_update_label()
 
 func _process(delta: float) -> void:
-	if _hit_count == 0:
+	if _damage == 0:
 		return
 	_regen_timer += delta
 	if _regen_timer >= REGEN_DELAY:
-		_hit_count = 0
+		_damage = 0
 		_regen_timer = 0.0
 		_update_label()
 
 func _on_hurt(_combat_data: CombatData, _hitbox: Hitbox) -> void:
-	_hit_count += 1
+	_damage += _hitbox.combat_data.damage
 	_regen_timer = 0.0
 	_update_label()
 	_flash()
 
 func _update_label() -> void:
-	_label.text = "Hits: %d" % _hit_count
+	_label.text = "Hits: %d" % _damage
 
 func _flash() -> void:
 	_sprite.modulate = HIT_FLASH_COLOR

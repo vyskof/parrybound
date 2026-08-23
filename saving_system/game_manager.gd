@@ -364,7 +364,7 @@ func increase_attribute(attr_name: String) -> void:
 	if not save_data.has("progression"):
 		return
 	var attrs: Dictionary = save_data["progression"].get("attributes", {})
-	attrs[attr_name] = attrs.get(attr_name, 10) + 1
+	attrs[attr_name] = attrs.get(attr_name, 0) + 1
 	save_data["progression"]["attributes"] = attrs
 
 
