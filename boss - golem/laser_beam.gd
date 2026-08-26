@@ -12,10 +12,13 @@ const PerilousWarning := preload("res://effects/perilous_warning.tscn")
 var _current_warning: Node2D = null
 
 
+const PERILOUS_TELEGRAPH_LEAD := 0.35
+
 func enter() -> void:
 	super.enter()
 	_setup_hitbox()
 	_begin_perilous_telegraph()
+	await get_tree().create_timer(PERILOUS_TELEGRAPH_LEAD, true, false, true).timeout
 	await _play("laser_cast")
 	await _play("laser")
 	_clear_perilous_state()
@@ -41,6 +44,14 @@ func _begin_perilous_telegraph() -> void:
 	_current_warning = PerilousWarning.instantiate()
 	owner.add_child(_current_warning)
 	_current_warning.position = Vector2(0, -90)
+	_current_warning.init(
+		PerilousVisuals.get_color(CombatData.PerilousType.THRUST),
+		PerilousVisuals.get_symbol(CombatData.PerilousType.THRUST)
+	)
+
+	var cam := character.get_node_or_null("Camera2D") if is_instance_valid(character) else null
+	if cam and cam.has_method("zoom_pulse"):
+		cam.zoom_pulse(Vector2(0.94, 0.94), PERILOUS_TELEGRAPH_LEAD + 0.15)
 
 func _clear_perilous_state() -> void:
 	if hitbox.combat_data:

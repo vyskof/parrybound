@@ -32,9 +32,12 @@ func _setup_hitbox() -> void:
 		hitbox.damage = 20.0
 
 
+const PERILOUS_TELEGRAPH_LEAD := 0.35   
+
 func attack(move: String = "1", perilous: bool = false) -> void:
 	if perilous:
 		_begin_perilous_telegraph()
+		await get_tree().create_timer(PERILOUS_TELEGRAPH_LEAD, true, false, true).timeout
 
 	animation_player.speed_scale = 1.5 if owner.phase_two else 1.0
 	animation_player.play("attack_" + move)
@@ -73,6 +76,14 @@ func _begin_perilous_telegraph() -> void:
 	_current_warning = PerilousWarning.instantiate()
 	owner.add_child(_current_warning)
 	_current_warning.position = Vector2(0, -70)
+	_current_warning.init(
+		PerilousVisuals.get_color(CombatData.PerilousType.SWEEP),
+		PerilousVisuals.get_symbol(CombatData.PerilousType.SWEEP)
+	)
+
+	var cam := character.get_node_or_null("Camera2D") if is_instance_valid(character) else null
+	if cam and cam.has_method("zoom_pulse"):
+		cam.zoom_pulse(Vector2(0.94, 0.94), PERILOUS_TELEGRAPH_LEAD + 0.15)
 
 func _clear_perilous_state() -> void:
 	if hitbox.combat_data:

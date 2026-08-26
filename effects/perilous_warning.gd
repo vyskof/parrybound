@@ -3,8 +3,9 @@ extends Node2D
 func _ready() -> void:
 	_start_pulse()
 
-func init(color: Color) -> void:
+func init(color: Color, symbol: String = "!") -> void:
 	$Label.add_theme_color_override("font_color", color)
+	$Label.text = symbol
 
 func _start_pulse() -> void:
 	var label := $Label
