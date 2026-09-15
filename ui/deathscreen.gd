@@ -5,6 +5,7 @@ class_name DeathScreen extends CanvasLayer
 @onready var _button: Button = $Button
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 
 	_color_rect.modulate.a = 0.0

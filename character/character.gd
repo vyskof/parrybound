@@ -33,7 +33,7 @@ const LOW_STAMINA_SPEED_MULT    := 0.85
 const DODGE_CANCEL_STAMINA_MULT := 1.3
 
 const ATTACK_STAMINA_COST      := 15.0
-const BASE_ATTACK_DAMAGE       := 50.0
+const BASE_ATTACK_DAMAGE       := 10.0
 
 
 const REGAIN_RATIO             := 0.5    
@@ -213,8 +213,8 @@ func get_current_attack_damage() -> float:
 func refresh_attribute_bonuses() -> void:
 	var strength_level := GameManager.get_attribute_level("strength")
 	var agility_level := GameManager.get_attribute_level("agility")
-	_attack_damage_mult  = 1.0 + 0.08 * float(strength_level - 10)
-	_stamina_regen_bonus = maxf(0.0, float(agility_level - 10))
+	_attack_damage_mult  = pow(1.08, float(strength_level))
+	_stamina_regen_bonus = maxf(0.0, float(agility_level))
 
 func refresh_talents() -> void:
 	_deflect_stamina_mult      = 1.0

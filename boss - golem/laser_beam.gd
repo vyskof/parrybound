@@ -19,8 +19,14 @@ func enter() -> void:
 	_setup_hitbox()
 	_begin_perilous_telegraph()
 	await get_tree().create_timer(PERILOUS_TELEGRAPH_LEAD, true, false, true).timeout
+	if not is_active:
+		return
 	await _play("laser_cast")
+	if not is_active:
+		return
 	await _play("laser")
+	if not is_active:
+		return
 	_clear_perilous_state()
 	can_transition = true
 

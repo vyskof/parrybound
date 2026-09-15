@@ -6,9 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://cidyeu5rdx3kh" path="res://world_2 tile_sets/TX Tileset Wall.png" id="2_ia432"]
 [ext_resource type="PackedScene" uid="uid://xrfvasutsedj" path="res://boss - golem/golem_boss.tscn" id="3_hlada"]
 [ext_resource type="Material" uid="uid://6accymoxmukw" path="res://effects/wet_floor_material.tres" id="3_wys1n"]
-[ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_shared/portal.tscn" id="6_mv2s0"]
+[ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_hub/portal.tscn" id="6_mv2s0"]
 [ext_resource type="PackedScene" uid="uid://b3asmgdavwjrf" path="res://effects/fog_wall.tscn" id="8_yuvu5"]
-[ext_resource type="Script" uid="uid://cuafvyat32e4p" path="res://world_shared/ambient_bed.gd" id="9_eiokd"]
+[ext_resource type="Script" uid="uid://cuafvyat32e4p" path="res://world_hub/ambient_bed.gd" id="9_eiokd"]
 [ext_resource type="AudioStream" uid="uid://b48q2ou861hck" path="res://sounds/storegraphic-soft-wind-477404.mp3" id="9_ngp3s"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ia432"]

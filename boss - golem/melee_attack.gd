@@ -1,12 +1,10 @@
 extends State
 
 @onready var hitbox: Hitbox = owner.find_child("Hitbox")
-var is_active: bool = false
 
 const MELEE_DAMAGE:         float = 10.0
 const MELEE_POSTURE_DAMAGE: float = 12.0
 const MELEE_KNOCKBACK:      float = 80.0
-
 
 func enter() -> void:
 	super.enter()
@@ -38,6 +36,8 @@ func attack() -> void:
 func combo() -> void:
 	while is_active:
 		await attack()
+		if not is_active:
+			return
 		if owner.direction.length() > 30.0:
 			get_parent().change_state("Follow")
 			return

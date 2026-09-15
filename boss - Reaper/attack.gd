@@ -1,6 +1,5 @@
 extends State
 
-var is_active: bool = false
 @onready var hitbox: Hitbox = owner.find_child("Hitbox")
 
 const PerilousWarning := preload("res://effects/perilous_warning.tscn")
@@ -62,6 +61,9 @@ func combo() -> void:
 
 		var wait = randf_range(0.4, 0.9) if not owner.phase_two else randf_range(0.2, 0.4)
 		await get_tree().create_timer(wait).timeout
+		
+		if not is_active:
+			return
 
 		if owner.direction.length() > 40:
 			get_parent().change_state("Follow")
@@ -71,7 +73,7 @@ func _begin_perilous_telegraph() -> void:
 	if hitbox.combat_data:
 		hitbox.combat_data.is_unblockable = true
 		hitbox.combat_data.perilous_type  = CombatData.PerilousType.SWEEP
-		hitbox.combat_data.posture_damage = 0.0   # perilous se neřeší postureou — buď uhneš, nebo tě to sejme naplno
+		hitbox.combat_data.posture_damage = 0.0   
 
 	_current_warning = PerilousWarning.instantiate()
 	owner.add_child(_current_warning)
@@ -89,7 +91,7 @@ func _clear_perilous_state() -> void:
 	if hitbox.combat_data:
 		hitbox.combat_data.is_unblockable = false
 		hitbox.combat_data.perilous_type  = CombatData.PerilousType.NONE
-		hitbox.combat_data.posture_damage = 15.0   # vrátit hodnotu ze _setup_hitbox
+		hitbox.combat_data.posture_damage = 15.0 
 
 	if is_instance_valid(_current_warning):
 		_current_warning.queue_free()

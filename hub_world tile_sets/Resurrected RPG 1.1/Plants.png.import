@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3g5ak1v1uj30"
-path="res://.godot/imported/Grass 2 layer.png-33d28ba890c5b07880fd8ce0009fd7eb.ctex"
+uid="uid://cu5cbi6pml2f0"
+path="res://.godot/imported/Plants.png-b2c3ec85ebe7a6c452a6523e4258ef63.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://save_world tile_sets/Resurrected RPG 1.1/Grass 2 layer.png"
-dest_files=["res://.godot/imported/Grass 2 layer.png-33d28ba890c5b07880fd8ce0009fd7eb.ctex"]
+source_file="res://hub_world tile_sets/Resurrected RPG 1.1/Plants.png"
+dest_files=["res://.godot/imported/Plants.png-b2c3ec85ebe7a6c452a6523e4258ef63.ctex"]
 
 [params]
 

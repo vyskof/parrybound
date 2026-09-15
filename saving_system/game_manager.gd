@@ -93,13 +93,12 @@ func _default_progression() -> Dictionary:
 			"tempo":     0,
 			"strength":  0,
 			"agility":   0
-			# "intelligence": 10  ← snadno přidáš
 		},
 		"attribute_points": 10,
-		"talent_slots": 0,       # roste +1 s každým levelem (zabitým bossem)
+		"talent_slots": 0,       
 		"unlocked_talents": [],  # ["reapers_resolve", "stone_resolve", ...] — natrvalo naučené
-		"equipped_talents": [],  # aktivní, max talent_slots najednou
-		"shop_purchases": {}  # {"vigor_shard": 2, "focus_shard": 1, ...}
+		"equipped_talents": [], 
+		"shop_purchases": {}  
 	}
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -213,10 +212,6 @@ func get_souls() -> int:
 const LEVEL_UP_ATTRIBUTE_POINTS := 5
 const TALENT_CHOICES_PER_LEVEL  := 4
 
-# Centrální registr všech talentů ve hře. Obsah (name/desc/rarity) je zatím
-# placeholder — klidně přepiš cokoliv, architektura (náhodný výběr, ukládání,
-# equip sloty) na konkrétním obsahu nezávisí. "rarity" je zatím jen metadata
-# pro budoucí vážený výběr (teď je výběr rovnoměrně náhodný).
 const TALENT_POOL := {
 	"reapers_resolve": {
 		"name": "Reaper's Resolve",

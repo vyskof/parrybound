@@ -2,6 +2,7 @@ class_name PauseMenu extends CanvasLayer
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	Engine.time_scale = 1.0
 	get_tree().paused = true   
 	$VBoxContainer/ContinueButton.pressed.connect(_on_continue_pressed)

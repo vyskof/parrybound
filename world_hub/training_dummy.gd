@@ -30,7 +30,7 @@ func _on_hurt(_combat_data: CombatData, _hitbox: Hitbox) -> void:
 	_flash()
 
 func _update_label() -> void:
-	_label.text = "Hits: %d" % _damage
+	_label.text = "Damage: %d" % roundi(_damage)
 
 func _flash() -> void:
 	_sprite.modulate = HIT_FLASH_COLOR

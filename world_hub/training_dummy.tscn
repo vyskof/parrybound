@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ctbl5jcrmstnx"]
 
-[ext_resource type="Script" uid="uid://baorwf5p2vt0k" path="res://world_shared/training_dummy.gd" id="1_lwc0r"]
+[ext_resource type="Script" uid="uid://baorwf5p2vt0k" path="res://world_hub/training_dummy.gd" id="1_lwc0r"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="2_xhaq6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
@@ -30,8 +30,8 @@ offset_left = -20.0
 offset_top = -34.0
 offset_right = 20.0
 offset_bottom = -22.0
-theme_override_font_sizes/font_size = 3
-text = "Hits: 0"
+theme_override_font_sizes/font_size = 10
+text = "Damage: 0"
 horizontal_alignment = 1
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=559526431]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bxusj8cay2d36"]
 
-[ext_resource type="Script" uid="uid://5rnx7u02h8cl" path="res://world_shared/campfire.gd" id="1_hks2d"]
-[ext_resource type="Texture2D" uid="uid://crb0gqfkeuvbf" path="res://save_world tile_sets/campfire-sheet.png" id="2_0k1sx"]
+[ext_resource type="Script" uid="uid://5rnx7u02h8cl" path="res://world_hub/campfire.gd" id="1_hks2d"]
+[ext_resource type="Texture2D" uid="uid://crb0gqfkeuvbf" path="res://hub_world tile_sets/campfire-sheet.png" id="2_0k1sx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_yf5fn"]
 radius = 9.0

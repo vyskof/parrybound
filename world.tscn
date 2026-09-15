@@ -4,10 +4,10 @@
 [ext_resource type="PackedScene" uid="uid://d0do6ydtqdbnr" path="res://character/character.tscn" id="2_fj7yv"]
 [ext_resource type="Texture2D" uid="uid://b4vwr6mpuenvj" path="res://world_1 tile_sets/RF_Catacombs_v1.0/mainlevbuild.png" id="2_tlwt5"]
 [ext_resource type="PackedScene" uid="uid://bdigfucfjg6sw" path="res://boss - Reaper/grim_boss.tscn" id="3_tlwt5"]
-[ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_shared/portal.tscn" id="5_036b0"]
+[ext_resource type="PackedScene" uid="uid://bsnjapf8kgpfa" path="res://world_hub/portal.tscn" id="5_036b0"]
 [ext_resource type="PackedScene" uid="uid://b3asmgdavwjrf" path="res://effects/fog_wall.tscn" id="6_dwbse"]
 [ext_resource type="AudioStream" uid="uid://bijo05560esp8" path="res://sounds/soundreality-catacombs-267216.mp3" id="7_gbfbk"]
-[ext_resource type="Script" uid="uid://cuafvyat32e4p" path="res://world_shared/ambient_bed.gd" id="7_pkg7o"]
+[ext_resource type="Script" uid="uid://cuafvyat32e4p" path="res://world_hub/ambient_bed.gd" id="7_pkg7o"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_aqk2v"]
 texture = ExtResource("2_tlwt5")

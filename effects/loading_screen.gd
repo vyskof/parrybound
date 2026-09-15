@@ -1,11 +1,7 @@
 extends CanvasLayer
 
 const LORE_LINES := [
-	"Postura je klic. Zdravi je jen otazka casu.",
-	"Deflect neni blok. Je to odpoved.",
-	"Katana nerozhoduje o vitezi souboje. Timing ano.",
-	"I nejtvrdsi brneni jednou praskne.",
-	"Kdo vaha v souboji s bossem, prohrava dvakrat.",
+	"Loading...",
 ]
 
 @onready var _rect: ColorRect = $Rect
