@@ -6,7 +6,6 @@ func _ready() -> void:
 	Engine.time_scale = 1.0
 	get_tree().paused = true   
 	$VBoxContainer/ContinueButton.pressed.connect(_on_continue_pressed)
-	$VBoxContainer/SaveButton.pressed.connect(_on_save_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -17,8 +16,6 @@ func _on_continue_pressed() -> void:
 	get_tree().paused = false  
 	queue_free()               
 
-func _on_save_pressed() -> void:
-	GameManager.save_to_slot() 
 
 func _on_quit_pressed() -> void:
 	get_tree().paused = false

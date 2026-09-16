@@ -37,6 +37,8 @@ func attack(move: String = "1", perilous: bool = false) -> void:
 	if perilous:
 		_begin_perilous_telegraph()
 		await get_tree().create_timer(PERILOUS_TELEGRAPH_LEAD, true, false, true).timeout
+		if not is_active:
+			return
 
 	animation_player.speed_scale = 1.5 if owner.phase_two else 1.0
 	animation_player.play("attack_" + move)

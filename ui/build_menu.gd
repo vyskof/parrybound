@@ -15,10 +15,18 @@ const ATTRIBUTE_LABELS := {
 @onready var _talent_list: VBoxContainer = $VBoxContainer/TalentList
 @onready var _close_button: Button = $VBoxContainer/CloseButton
 
+var _talent_desc_label: Label
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 	_close_button.pressed.connect(_on_close_pressed)
+	_talent_desc_label = Label.new()
+	_talent_desc_label.text = "Select a talent to see its description."
+	_talent_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_talent_desc_label.custom_minimum_size = Vector2(300, 40)
+	$VBoxContainer.add_child(_talent_desc_label)
+	$VBoxContainer.move_child(_talent_desc_label, _close_button.get_index())
 	_rebuild()
 
 func _rebuild() -> void:
@@ -51,15 +59,18 @@ func _rebuild() -> void:
 			continue
 		var row := HBoxContainer.new()
 		var equipped = talent_id in GameManager.get_equipped_talents()
-		var label := Label.new()
-		label.text = "%s — %s%s" % [def.name, def.desc, "  [EQUIPPED]" if equipped else ""]
-		row.add_child(label)
+		var name_btn := Button.new()
+		name_btn.text = "%s%s" % [def.name, "  [EQUIPPED]" if equipped else ""]
+		name_btn.pressed.connect(_on_talent_name_pressed.bind(def.desc))
+		row.add_child(name_btn)
 		var btn := Button.new()
 		btn.text = "Unequip" if equipped else "Equip"
 		btn.pressed.connect(_on_toggle_talent.bind(talent_id, not equipped))
 		row.add_child(btn)
 		_talent_list.add_child(row)
 
+func _on_talent_name_pressed(desc: String) -> void:
+	_talent_desc_label.text = desc
 
 func _on_increase_attribute(attr_name: String) -> void:
 	if not GameManager.spend_attribute_point():

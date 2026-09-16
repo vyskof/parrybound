@@ -40,7 +40,8 @@ func _ready() -> void:
 	set_physics_process(false)
 	_on_boss_ready()
 	_posture_bar = get_node_or_null("UI/TexturePostureBar")
-	
+	encounter_started.connect(func(): GameManager.in_boss_fight = true)
+	boss_defeated.connect(func(_id): GameManager.in_boss_fight = false)
 
 func _on_boss_ready() -> void:
 	pass

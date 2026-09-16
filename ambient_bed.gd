@@ -3,6 +3,7 @@ extends AudioStreamPlayer2D
 @export var fade_duration: float = 1.2
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	var target_volume_db := volume_db
 	volume_db = -80.0
 	if stream:

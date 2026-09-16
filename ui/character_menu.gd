@@ -4,9 +4,11 @@ signal closed
 
 const FONT_SIZE_TITLE := 8
 const FONT_SIZE_ROW    := 6
+const FONT_SIZE_DESC   := 6
 
 var _player: Character
 var _panel: PanelContainer
+var _talent_desc_label: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -52,24 +54,32 @@ func _rebuild() -> void:
 
 	var left := VBoxContainer.new()
 	left.add_theme_constant_override("separation", 1)
+	left.custom_minimum_size = Vector2(130, 0)
 	columns.add_child(left)
 
 	_add_row(left, "Health",  "%d / %d" % [roundi(_player.stats.health), roundi(_player.stats.max_health)])
 	_add_row(left, "Stamina", "%d / %d" % [roundi(_player.stats.stamina), roundi(_player.stats.max_stamina)])
+	_add_row(left, "Stamina Regen", "%d/s" % roundi(_player.get_current_stamina_regen()))
 	_add_row(left, "Posture", "%d / %d" % [roundi(_player.stats.posture), roundi(_player.stats.max_posture)])
 	_add_row(left, "Attack Dmg", "%d" % roundi(_player.get_current_attack_damage()))
 	_add_row(left, "Level", "%d" % GameManager.get_level())
 	_add_row(left, "Souls", "%d" % GameManager.get_souls())
 
-	var right := VBoxContainer.new()
-	right.add_theme_constant_override("separation", 1)
-	columns.add_child(right)
+	var mid := VBoxContainer.new()
+	mid.add_theme_constant_override("separation", 1)
+	mid.custom_minimum_size = Vector2(80, 0)
+	columns.add_child(mid)
 
 	for attr_name in ["strength", "fortitude", "agility", "tempo"]:
-		_add_row(right, attr_name.capitalize(), "%d" % GameManager.get_attribute_level(attr_name))
+		_add_row(mid, attr_name.capitalize(), "%d" % GameManager.get_attribute_level(attr_name))
+
+	var right := VBoxContainer.new()
+	right.add_theme_constant_override("separation", 2)
+	right.custom_minimum_size = Vector2(150, 0)
+	columns.add_child(right)
 
 	var talent_title := Label.new()
-	talent_title.text = "Talents:"
+	talent_title.text = "Talents (click for details):"
 	talent_title.add_theme_font_size_override("font_size", FONT_SIZE_ROW)
 	right.add_child(talent_title)
 
@@ -79,14 +89,26 @@ func _rebuild() -> void:
 		none_label.text = "None equipped"
 		none_label.add_theme_font_size_override("font_size", FONT_SIZE_ROW)
 		right.add_child(none_label)
+
 	for talent_id in equipped:
 		var def := GameManager.get_talent_def(talent_id)
 		if def.is_empty():
 			continue
-		var t_label := Label.new()
-		t_label.text = def.name
-		t_label.add_theme_font_size_override("font_size", FONT_SIZE_ROW)
-		right.add_child(t_label)
+		var t_button := Button.new()
+		t_button.text = def.name
+		t_button.add_theme_font_size_override("font_size", FONT_SIZE_ROW)
+		t_button.pressed.connect(_on_talent_pressed.bind(def.desc))
+		right.add_child(t_button)
+
+	var desc_panel := PanelContainer.new()
+	desc_panel.custom_minimum_size = Vector2(150, 40)
+	right.add_child(desc_panel)
+
+	_talent_desc_label = Label.new()
+	_talent_desc_label.text = "Select a talent to see its description."
+	_talent_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_talent_desc_label.add_theme_font_size_override("font_size", FONT_SIZE_DESC)
+	desc_panel.add_child(_talent_desc_label)
 
 	var close_button := Button.new()
 	close_button.text = "Close (Tab)"
@@ -94,11 +116,14 @@ func _rebuild() -> void:
 	close_button.pressed.connect(_on_close_pressed)
 	outer.add_child(close_button)
 
+func _on_talent_pressed(desc: String) -> void:
+	_talent_desc_label.text = desc
+
 func _add_row(parent: VBoxContainer, label_text: String, value_text: String) -> void:
 	var row := HBoxContainer.new()
 	var label := Label.new()
 	label.text = label_text
-	label.custom_minimum_size = Vector2(60, 0)
+	label.custom_minimum_size = Vector2(80, 0)
 	label.add_theme_font_size_override("font_size", FONT_SIZE_ROW)
 	row.add_child(label)
 	var value := Label.new()

@@ -729,12 +729,12 @@ states/ParryState/node = SubResource("AnimationNodeBlendSpace2D_qi5as")
 states/ParryState/position = Vector2(366, -5)
 states/Start/position = Vector2(177, 90)
 transitions = ["Start", "MoveState", SubResource("AnimationNodeStateMachineTransition_jb3kq"), "MoveState", "AttackState", SubResource("AnimationNodeStateMachineTransition_c1b4b"), "AttackState", "MoveState", SubResource("AnimationNodeStateMachineTransition_7tnxx"), "ParryState", "MoveState", SubResource("AnimationNodeStateMachineTransition_bwfjh"), "MoveState", "ParryState", SubResource("AnimationNodeStateMachineTransition_x1sy7")]
-graph_offset = Vector2(-132, -60)
+graph_offset = Vector2(-137, -25)
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_sm1rv"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_wa5vi"]
-graph_offset = Vector2(-458, 25)
+graph_offset = Vector2(-450.41904, 51.238007)
 nodes/StateMachine/node = SubResource("AnimationNodeStateMachine_pjt0s")
 nodes/StateMachine/position = Vector2(-200, 80)
 nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_sm1rv")

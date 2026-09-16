@@ -24,7 +24,7 @@ func _process(delta: float) -> void:
 		_update_label()
 
 func _on_hurt(_combat_data: CombatData, _hitbox: Hitbox) -> void:
-	_damage += _hitbox.combat_data.damage
+	_damage += roundi(_hitbox.combat_data.damage)
 	_regen_timer = 0.0
 	_update_label()
 	_flash()

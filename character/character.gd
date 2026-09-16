@@ -77,6 +77,8 @@ const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 const SCENE_TALENT_CHOICE := preload("res://ui/talent_choice_menu.tscn")
 const SCENE_CHARACTER_MENU  := preload("res://ui/character_menu.tscn")
 
+const ATTACK_MOVE_SPEED_MULT := 0.35  # 35% normální rychlosti během útoku
+
 @export var stats: Stats
 @export var footstep_sounds: Array[AudioStreamPlayer2D] = []
 
@@ -141,6 +143,8 @@ var _streak_damage_mult: float = 1.0
 var _dodge_stamina_mult: float = 1.0
 var _fast_move_cooldown_mult: float = 1.0
 var _low_stamina_penalty_mult: float = 1.0
+
+var _can_open_menu      := true
 
 
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
@@ -210,6 +214,9 @@ func _on_leveled_up(choices: Array) -> void:
 func get_current_attack_damage() -> float:
 	return BASE_ATTACK_DAMAGE * _attack_damage_mult
 
+func get_current_stamina_regen() -> float:
+	return (STAMINA_REGEN_RATE + _stamina_regen_bonus) * _stamina_regen_mult
+
 func refresh_attribute_bonuses() -> void:
 	var strength_level := GameManager.get_attribute_level("strength")
 	var agility_level := GameManager.get_attribute_level("agility")
@@ -227,27 +234,15 @@ func refresh_talents() -> void:
 	_low_stamina_penalty_mult  = 1.0
 
 	for talent_id in GameManager.get_equipped_talents():
-		match talent_id:
-			"reapers_resolve":
-				_deflect_stamina_mult = 1.2
-			"stone_resolve":
-				_hit_posture_mult = 0.8
-			"swift_recovery":
-				_stamina_regen_mult = 1.3
-			"patient_blade":
-				_counter_window_bonus = 0.15
-			"momentum":
-				_streak_damage_mult = 1.15
-			"light_footed":
-				_dodge_stamina_mult = 0.75
-			"windrunner":
-				_fast_move_cooldown_mult = 0.7
-			"iron_lungs":
-				_low_stamina_penalty_mult = 0.4  # zbyde jen 40% původní penalty = "-60%"
+		var effect := TalentData.get_talent(talent_id)
+		if effect:
+			set(effect.stat_key, effect.stat_value)
 
 func refresh_max_value_bars() -> void:
 	_health_bar.max_value  = stats.max_health
+	_health_bar.value      = stats.health
 	_stamina_bar.max_value = stats.max_stamina
+	_stamina_bar.value     = stats.stamina
 	_regain_bar.max_value  = stats.max_health
 
 
@@ -262,9 +257,9 @@ func _refresh_bars_after_save_applied() -> void:
 	_regain_bar.value     = stats.health
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and not get_tree().paused:
+	if event.is_action_pressed("ui_cancel") and not get_tree().paused and _can_open_menu and not GameManager.in_boss_fight:
 		get_tree().root.add_child(SCENE_PAUSE.instantiate())
-	if event.is_action_pressed("character_menu") and not get_tree().paused:
+	if event.is_action_pressed("character_menu") and not get_tree().paused and _can_open_menu and not GameManager.in_boss_fight:
 		var menu := SCENE_CHARACTER_MENU.instantiate()
 		get_tree().root.add_child(menu)
 		menu.setup(self)
@@ -289,6 +284,7 @@ func _physics_process(delta: float) -> void:
 
 	if _was_in_attack and not _attack_just_started and _playback.get_current_node() == "MoveState":
 		_in_attack_state = false
+		_can_open_menu = true
 		_animation_tree.set("parameters/TimeScale/scale", 1.0)
 		_combo_pulse_timer = COMBO_PULSE_WINDOW
 		if _parry_buffered:
@@ -377,6 +373,7 @@ func _process_attack() -> void:
 			_attack_buffered  = false
 			_parry_buffered   = false
 			_in_attack_state  = false
+			_can_open_menu    = true
 			_animation_tree.set("parameters/TimeScale/scale", 1.0)
 			_playback.start("MoveState", true)
 			_clear_hitbox()
@@ -385,9 +382,9 @@ func _process_attack() -> void:
 		else:
 			_dodge_buffered = true
 	
-	velocity = _knockback_velocity
+	var move_input := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	velocity = move_input * SPEED * ATTACK_MOVE_SPEED_MULT + _knockback_velocity
 	move_and_slide()
-
 
 
 func _process_parry() -> void:
@@ -401,6 +398,7 @@ func _enter_attack() -> void:
 	if stats.stamina < ATTACK_STAMINA_COST:
 		return
 	_in_attack_state = true
+	_can_open_menu = false
 	_attack_just_started = true
 	stats.stamina -= ATTACK_STAMINA_COST
 	_stamina_regen_timer = 0.0
@@ -442,6 +440,7 @@ func _enter_parry() -> void:
 		return
 	_parry_cooldown.start(0.3) 
 	_in_parry_state = true
+	_can_open_menu = false
 	_parrybox.monitoring = true
 	_parry_resolver.try_start_deflect()
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
@@ -454,9 +453,11 @@ func _enter_parry() -> void:
 
 func _exit_parry() -> void:
 	_in_parry_state = false
+	_can_open_menu = true
 	_parry_resolver.stop_deflect()
 	_parrybox.monitoring = false
 	_playback.start("MoveState", true)
+	
 
 
 func take_hit_raw(damage: float, inv_duration: float = 0.5) -> void:
@@ -634,6 +635,7 @@ func _enter_dodge() -> void:
 	stats.stamina -= dodge_cost
 	_stamina_regen_timer = 0.0
 	_is_dodging = true
+	_can_open_menu = false
 	_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
 	_start_invincibility(DODGE_IFRAMES)
 	_sprite.modulate.a = 0.5
@@ -645,6 +647,7 @@ func _enter_dodge() -> void:
 		elapsed += AFTERIMAGE_INTERVAL
 	
 	_is_dodging = false
+	_can_open_menu = true
 	_dodge_cooldown_timer = DODGE_COOLDOWN
 	_sprite.modulate.a = 1.0
 
@@ -811,6 +814,7 @@ func _play_knockdown_squash() -> void:
 
 func _clear_hitbox() -> void:
 	_hitbox.clear_hit_targets()
+	_hitbox.get_node("CollisionShape2D").shape = null
 	var col := _hitbox.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if col:
 		col.shape = null

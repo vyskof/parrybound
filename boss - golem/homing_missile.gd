@@ -11,5 +11,5 @@ func enter() -> void:
 
 func _shoot() -> void:
 	var bullet: Node = bullet_node.instantiate()
-	bullet.position = owner.position
 	get_tree().current_scene.add_child(bullet)
+	bullet.global_position = owner.global_position

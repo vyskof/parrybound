@@ -19,6 +19,7 @@ var current_slot: int = -1
 # Kompletní save data pro aktuální hru
 var save_data: Dictionary = {}
 
+var in_boss_fight: bool = false
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Inicializace
@@ -206,54 +207,11 @@ func spend_souls(amount: int) -> bool:
 func get_souls() -> int:
 	return save_data.get("progression", {}).get("souls", 0)
 
-
-# TALENTYYYYYYYYYYYYYYYYYYYYYY 
+# Talenty a progrese
 
 const LEVEL_UP_ATTRIBUTE_POINTS := 5
 const TALENT_CHOICES_PER_LEVEL  := 4
 
-const TALENT_POOL := {
-	"reapers_resolve": {
-		"name": "Reaper's Resolve",
-		"desc": "+20% stamina restored on a successful deflect",
-		"rarity": "common",
-	},
-	"stone_resolve": {
-		"name": "Stone Resolve",
-		"desc": "-25% posture damage from hits you fail to deflect",
-		"rarity": "common",
-	},
-	"swift_recovery": {
-		"name": "Swift Recovery",
-		"desc": "+30% stamina regeneration rate",
-		"rarity": "common",
-	},
-	"light_footed": {
-		"name": "Light Footed",
-		"desc": "-25% dodge stamina cost",
-		"rarity": "common",
-	},
-	"patient_blade": {
-		"name": "Patient Blade",
-		"desc": "+0.15s counter window after a successful deflect",
-		"rarity": "rare",
-	},
-	"momentum": {
-		"name": "Momentum",
-		"desc": "+15% attack damage while your deflect streak is active",
-		"rarity": "rare",
-	},
-	"windrunner": {
-		"name": "Windrunner",
-		"desc": "-30% fast move cooldown",
-		"rarity": "rare",
-	},
-	"iron_lungs": {
-		"name": "Iron Lungs",
-		"desc": "-60% low-stamina movement speed penalty",
-		"rarity": "legendary",
-	},
-}
 
 func get_level() -> int:
 	return save_data.get("progression", {}).get("level", 1)
@@ -262,14 +220,14 @@ func get_talent_slots() -> int:
 	return save_data.get("progression", {}).get("talent_slots", 0)
 
 func get_talent_def(talent_id: String) -> Dictionary:
-	if not TALENT_POOL.has(talent_id):
+	var effect := TalentData.get_talent(talent_id)
+	if effect == null:
 		return {}
-	var def: Dictionary = TALENT_POOL[talent_id]
 	return {
-		"id": talent_id,
-		"name": def.name,
-		"desc": def.desc,
-		"rarity": def.get("rarity", "common"),
+		"id": effect.id,
+		"name": effect.display_name,
+		"desc": effect.desc,
+		"rarity": effect.rarity,
 	}
 
 # Voláno po zabití bosse. Level +1, rovnou 5 attribute pointů, +1 talent slot.
@@ -291,17 +249,14 @@ func level_up() -> void:
 func _roll_talent_choices(count: int) -> Array:
 	var unlocked := get_unlocked_talents()
 	var available: Array = []
-	for talent_id in TALENT_POOL:
+	for talent_id in TalentData.get_all():
 		if talent_id not in unlocked:
 			available.append(talent_id)
 	available.shuffle()
 	return available.slice(0, mini(count, available.size()))
 
-# Zavolá UI popup poté, co si hráč vybere jeden ze 4 nabídnutých talentů.
-# Talent se natrvalo přidá mezi unlocked_talents, a pokud je volný equip
-# slot, rovnou se i vybaví — ať nový talent hned něco dělá.
 func choose_talent(talent_id: String) -> void:
-	if not TALENT_POOL.has(talent_id) or not save_data.has("progression"):
+	if not TalentData.has_talent(talent_id) or not save_data.has("progression"):
 		return
 	var unlocked := get_unlocked_talents()
 	if talent_id not in unlocked:
