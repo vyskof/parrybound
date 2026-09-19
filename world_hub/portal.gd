@@ -2,7 +2,6 @@ extends Area2D
 
 @export var destination_scene: String
 @export var destination_spawn: String
-@export var portal_id: String
 
 @onready var label: Label = $Label
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D

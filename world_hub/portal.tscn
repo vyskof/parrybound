@@ -11,7 +11,6 @@ collision_mask = 2
 script = ExtResource("1_0r486")
 destination_scene = "res://world_2.tscn"
 destination_spawn = "default"
-portal_id = "portal_to_world_2"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1846374815]
 shape = SubResource("CircleShape2D_0r486")

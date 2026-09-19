@@ -1,15 +1,15 @@
 class_name FeedbackOrchestrator extends Node
 
-@export var camera: Camera2D
 
+const STREAK_PITCH_STEP := 0.10
+
+
+@export var camera: Camera2D
 @export var perfect_parry_vfx: PackedScene
-@export var guard_vfx: PackedScene
 @export var player_hit_vfx: PackedScene
 @export var stagger_vfx: PackedScene
-@export var boss_hit_vfx: PackedScene
 
 @export var perfect_parry_sfx: AudioStreamPlayer
-@export var guard_sfx: AudioStreamPlayer
 @export var hit_sfx: AudioStreamPlayer
 
 @export var deflect_sparks_vfx: PackedScene
@@ -27,10 +27,15 @@ func play_parry_feedback(
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.10
 	_spawn_vfx(perfect_parry_vfx, position)
 	_spawn_deflect_sparks(position, streak)
-	_play_sfx(perfect_parry_sfx, 0.10)
+	var streak_pitch := 1.0 + (mini(streak, 4) - 1) * STREAK_PITCH_STEP
+	_play_sfx(perfect_parry_sfx, 0.03, streak_pitch)
 	var shake_mag := 1.0 + (mini(streak, 4) - 1) * 0.6
 	camera.shake(shake_mag)
 	Hitstop.freeze(hitstop_dur)
+
+func play_own_hit_feedback(hitstop_duration: float = 0.05, shake: float = 1.2) -> void:
+	Hitstop.freeze(hitstop_duration)
+	camera.shake(shake)
 
 func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source_position: Vector2 = Vector2.ZERO) -> void:
 	_spawn_vfx(player_hit_vfx, position)
@@ -63,13 +68,6 @@ func play_stagger_feedback(position: Vector2) -> void:
 	ChromaticAberration.pulse(0.014, 0.35)
 	Hitstop.freeze(0.22)
 
-func play_boss_parried_feedback(
-	result: ParryResolver.Result,
-	position: Vector2
-) -> void:
-	if result == ParryResolver.Result.DEFLECT:
-		_spawn_vfx(perfect_parry_vfx, position)
-
 
 func _spawn_vfx(scene: PackedScene, pos: Vector2) -> void:
 	if not scene:
@@ -83,15 +81,12 @@ func _spawn_vfx(scene: PackedScene, pos: Vector2) -> void:
 
 func _play_sfx(
 	player: AudioStreamPlayer,
-	pitch_variation: float = 0.0
+	pitch_variation: float = 0.0,
+	base_pitch: float = 1.0
 ) -> void:
 	if not player:
 		return
-	if pitch_variation > 0.0:
-		player.pitch_scale = 1.0 + randf_range(
-			-pitch_variation,
-			pitch_variation
-		)
+	player.pitch_scale = base_pitch + randf_range(-pitch_variation, pitch_variation)
 	player.play()
 
 func _spawn_deflect_sparks(pos: Vector2, streak: int) -> void:

@@ -52,7 +52,6 @@ func _spawn_portal() -> void:
 	var portal := portal_scene.instantiate()
 	portal.destination_scene = "res://hub.tscn"
 	portal.destination_spawn = "FromWorld2Spawn"
-	portal.portal_id = "portal_world2_reward"
 	add_child(portal)
 	portal.global_position = portal_spawn_point.global_position
 

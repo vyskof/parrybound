@@ -43,6 +43,9 @@ func _ready() -> void:
 	encounter_started.connect(func(): GameManager.in_boss_fight = true)
 	boss_defeated.connect(func(_id): GameManager.in_boss_fight = false)
 
+func _exit_tree() -> void:
+	GameManager.in_boss_fight = false
+
 func _on_boss_ready() -> void:
 	pass
 

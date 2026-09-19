@@ -4,9 +4,9 @@
 [ext_resource type="Script" uid="uid://ccwjm75xqc4cs" path="res://character/character.gd" id="1_pjt0s"]
 [ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://shared(other)/stats.gd" id="2_px5sl"]
 [ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="3_wfnr8"]
+[ext_resource type="Resource" uid="uid://cviex4ot220gh" path="res://character/player_tuning.tres" id="3_yn8gt"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="4_px5sl"]
 [ext_resource type="Script" uid="uid://j3e6xlb0pqyt" path="res://character/camera_2d.gd" id="5_wdpcj"]
-[ext_resource type="Script" uid="uid://dhrl3rdvnm54a" path="res://damage_boxes/parrybox.gd" id="6_0qfo5"]
 [ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="6_1dqym"]
 [ext_resource type="AudioStream" uid="uid://23q0g2f4jyrb" path="res://sounds/Sword Attacks Hits and Blocks/Sword Parry 1.ogg" id="9_c1b4b"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="11_bwfjh"]
@@ -14,14 +14,10 @@
 [ext_resource type="Texture2D" uid="uid://bh4u47cj1122j" path="res://assets/least rounded/progress bar least rounded progress orange.png" id="12_6kuvt"]
 [ext_resource type="Script" uid="uid://dn7fpdy4vo7uu" path="res://shared(other)/parry_resolver.gd" id="12_x1sy7"]
 [ext_resource type="Texture2D" uid="uid://o25obof4nlwc" path="res://assets/least rounded/progress bar least rounded progress dark green.png" id="13_4ekbm"]
-[ext_resource type="Script" uid="uid://bqx8amkujimip" path="res://shared(other)/hitstop_controller.gd" id="13_sm1rv"]
 [ext_resource type="Script" uid="uid://ehwimwsn5hcr" path="res://shared(other)/feedback_orchestrator.gd" id="14_jx0ln"]
 [ext_resource type="PackedScene" uid="uid://dq7bcympccrh0" path="res://effects/parry_effect.tscn" id="15_lpiy1"]
 [ext_resource type="PackedScene" uid="uid://br5w7nbm0ijwe" path="res://effects/hit_effect.tscn" id="16_88tkl"]
-[ext_resource type="PackedScene" uid="uid://y5nx1te2pyb0" path="res://effects/guard_effect.tscn" id="17_mbhnd"]
 [ext_resource type="PackedScene" uid="uid://bvngpjkxhlgw8" path="res://effects/stagger_effect.tscn" id="17_y0ipg"]
-[ext_resource type="AudioStream" uid="uid://drrfyqogdxeoi" path="res://sounds/Sword Attacks Hits and Blocks/Sword Blocked 3.ogg" id="19_6610h"]
-[ext_resource type="PackedScene" uid="uid://dcitucb1j4jco" path="res://effects/boss_hit_effect.tscn" id="20_wlm6a"]
 [ext_resource type="PackedScene" uid="uid://drlwx5o8mnovc" path="res://effects/deflect_sparks_effect.tscn" id="21_5s0vb"]
 [ext_resource type="AudioStream" uid="uid://b3eccn8m8h1v" path="res://sounds/Sword Attacks Hits and Blocks/Sword Impact Hit 2.ogg" id="22_wlm6a"]
 [ext_resource type="AudioStream" uid="uid://cxa0mygme8w1b" path="res://sounds/Sword Attacks Hits and Blocks/Sword Attack 1.ogg" id="23_c0nog"]
@@ -51,18 +47,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Hitbox/CollisionShape2D:shape")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [null]
 }
 
 [sub_resource type="Animation" id="Animation_yxww1"]
@@ -153,17 +137,6 @@ tracks/0/keys = {
 "update": 1,
 "values": [84, 85, 86, 87, 88]
 }
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Parrybox")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(),
-"transitions": PackedFloat32Array(),
-"values": []
-}
 
 [sub_resource type="Animation" id="Animation_7tnxx"]
 resource_name = "parry_left"
@@ -180,17 +153,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [78, 79, 80, 81, 82]
-}
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Parrybox")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(),
-"transitions": PackedFloat32Array(),
-"values": []
 }
 
 [sub_resource type="Animation" id="Animation_bwfjh"]
@@ -209,17 +171,6 @@ tracks/0/keys = {
 "update": 1,
 "values": [72, 73, 74, 75, 76]
 }
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Parrybox")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(),
-"transitions": PackedFloat32Array(),
-"values": []
-}
 
 [sub_resource type="Animation" id="Animation_x1sy7"]
 resource_name = "parry_up"
@@ -236,17 +187,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [90, 91, 92, 93, 94]
-}
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Parrybox")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(),
-"transitions": PackedFloat32Array(),
-"values": []
 }
 
 [sub_resource type="Animation" id="Animation_wa5vi"]
@@ -321,9 +261,6 @@ tracks/0/keys = {
 "values": [18, 19, 20, 21, 22, 23]
 }
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0qfo5"]
-size = Vector2(59.276344, 63.191628)
-
 [sub_resource type="Animation" id="Animation_sm1rv"]
 resource_name = "slash_down"
 length = 0.6
@@ -340,39 +277,13 @@ tracks/0/keys = {
 "update": 1,
 "values": [48, 49, 50, 51, 52, 53]
 }
-tracks/1/type = "value"
+tracks/1/type = "method"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Hitbox/CollisionShape2D:shape")
+tracks/1/path = NodePath("SlashSound")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), null]
-}
-tracks/2/type = "method"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Hitbox")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.6),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"clear_hit_targets"
-}]
-}
-tracks/3/type = "method"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("SlashSound")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "values": [{
@@ -397,39 +308,13 @@ tracks/0/keys = {
 "update": 1,
 "values": [60, 61, 62, 63, 64, 65]
 }
-tracks/1/type = "value"
+tracks/1/type = "method"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Hitbox/CollisionShape2D:shape")
+tracks/1/path = NodePath("SlashSound")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), null]
-}
-tracks/2/type = "method"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Hitbox")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.6),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"clear_hit_targets"
-}]
-}
-tracks/3/type = "method"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("SlashSound")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "values": [{
@@ -454,39 +339,13 @@ tracks/0/keys = {
 "update": 1,
 "values": [66, 67, 68, 69, 70, 71]
 }
-tracks/1/type = "value"
+tracks/1/type = "method"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Hitbox/CollisionShape2D:shape")
+tracks/1/path = NodePath("SlashSound")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), SubResource("RectangleShape2D_0qfo5"), null]
-}
-tracks/2/type = "method"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Hitbox")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.6),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"clear_hit_targets"
-}]
-}
-tracks/3/type = "method"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("SlashSound")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "values": [{
@@ -494,9 +353,6 @@ tracks/3/keys = {
 "method": &"play"
 }]
 }
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_qi5as"]
-size = Vector2(57.651535, 67.23743)
 
 [sub_resource type="Animation" id="Animation_88tkl"]
 resource_name = "slash_up"
@@ -514,39 +370,13 @@ tracks/0/keys = {
 "update": 1,
 "values": [54, 55, 56, 57, 58, 59]
 }
-tracks/1/type = "value"
+tracks/1/type = "method"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Hitbox/CollisionShape2D:shape")
+tracks/1/path = NodePath("SlashSound")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("RectangleShape2D_qi5as"), SubResource("RectangleShape2D_qi5as"), SubResource("RectangleShape2D_qi5as"), SubResource("RectangleShape2D_qi5as"), SubResource("RectangleShape2D_qi5as"), SubResource("RectangleShape2D_qi5as"), null]
-}
-tracks/2/type = "method"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Hitbox")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.6),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"clear_hit_targets"
-}]
-}
-tracks/3/type = "method"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("SlashSound")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "values": [{
@@ -734,7 +564,6 @@ graph_offset = Vector2(-137, -25)
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_sm1rv"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_wa5vi"]
-graph_offset = Vector2(-450.41904, 51.238007)
 nodes/StateMachine/node = SubResource("AnimationNodeStateMachine_pjt0s")
 nodes/StateMachine/position = Vector2(-200, 80)
 nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_sm1rv")
@@ -748,11 +577,11 @@ posture_damage = 10.0
 hitstop_duration = 0.08
 metadata/_custom_type_script = "uid://dxnjmcdy603mm"
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qi5as"]
+size = Vector2(57.651535, 67.23743)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wfnr8"]
 size = Vector2(6, 10)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wdpcj"]
-size = Vector2(13.10117, 10.813075)
 
 [node name="character" type="CharacterBody2D" unique_id=1833139929 node_paths=PackedStringArray("footstep_sounds") groups=["player"]]
 collision_layer = 2
@@ -760,6 +589,7 @@ collision_mask = 5
 motion_mode = 1
 script = ExtResource("1_pjt0s")
 stats = SubResource("Resource_0qfo5")
+tuning = ExtResource("3_yn8gt")
 footstep_sounds = [NodePath("FootstepSound"), NodePath("FootstepSound2"), NodePath("FootstepSound3"), NodePath("FootstepSound4"), NodePath("FootstepSound5")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1256196990]
@@ -798,8 +628,8 @@ combat_data = SubResource("Resource_6kuvt")
 metadata/_custom_type_script = "uid://c2csuki5q02cl"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1146422420]
-position = Vector2(2.9802322e-08, -4)
-rotation = 1.5804081
+shape = SubResource("RectangleShape2D_qi5as")
+disabled = true
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=2097410625]
 collision_layer = 0
@@ -810,24 +640,6 @@ metadata/_custom_type_script = "uid://bgq0ro64cif2y"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1909743105]
 position = Vector2(0, -2)
 shape = SubResource("RectangleShape2D_wfnr8")
-
-[node name="Parrybox" type="Area2D" parent="." unique_id=1209948168]
-collision_layer = 32
-collision_mask = 16
-script = ExtResource("6_0qfo5")
-metadata/_custom_type_script = "uid://dhrl3rdvnm54a"
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Parrybox" unique_id=1544873295]
-position = Vector2(2.861023e-06, -1.9999971)
-rotation = 1.5741711
-scale = Vector2(0.99999946, 0.99999946)
-shape = SubResource("RectangleShape2D_wdpcj")
-
-[node name="ParryWindowTimer" type="Timer" parent="." unique_id=1857801770]
-one_shot = true
-
-[node name="ParryCooldownTimer" type="Timer" parent="." unique_id=495601831]
-one_shot = true
 
 [node name="ParrySound" type="AudioStreamPlayer" parent="." unique_id=857854104]
 stream = ExtResource("9_c1b4b")
@@ -847,6 +659,7 @@ stretch_margin_left = 3
 stretch_margin_top = 3
 stretch_margin_right = 3
 stretch_margin_bottom = 3
+texture_progress = ExtResource("11_c1b4b")
 
 [node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer" unique_id=1452768215]
 offset_left = 10.0
@@ -906,29 +719,20 @@ horizontal_alignment = 2
 
 [node name="ParryResolver" type="Node" parent="." unique_id=1530687953]
 script = ExtResource("12_x1sy7")
+tuning = ExtResource("3_yn8gt")
 metadata/_custom_type_script = "uid://dn7fpdy4vo7uu"
 
-[node name="HitstopController" type="Node" parent="." unique_id=552200419]
-script = ExtResource("13_sm1rv")
-metadata/_custom_type_script = "uid://bqx8amkujimip"
-
-[node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("camera", "perfect_parry_sfx", "guard_sfx", "hit_sfx")]
+[node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("camera", "perfect_parry_sfx", "hit_sfx")]
 script = ExtResource("14_jx0ln")
 camera = NodePath("../Camera2D")
 perfect_parry_vfx = ExtResource("15_lpiy1")
-guard_vfx = ExtResource("17_mbhnd")
 player_hit_vfx = ExtResource("16_88tkl")
 stagger_vfx = ExtResource("17_y0ipg")
-boss_hit_vfx = ExtResource("20_wlm6a")
 perfect_parry_sfx = NodePath("../ParrySound")
-guard_sfx = NodePath("../GuardSound")
 hit_sfx = NodePath("../HitSound")
 deflect_sparks_vfx = ExtResource("21_5s0vb")
 blood_spray_vfx = ExtResource("23_kxp0i")
 metadata/_custom_type_script = "uid://ehwimwsn5hcr"
-
-[node name="GuardSound" type="AudioStreamPlayer" parent="." unique_id=569990498]
-stream = ExtResource("19_6610h")
 
 [node name="HitSound" type="AudioStreamPlayer" parent="." unique_id=1312433180]
 stream = ExtResource("22_wlm6a")

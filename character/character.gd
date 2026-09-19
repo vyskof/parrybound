@@ -1,64 +1,8 @@
 class_name Character extends CharacterBody2D
 
-const SPEED                := 150.0
-const POSTURE_REGEN_RATE   := 15.0
-const POSTURE_REGEN_DELAY  := 2.5
-const STAGGER_DURATION     := 1.8
-const PARRY_POSTURE_RESTORE:= 8.0
-
-const KNOCKBACK_FRICTION   := 400.0
-
-const DEFLECT_PUSHBACK     := 90.0
-
-const DEFLECT_STAMINA_REWARD := 12.0
-const PARRY_ACTION_DURATION  := 0.25   # délka celé "deflect akce" — odpovídá délce parry animací
-
-const DODGE_SPEED          := 400.0
-const DODGE_DURATION       := 0.11
-const DODGE_IFRAMES        := 0.10
-const DODGE_STAMINA_COST   := 25.0
-const STAMINA_REGEN_RATE   := 40.0
-const STAMINA_REGEN_DELAY  := 1.0
-const DODGE_COOLDOWN       := 0.25
-
-const FAST_MOVE_SPEED           := 300
-const FAST_MOVE_DURATION        := 1
-const FAST_MOVE_STAMINA_COST    := 30.0
-const FAST_MOVE_COOLDOWN        := 2.0
-
-const LOW_STAMINA_RATIO         := 0.25
-const LOW_STAMINA_SPEED_MULT    := 0.85
-
-
-const DODGE_CANCEL_STAMINA_MULT := 1.3
-
-const ATTACK_STAMINA_COST      := 15.0
-const BASE_ATTACK_DAMAGE       := 10.0
-
-
-const REGAIN_RATIO             := 0.5    
-const REGAIN_DECAY_DELAY       := 1.0    
-const REGAIN_DECAY_RATE        := 15.0   
-const POSTURE_RECOVERY_ON_HIT  := 4.0    
-
-const COUNTER_WINDOW_DURATION  := 0.30
-const COUNTER_POSTURE_MULT     := 1.5
-const BASE_ATTACK_POSTURE_DMG  := 10.0
-
-const STREAK_RESET_TIME         := 2.5    
-const STREAK_MAX                := 4      
-const STREAK_POSTURE_PER_LEVEL  := 0.15   
-const STREAK_PITCH_PER_LEVEL    := 0.10
-
-const COMBO_PULSE_WINDOW   := 0.15
-const COMBO_ATTACK_SPEED   := 1.15
-
-const RIPOSTE_ATTACK_SPEED   := 1.4
-const RIPOSTE_LUNGE_DISTANCE := 14.0
 
 const LOW_HEALTH_RATIO    := 0.20
 const FOOTSTEP_INTERVAL   := 0.34
-
 const TINNITUS_THRESHOLD_RATIO := 0.3
 const TINNITUS_DURATION        := 2.2
 
@@ -77,9 +21,9 @@ const SCENE_PAUSE := preload("res://ui/pause_menu.tscn")
 const SCENE_TALENT_CHOICE := preload("res://ui/talent_choice_menu.tscn")
 const SCENE_CHARACTER_MENU  := preload("res://ui/character_menu.tscn")
 
-const ATTACK_MOVE_SPEED_MULT := 0.35  # 35% normální rychlosti během útoku
 
 @export var stats: Stats
+@export var tuning: CombatTuning
 @export var footstep_sounds: Array[AudioStreamPlayer2D] = []
 
 var input_vector      := Vector2.ZERO
@@ -100,9 +44,8 @@ var _stamina_blink_tween: Tween = null
 
 var _footstep_timer: float = 0.0
 var _tinnitus_active: bool = false
-
-var is_parrying: bool:
-	get: return _in_parry_state
+var _tinnitus_filter: AudioEffectLowPassFilter = null
+var _talent_menu: Node = null
 
 var _knockback_velocity := Vector2.ZERO
 var _knockback_lock     : float = 0.0
@@ -119,12 +62,14 @@ var _stagger_timer      : float = 0.0
 var _combo_pulse_timer  : float = 0.0
 var _regain_pool: float = 0.0
 var _regain_decay_timer: float = 0.0
-var _attack_buffered    : bool  = false
-var _was_in_attack      : bool  = false
-var _parry_buffered     : bool = false
-var _dodge_buffered     : bool = false
+var _parry_state_timer   : float = 0.0
+var _parry_cooldown_timer: float = 0.0
+var _buffered_action     : StringName = &""
+var _input_buffer_timer  : float = 0.0
 
-var _attack_just_started: bool = false
+var _attack_elapsed     : float = 0.0
+var _attack_speed       : float = 1.0
+var _attack_dir         : Vector2 = Vector2.RIGHT
 var _attack_sequence_id: int = 0
 var _low_health_active: bool = false
 
@@ -146,19 +91,16 @@ var _low_stamina_penalty_mult: float = 1.0
 
 var _can_open_menu      := true
 
-
 @onready var _animation_tree   : AnimationTree        = $AnimationTree
 @onready var _hurtbox          : Hurtbox              = $Hurtbox
-@onready var _parrybox         : Parrybox             = $Parrybox
 @onready var _health_bar       : TextureProgressBar   = $CanvasLayer/TextureProgressBar
 @onready var _posture_bar      : TextureProgressBar   = $CanvasLayer/TexturePostureBar
 @onready var _stamina_bar      : TextureProgressBar   = $CanvasLayer/TextureStaminaBar
 @onready var _sprite           : Sprite2D             = $Sprite2D
 @onready var _parry_resolver   : ParryResolver        = $ParryResolver
 @onready var _feedback         : FeedbackOrchestrator = $FeedbackOrchestrator
-@onready var _parry_cooldown   : Timer                = $ParryCooldownTimer
 @onready var _hitbox           : Hitbox               = $Hitbox
-@onready var _parry_sound      : AudioStreamPlayer    = $ParrySound
+@onready var _attack_shape     : CollisionShape2D     = $Hitbox/CollisionShape2D
 @onready var _regain_bar       : TextureProgressBar   = $CanvasLayer/RegainBar
 @onready var _footstep_player  : AudioStreamPlayer2D  = $FootstepSound
 @onready var _heartbeat_player : AudioStreamPlayer    = $HeartbeatSound
@@ -170,6 +112,7 @@ var _can_open_menu      := true
 var _playback: AnimationNodeStateMachinePlayback
 
 func _ready() -> void:
+	
 	_playback = _animation_tree.get("parameters/StateMachine/playback")
 
 	stats.health  = stats.max_health
@@ -195,7 +138,6 @@ func _ready() -> void:
 
 	_hurtbox.hurt.connect(_on_hurt)
 	_hitbox.hit_landed.connect(_on_own_hitbox_landed)
-	_parrybox.monitoring = false
 
 	GameManager.apply_save_to_player(self)
 	_refresh_bars_after_save_applied()
@@ -204,18 +146,31 @@ func _ready() -> void:
 	GameManager.leveled_up.connect(_on_leveled_up)
 	refresh_attribute_bonuses()
 	refresh_talents()
+	_try_show_talent_choice.call_deferred()
 
-func _on_leveled_up(choices: Array) -> void:
+func _on_leveled_up() -> void:
 	await get_tree().create_timer(2.0, true, false, true).timeout
-	var menu := SCENE_TALENT_CHOICE.instantiate()
-	get_tree().root.add_child(menu)
-	menu.setup(choices)
+	_try_show_talent_choice()
+
+
+func _try_show_talent_choice() -> void:
+	if is_instance_valid(_talent_menu) or not GameManager.has_pending_talent_pick():
+		return
+	_talent_menu = SCENE_TALENT_CHOICE.instantiate()
+	get_tree().root.add_child(_talent_menu)
+	_talent_menu.setup(GameManager.get_talent_offer())
+	_talent_menu.closed.connect(_on_talent_menu_closed)
+
+
+func _on_talent_menu_closed() -> void:
+	_talent_menu = null
+	_try_show_talent_choice.call_deferred()
 
 func get_current_attack_damage() -> float:
-	return BASE_ATTACK_DAMAGE * _attack_damage_mult
+	return tuning.tuning.base_attack_damage * _attack_damage_mult
 
 func get_current_stamina_regen() -> float:
-	return (STAMINA_REGEN_RATE + _stamina_regen_bonus) * _stamina_regen_mult
+	return (tuning.stamina_regen_rate + _stamina_regen_bonus) * _stamina_regen_mult
 
 func refresh_attribute_bonuses() -> void:
 	var strength_level := GameManager.get_attribute_level("strength")
@@ -271,6 +226,9 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 	_parry_resolver.tick(delta)
+	_tick_parry_timers(delta)
+	_tick_attack(delta)
+	_tick_input_buffer(delta)
 	_tick_posture_regen(delta)
 	_tick_knockback(delta)
 	_tick_stagger(delta)
@@ -282,41 +240,23 @@ func _physics_process(delta: float) -> void:
 	_tick_streak_reset(delta)
 	_tick_regain(delta)
 
-	if _was_in_attack and not _attack_just_started and _playback.get_current_node() == "MoveState":
-		_in_attack_state = false
-		_can_open_menu = true
-		_animation_tree.set("parameters/TimeScale/scale", 1.0)
-		_combo_pulse_timer = COMBO_PULSE_WINDOW
-		if _parry_buffered:
-			_parry_buffered = false
-			_attack_buffered = false
-			_enter_parry()
-		elif _dodge_buffered:
-			_dodge_buffered  = false
-			_attack_buffered = false
-			_parry_buffered  = false
-			_clear_hitbox()
-			_enter_dodge()
-		elif _attack_buffered:
-			_attack_buffered = false
-			_enter_attack()
-	_attack_just_started = false
-	_was_in_attack = _in_attack_state
-
 
 	if _is_dodging:
-		velocity = _dodge_direction * DODGE_SPEED + _knockback_velocity
+		_capture_buffered_input()
+		velocity = _dodge_direction * tuning.dodge_speed + _knockback_velocity
 		move_and_slide()
 		return
 
 
 	if _knockback_lock > 0.0:
+		_capture_buffered_input()
 		_knockback_lock -= delta
 		velocity = _knockback_velocity
 		move_and_slide()
 		return
 
 	if _is_staggered:
+		_capture_buffered_input()
 		velocity = _knockback_velocity
 		move_and_slide()
 		return
@@ -335,13 +275,17 @@ func _process_move(_delta: float) -> void:
 		last_input_vector = input_vector
 		_update_blend_positions(Vector2(input_vector.x, -input_vector.y))
 
+	if _try_consume_buffered_input():
+		return
+
 	if Input.is_action_just_pressed("attack"):
 		_enter_attack()
 		return
 
 	if Input.is_action_just_pressed("parry"):
-		_enter_parry()
-		return
+		_request_parry()
+		if _in_parry_state:
+			return
 
 	if Input.is_action_just_pressed("dodge"):
 		_enter_dodge()
@@ -350,9 +294,9 @@ func _process_move(_delta: float) -> void:
 	if Input.is_action_just_pressed("fast_move"):
 		_try_start_fast_move()
 
-	var move_speed = FAST_MOVE_SPEED if _is_fast_moving else SPEED
-	if stats.stamina <= stats.max_stamina * LOW_STAMINA_RATIO:
-		var penalty := 1.0 - LOW_STAMINA_SPEED_MULT
+	var move_speed = tuning.fast_move_speed if _is_fast_moving else tuning.speed
+	if stats.stamina <= stats.max_stamina * tuning.low_stamina_ratio:
+		var penalty := 1.0 - tuning.low_stamina_speed_mult
 		move_speed *= 1.0 - penalty * _low_stamina_penalty_mult
 
 	velocity = input_vector * move_speed + _knockback_velocity
@@ -361,61 +305,59 @@ func _process_move(_delta: float) -> void:
 
 
 func _process_attack() -> void:
-	if Input.is_action_just_pressed("attack"):
-		if not _attack_buffered and stats.stamina >= ATTACK_STAMINA_COST:
-			_attack_buffered = true
-	if Input.is_action_just_pressed("parry"):
-		_parry_buffered = true 
-	
+	_capture_buffered_input()
+	if _is_in_attack_recovery() and Input.is_action_just_pressed("parry") and _can_start_parry():
+		_cancel_attack()
+		_enter_parry()
+		return
+
 	if Input.is_action_just_pressed("dodge"):
-		var cancel_cost := DODGE_STAMINA_COST * DODGE_CANCEL_STAMINA_MULT
+		var cancel_cost := tuning.dodge_stamina_cost * tuning.dodge_cancel_stamina_mult
 		if stats.stamina >= cancel_cost and _dodge_cooldown_timer <= 0.0:
-			_attack_buffered  = false
-			_parry_buffered   = false
-			_in_attack_state  = false
-			_can_open_menu    = true
-			_animation_tree.set("parameters/TimeScale/scale", 1.0)
-			_playback.start("MoveState", true)
-			_clear_hitbox()
+			_clear_input_buffer()
+			_cancel_attack()
 			_enter_dodge()
 			return
-		else:
-			_dodge_buffered = true
 	
 	var move_input := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	velocity = move_input * SPEED * ATTACK_MOVE_SPEED_MULT + _knockback_velocity
+	velocity = move_input * tuning.speed * tuning.attack_move_speed_mult + _knockback_velocity
 	move_and_slide()
 
 
 func _process_parry() -> void:
-	_parrybox.monitoring = _parry_resolver.is_deflect_active()
+	_capture_buffered_input()
 	velocity = _knockback_velocity
 	move_and_slide()
 
 func _enter_attack() -> void:
 	if _in_attack_state:
 		return
-	if stats.stamina < ATTACK_STAMINA_COST:
+	if stats.stamina < tuning.attack_stamina_cost:
 		return
 	_in_attack_state = true
 	_can_open_menu = false
-	_attack_just_started = true
-	stats.stamina -= ATTACK_STAMINA_COST
+	_attack_elapsed = 0.0
+	stats.stamina -= tuning.attack_stamina_cost
 	_stamina_regen_timer = 0.0
-	_attack_buffered = false
 	var streak_bonus := _streak_damage_mult if _deflect_streak > 0 else 1.0
 	if _hitbox.combat_data:
-		_hitbox.combat_data.damage = BASE_ATTACK_DAMAGE * _attack_damage_mult * streak_bonus
+		_hitbox.combat_data.damage = tuning.base_attack_damage * _attack_damage_mult * streak_bonus
 
 	var is_riposte := _in_counter_window
-	var speed := RIPOSTE_ATTACK_SPEED if is_riposte else (COMBO_ATTACK_SPEED if _combo_pulse_timer > 0.0 else 1.0)
-	_animation_tree.set("parameters/TimeScale/scale", speed)
+	_attack_speed = tuning.riposte_attack_speed if is_riposte else (tuning.combo_attack_speed if _combo_pulse_timer > 0.0 else 1.0)
+	_animation_tree.set("parameters/TimeScale/scale", (0.6 / _attack_total_base()) * _attack_speed)
 
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
+	if mouse_dir == Vector2.ZERO:
+		mouse_dir = last_input_vector
+	_attack_dir = mouse_dir
 	_animation_tree.set(
 		"parameters/StateMachine/AttackState/blend_position",
 		Vector2(mouse_dir.x, -mouse_dir.y)
 	)
+	_hitbox.position = Vector2(0.0, -12.0) + mouse_dir * tuning.attack_reach
+	_hitbox.rotation = mouse_dir.angle()
+	_clear_hitbox()
 	_playback.travel("AttackState")
 
 	if is_riposte:
@@ -424,8 +366,53 @@ func _enter_attack() -> void:
 	_attack_sequence_id += 1
 	_spawn_attack_trail(_attack_sequence_id)
 
+
+func _attack_total_base() -> float:
+	return tuning.attack_startup + tuning.attack_active + tuning.attack_recovery
+
+
+func _tick_attack(delta: float) -> void:
+	if not _in_attack_state:
+		return
+	var previous := _attack_elapsed
+	_attack_elapsed += delta * _attack_speed
+	var active_start := tuning.attack_startup
+	var active_end   := active_start + tuning.attack_active
+
+	if previous < active_start and _attack_elapsed >= active_start:
+		_set_attack_hitbox_enabled(true)
+	if previous < active_end and _attack_elapsed >= active_end:
+		_clear_hitbox()
+	if _attack_elapsed >= _attack_total_base():
+		_end_attack()
+
+
+func _is_in_attack_recovery() -> bool:
+	return _attack_elapsed >= tuning.attack_startup + tuning.attack_active
+
+
+func _set_attack_hitbox_enabled(enabled: bool) -> void:
+	if _attack_shape:
+		_attack_shape.disabled = not enabled
+
+
+func _cancel_attack() -> void:
+	_in_attack_state = false
+	_can_open_menu   = true
+	_attack_elapsed  = 0.0
+	_clear_hitbox()
+	_animation_tree.set("parameters/TimeScale/scale", 1.0)
+	_playback.start("MoveState", true)
+
+
+func _end_attack() -> void:
+	_cancel_attack()
+	_combo_pulse_timer = tuning.combo_pulse_window
+	_try_consume_buffered_input()
+
+
 func _play_riposte_lunge(dir: Vector2) -> void:
-	var target := global_position + dir * RIPOSTE_LUNGE_DISTANCE
+	var target := global_position + dir * tuning.riposte_lunge_distance
 	var tween := create_tween()
 	tween.tween_property(self, "global_position", target, 0.1)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -435,41 +422,96 @@ func _play_riposte_lunge(dir: Vector2) -> void:
 	flash.tween_property(_sprite, "modulate", Color.WHITE, 0.15)
 
 
+func _can_start_parry() -> bool:
+	return not _in_parry_state and _parry_cooldown_timer <= 0.0
+
+
+
+func _request_parry() -> void:
+	if _can_start_parry():
+		_enter_parry()
+	else:
+		_buffer_action(&"parry")
+
+
 func _enter_parry() -> void:
-	if not _parry_cooldown.is_stopped():
+	if not _can_start_parry():
 		return
-	_parry_cooldown.start(0.3) 
+	if _buffered_action == &"parry":
+		_clear_input_buffer()
+	_parry_cooldown_timer = tuning.parry_cooldown
+	_parry_state_timer    = tuning.parry_action_duration
 	_in_parry_state = true
 	_can_open_menu = false
-	_parrybox.monitoring = true
 	_parry_resolver.try_start_deflect()
 	var mouse_dir := (get_global_mouse_position() - global_position).normalized()
 	_update_blend_positions(Vector2(mouse_dir.x, -mouse_dir.y))
 	_playback.travel("ParryState")
-	await get_tree().create_timer(PARRY_ACTION_DURATION, true, false, true).timeout
-	if _in_parry_state:
-		_exit_parry()
 
 
 func _exit_parry() -> void:
 	_in_parry_state = false
+	_parry_state_timer = 0.0
 	_can_open_menu = true
 	_parry_resolver.stop_deflect()
-	_parrybox.monitoring = false
 	_playback.start("MoveState", true)
-	
 
 
-func take_hit_raw(damage: float, inv_duration: float = 0.5) -> void:
-	if is_invincible:
+
+func _tick_parry_timers(delta: float) -> void:
+	if _parry_cooldown_timer > 0.0:
+		_parry_cooldown_timer -= delta
+	if not _in_parry_state:
 		return
-	stats.health -= damage
-	_add_regain_pool(damage)
-	_pulse_damage_vignette(damage)
-	_feedback.play_hit_feedback(global_position)
-	if not _is_staggered:
-		_flash_red()
-	_start_invincibility(inv_duration)
+	_parry_state_timer -= delta
+	if _parry_state_timer <= 0.0:
+		_exit_parry()
+
+
+
+func _capture_buffered_input() -> void:
+	if Input.is_action_just_pressed("parry"):
+		_buffer_action(&"parry")
+	elif Input.is_action_just_pressed("dodge"):
+		_buffer_action(&"dodge")
+	elif Input.is_action_just_pressed("attack"):
+		_buffer_action(&"attack")
+
+
+func _buffer_action(action: StringName) -> void:
+	_buffered_action    = action
+	_input_buffer_timer = tuning.input_buffer_time
+
+
+func _clear_input_buffer() -> void:
+	_buffered_action    = &""
+	_input_buffer_timer = 0.0
+
+
+func _tick_input_buffer(delta: float) -> void:
+	if _buffered_action == &"":
+		return
+	_input_buffer_timer -= delta
+	if _input_buffer_timer <= 0.0:
+		_clear_input_buffer()
+
+
+func _try_consume_buffered_input() -> bool:
+	match _buffered_action:
+		&"parry":
+			if not _can_start_parry():
+				return false   
+			_enter_parry()
+			return true
+		&"dodge":
+			_clear_input_buffer()
+			_enter_dodge()
+			return _is_dodging
+		&"attack":
+			_clear_input_buffer()
+			_enter_attack()
+			return _in_attack_state
+	return false
 
 
 func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
@@ -480,28 +522,31 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 
 	match result:
 		ParryResolver.Result.DEFLECT:
-			_deflect_streak     = mini(_deflect_streak + 1, STREAK_MAX)
+			_deflect_streak     = mini(_deflect_streak + 1, tuning.streak_max)
 			_streak_reset_timer = 0.0
 
 			var posture_mult := _get_streak_posture_mult()
-			stats.stamina += DEFLECT_STAMINA_REWARD * _deflect_stamina_mult
+			stats.stamina += tuning.deflect_stamina_reward * _deflect_stamina_mult
 
-			stats.posture = maxf(0.0, stats.posture - PARRY_POSTURE_RESTORE)
+			stats.posture = maxf(0.0, stats.posture - tuning.parry_posture_restore)
 			_posture_regen_timer = 0.0
 			_in_counter_window = true
-			_counter_timer     = COUNTER_WINDOW_DURATION + _counter_window_bonus
-			_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG * posture_mult
-
-			_parry_sound.pitch_scale = 1.0 + (_deflect_streak - 1) * STREAK_PITCH_PER_LEVEL
+			_counter_timer     = tuning.counter_window_duration + _counter_window_bonus
+			_hitbox.combat_data.posture_damage = tuning.base_attack_posture_dmg * posture_mult
 
 			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak)
-			_apply_parry_pushback(hitbox, DEFLECT_PUSHBACK)
+			_apply_parry_pushback(hitbox, tuning.deflect_pushback)
 
 			if hitbox.owner.has_method("receive_parry"):
 				var reward := combat_data.parry_posture_reward if combat_data else 35.0
 				hitbox.owner.receive_parry(reward)
 
+			_parry_state_timer    = minf(_parry_state_timer, tuning.deflect_recovery)
+			_parry_cooldown_timer = 0.0
+
 		ParryResolver.Result.NONE:
+			if _in_parry_state:
+				_exit_parry()
 			var dmg  := combat_data.damage          if combat_data else (hitbox.damage if hitbox else 10.0)
 			var pdmg := combat_data.posture_damage   if combat_data else 5.0
 			stats.health  -= dmg
@@ -535,7 +580,7 @@ func _tick_knockback(delta: float) -> void:
 	if _knockback_velocity.length_squared() < 1.0:
 		_knockback_velocity = Vector2.ZERO
 		return
-	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)
+	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, tuning.knockback_friction * delta)
 
 func _tick_stagger(delta: float) -> void:
 	if not _is_staggered:
@@ -551,15 +596,15 @@ func _tick_posture_regen(delta: float) -> void:
 		_posture_regen_timer = 0.0
 		return
 	_posture_regen_timer += delta
-	if _posture_regen_timer >= POSTURE_REGEN_DELAY:
-		stats.posture = maxf(0.0, stats.posture - POSTURE_REGEN_RATE * delta)
+	if _posture_regen_timer >= tuning.posture_regen_delay:
+		stats.posture = maxf(0.0, stats.posture - tuning.posture_regen_rate * delta)
 
 func _tick_stamina_regen(delta: float) -> void:
 	if stats.stamina >= stats.max_stamina:
 		return
 	_stamina_regen_timer += delta
-	if _stamina_regen_timer >= STAMINA_REGEN_DELAY:
-		stats.stamina += (STAMINA_REGEN_RATE + _stamina_regen_bonus) * _stamina_regen_mult * delta
+	if _stamina_regen_timer >= tuning.stamina_regen_delay:
+		stats.stamina += (tuning.stamina_regen_rate + _stamina_regen_bonus) * _stamina_regen_mult * delta
 
 func _tick_combo_pulse(delta: float) -> void:
 	if _combo_pulse_timer > 0.0:
@@ -572,7 +617,7 @@ func _tick_counter_window(delta: float) -> void:
 	if _counter_timer <= 0.0:
 		_in_counter_window = false
 		_counter_timer     = 0.0
-		_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
+		_hitbox.combat_data.posture_damage = tuning.base_attack_posture_dmg
 
 func _tick_footsteps(delta: float, moving_ratio: float) -> void:
 	if moving_ratio <= 0.05 or footstep_sounds.is_empty():
@@ -592,10 +637,9 @@ func _tick_streak_reset(delta: float) -> void:
 	if _deflect_streak == 0:
 		return
 	_streak_reset_timer += delta
-	if _streak_reset_timer >= STREAK_RESET_TIME:
+	if _streak_reset_timer >= tuning.streak_reset_time:
 		_deflect_streak     = 0
 		_streak_reset_timer = 0.0
-		_parry_sound.pitch_scale = 1.0
 
 
 
@@ -629,26 +673,29 @@ func _enter_dodge() -> void:
 		return
 	if _dodge_cooldown_timer > 0.0:
 		return
-	var dodge_cost := DODGE_STAMINA_COST * _dodge_stamina_mult
+	var dodge_cost := tuning.dodge_stamina_cost * _dodge_stamina_mult
 	if stats.stamina < dodge_cost:
 		return
 	stats.stamina -= dodge_cost
 	_stamina_regen_timer = 0.0
 	_is_dodging = true
 	_can_open_menu = false
-	_dodge_direction = input_vector if input_vector != Vector2.ZERO else -last_input_vector
-	_start_invincibility(DODGE_IFRAMES)
+	var live_input := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	if live_input != Vector2.ZERO:
+		last_input_vector = live_input
+	_dodge_direction = live_input if live_input != Vector2.ZERO else -last_input_vector
+	_start_invincibility(tuning.dodge_iframes)
 	_sprite.modulate.a = 0.5
 	
 	var elapsed := 0.0
-	while elapsed < DODGE_DURATION:
+	while elapsed < tuning.dodge_duration:
 		_spawn_afterimage()
 		await get_tree().create_timer(AFTERIMAGE_INTERVAL, true, false, true).timeout
 		elapsed += AFTERIMAGE_INTERVAL
 	
 	_is_dodging = false
 	_can_open_menu = true
-	_dodge_cooldown_timer = DODGE_COOLDOWN
+	_dodge_cooldown_timer = tuning.dodge_cooldown
 	_sprite.modulate.a = 1.0
 
 func _tick_dodge_cooldown(delta: float) -> void:
@@ -658,13 +705,13 @@ func _tick_dodge_cooldown(delta: float) -> void:
 func _try_start_fast_move() -> void:
 	if _is_fast_moving or _fast_move_cooldown_timer > 0.0:
 		return
-	if stats.stamina < FAST_MOVE_STAMINA_COST:
+	if stats.stamina < tuning.fast_move_stamina_cost:
 		return
 
-	stats.stamina -= FAST_MOVE_STAMINA_COST
+	stats.stamina -= tuning.fast_move_stamina_cost
 	_stamina_regen_timer = 0.0
 	_is_fast_moving = true
-	_fast_move_timer = FAST_MOVE_DURATION
+	_fast_move_timer = tuning.fast_move_duration
 	_sprite.modulate.a = 0.6
 
 
@@ -684,7 +731,7 @@ func _tick_fast_move(delta: float) -> void:
 
 	if _fast_move_timer <= 0.0:
 		_is_fast_moving = false
-		_fast_move_cooldown_timer = FAST_MOVE_COOLDOWN * _fast_move_cooldown_mult
+		_fast_move_cooldown_timer = tuning.fast_move_cooldown * _fast_move_cooldown_mult
 		_sprite.modulate.a = 1.0
 
 
@@ -759,6 +806,7 @@ func _play_tinnitus() -> void:
 	var filter := AudioEffectLowPassFilter.new()
 	filter.cutoff_hz = 700.0
 	AudioServer.add_bus_effect(master_bus, filter)
+	_tinnitus_filter = filter
 
 	_tinnitus_player.play()
 
@@ -768,9 +816,19 @@ func _play_tinnitus() -> void:
 		700.0, 20000.0, TINNITUS_DURATION
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
+	_remove_tinnitus_filter()
 
-	AudioBusUtil.remove_effect_safe(master_bus, filter)
+
+func _remove_tinnitus_filter() -> void:
+	if _tinnitus_filter == null:
+		return
+	AudioBusUtil.remove_effect_safe(AudioServer.get_bus_index("Master"), _tinnitus_filter)
+	_tinnitus_filter = null
 	_tinnitus_active = false
+
+
+func _exit_tree() -> void:
+	_remove_tinnitus_filter()
 
 
 
@@ -793,14 +851,13 @@ func _on_posture_broken() -> void:
 	stats.posture        = 0.0
 	_posture_regen_timer = 0.0
 	_is_staggered        = true
-	_stagger_timer       = STAGGER_DURATION
-	_in_attack_state     = false
-	_dodge_buffered      = false 
+	_stagger_timer       = tuning.stagger_duration
+	_cancel_attack()
+	_clear_input_buffer()
 	_in_counter_window   = false
-	_hitbox.combat_data.posture_damage = BASE_ATTACK_POSTURE_DMG
+	_hitbox.combat_data.posture_damage = tuning.base_attack_posture_dmg
 	_deflect_streak          = 0
 	_streak_reset_timer      = 0.0
-	_parry_sound.pitch_scale = 1.0
 	_sprite.modulate     = Color(1.0, 0.3, 0.3)  
 	_feedback.play_stagger_feedback(global_position)
 	_play_knockdown_squash()
@@ -814,26 +871,23 @@ func _play_knockdown_squash() -> void:
 
 func _clear_hitbox() -> void:
 	_hitbox.clear_hit_targets()
-	_hitbox.get_node("CollisionShape2D").shape = null
-	var col := _hitbox.get_node_or_null("CollisionShape2D") as CollisionShape2D
-	if col:
-		col.shape = null
+	_set_attack_hitbox_enabled(false)
 
 func _get_streak_posture_mult() -> float:
-	var levels := mini(_deflect_streak - 1, STREAK_MAX - 1)
-	return COUNTER_POSTURE_MULT + levels * STREAK_POSTURE_PER_LEVEL
+	var levels := mini(_deflect_streak - 1, tuning.streak_max - 1)
+	return tuning.counter_posture_mult + levels * tuning.streak_posture_per_level
 
 func _tick_regain(delta: float) -> void:
 	if _regain_pool <= 0.0:
 		return
 	_regain_decay_timer += delta
-	if _regain_decay_timer >= REGAIN_DECAY_DELAY:
-		_regain_pool = maxf(0.0, _regain_pool - REGAIN_DECAY_RATE * delta)
+	if _regain_decay_timer >= tuning.regain_decay_delay:
+		_regain_pool = maxf(0.0, _regain_pool - tuning.regain_decay_rate * delta)
 	_update_regain_bar()
 
 func _add_regain_pool(damage_taken: float) -> void:
 	var missing_hp := stats.max_health - stats.health
-	_regain_pool = minf(_regain_pool + damage_taken * REGAIN_RATIO, missing_hp)
+	_regain_pool = minf(_regain_pool + damage_taken * tuning.regain_ratio, missing_hp)
 	_regain_decay_timer = 0.0
 	_update_regain_bar()
 
@@ -842,13 +896,14 @@ func _update_regain_bar() -> void:
 	_regain_bar.value = stats.health + _regain_pool
 
 func _on_own_hitbox_landed(_target: Node) -> void:
+	_feedback.play_own_hit_feedback(tuning.own_hit_hitstop, tuning.own_hit_shake)
 	if _regain_pool > 0.0:
 		var heal := minf(_regain_pool, stats.max_health - stats.health)
 		stats.health += heal 
 		_regain_pool -= heal
 		_update_regain_bar()
 
-	stats.posture = maxf(0.0, stats.posture - POSTURE_RECOVERY_ON_HIT)
+	stats.posture = maxf(0.0, stats.posture - tuning.posture_recovery_on_hit)
 	_posture_regen_timer = 0.0
 
 func lock_for_intro(duration: float) -> void:

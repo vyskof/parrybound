@@ -73,6 +73,3 @@ text = "Stone Halls"
 [node name="BackButton" type="Button" parent="TravelList" unique_id=1442162843]
 layout_mode = 2
 text = "Back"
-
-[node name="BuildButton" type="Button" parent="TravelList" unique_id=534798036]
-layout_mode = 2

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="CombatTuning" format=3 uid="uid://cviex4ot220gh"]
+
+[ext_resource type="Script" uid="uid://lie3i1gy8alk" path="res://shared(other)/combat_tuning.gd" id="1_om3qj"]
+
+[resource]
+script = ExtResource("1_om3qj")
+metadata/_custom_type_script = "uid://lie3i1gy8alk"

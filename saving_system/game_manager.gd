@@ -27,8 +27,7 @@ var in_boss_fight: bool = false
 
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
-	# Sledujeme načtení scény, abychom mohli aplikovat save data
-	get_tree().node_added.connect(_on_node_added)
+
 
 func _process(delta: float) -> void:
 	# Průběžně zvyšujeme play_time jen když je aktivní hra (ne v menu)
@@ -55,34 +54,19 @@ func _default_save(slot: int) -> Dictionary:
 			"spawn_point":    "DefaultSpawn",       # jméno Node2D spawn markeru ve scéně
 			"defeated_bosses": [],             # ["grim_reaper", "golem", ...]
 			"seen_intros":    [],              # # ["grim_reaper", "golem", ...] — boss intro cutscéna se přehraje jen jednou
-			"unlocked_portals": [],            # pro budoucí použití
-			"visited_areas":   []              # pro budoucí mapy / fast travel
 		},
 		"player":      _default_player(),
-		"inventory":   _default_inventory(),
 		"progression": _default_progression()
 	}
 
 func _default_player() -> Dictionary:
 	# ── Přidávej sem nové player statistiky ──────────────────────────────────
 	return {
-		"health":     100,
 		"max_health": 100,
-		"posture":    0.0,
 		"max_posture": 100.0,
 		"max_stamina": 150.0
 		}
 
-
-
-func _default_inventory() -> Dictionary:
-	# ── Přidávej sem nové typy předmětů ──────────────────────────────────────
-	return {
-		"consumables": {},  # { "estus_flask": 3, "bone_dust": 1 }
-		"weapons":     {},  # { "sword_01": { "level": 1 } }
-		"armor":       {},  # { "hood_01": true }
-		"key_items":   {}   # { "catacombs_key": true }
-	}
 
 func _default_progression() -> Dictionary:
 	# ── Přidávej sem atributy, talenty, levely ───────────────────────────────
@@ -99,6 +83,8 @@ func _default_progression() -> Dictionary:
 		"talent_slots": 0,       
 		"unlocked_talents": [],  # ["reapers_resolve", "stone_resolve", ...] — natrvalo naučené
 		"equipped_talents": [], 
+		"pending_talent_picks": 0,
+		"talent_offer": [],
 		"shop_purchases": {}  
 	}
 
@@ -187,7 +173,7 @@ func is_boss_defeated(boss_id: String) -> bool:
 	return boss_id in save_data["world"].get("defeated_bosses", [])
 
 signal souls_changed(new_amount: int)
-signal leveled_up(choices: Array)
+signal leveled_up
 
 func add_souls(amount: int) -> void:
 	if amount <= 0 or not save_data.has("progression"):
@@ -240,11 +226,27 @@ func level_up() -> void:
 	save_data["progression"]["level"] = get_level() + 1
 	add_attribute_point(LEVEL_UP_ATTRIBUTE_POINTS)
 	save_data["progression"]["talent_slots"] = get_talent_slots() + 1
+	save_data["progression"]["talent_slots"] = get_talent_slots() + 1
+	save_data["progression"]["pending_talent_picks"] = int(save_data["progression"].get("pending_talent_picks", 0)) + 1
+	get_talent_offer()
+	leveled_up.emit()
 
-	var choices := _roll_talent_choices(TALENT_CHOICES_PER_LEVEL)
-	if choices.is_empty():
-		return
-	leveled_up.emit(choices)
+
+func has_pending_talent_pick() -> bool:
+	if int(save_data.get("progression", {}).get("pending_talent_picks", 0)) <= 0:
+		return false
+	return not get_talent_offer().is_empty()
+
+
+func get_talent_offer() -> Array:
+	var progression: Dictionary = save_data.get("progression", {})
+	var offer: Array = progression.get("talent_offer", [])
+	var unlocked := get_unlocked_talents()
+	var still_valid := not offer.is_empty() and offer.all(func(id): return id not in unlocked)
+	if not still_valid:
+		offer = _roll_talent_choices(TALENT_CHOICES_PER_LEVEL)
+		progression["talent_offer"] = offer
+	return offer
 
 func _roll_talent_choices(count: int) -> Array:
 	var unlocked := get_unlocked_talents()
@@ -265,6 +267,12 @@ func choose_talent(talent_id: String) -> void:
 
 	if get_equipped_talents().size() < get_talent_slots():
 		set_talent_equipped(talent_id, true)
+
+	var progression: Dictionary = save_data["progression"]
+	progression["pending_talent_picks"] = maxi(0, int(progression.get("pending_talent_picks", 0)) - 1)
+	progression["talent_offer"] = []
+	if progression["pending_talent_picks"] > 0:
+		get_talent_offer()
 
 	save_to_slot()
 
@@ -308,7 +316,7 @@ func spend_attribute_point() -> bool:
 	return true
 
 func get_attribute_level(attr_name: String) -> int:
-	return save_data.get("progression", {}).get("attributes", {}).get(attr_name, 10)
+	return save_data.get("progression", {}).get("attributes", {}).get(attr_name, 0)
 
 func increase_attribute(attr_name: String) -> void:
 	if not save_data.has("progression"):
@@ -353,7 +361,7 @@ func apply_save_to_player(player: Node) -> void:
 	var p: Dictionary = save_data.get("player", {})
 	if player.stats:
 		player.stats.max_health = p.get("max_health", 100)
-		player.stats.health     = p.get("health",     player.stats.max_health)
+		player.stats.health     = p.get("health", player.stats.max_health)
 		player.stats.max_posture = p.get("max_posture", 100.0)  
 		player.stats.max_stamina = p.get("max_stamina", 150.0) 
 
@@ -363,14 +371,8 @@ func _capture_player_state() -> void:
 	if player and player.stats:
 		save_data["player"]["health"]      = player.stats.health
 		save_data["player"]["max_health"]  = player.stats.max_health
-		save_data["player"]["posture"]     = player.stats.posture  
 		save_data["player"]["max_posture"] = player.stats.max_posture
 		save_data["player"]["max_stamina"] = player.stats.max_stamina
-
-func _on_node_added(node: Node) -> void:
-	# Hráč se přidal do scény – aplikuj save data
-	if node.is_in_group("player"):
-		apply_save_to_player.call_deferred(node)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
