@@ -31,6 +31,7 @@ class_name CombatTuning extends Resource
 @export var attack_active: float = 0.10      
 @export var attack_recovery: float = 0.28    
 @export var attack_reach: float = 22.0      
+@export var body_center_offset: float = -4.0
 @export var attack_stamina_cost: float = 15.0
 @export var base_attack_damage: float = 10.0
 @export var base_attack_posture_dmg: float = 10.0

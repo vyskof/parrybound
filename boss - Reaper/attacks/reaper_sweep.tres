@@ -12,5 +12,6 @@ knockback_force = 150.0
 [resource]
 script = ExtResource("1")
 id = &"sweep"
+animations = Array[StringName]([&"attack_2"])
 combat_data = SubResource("CombatData_sweep")
 telegraph_time = 0.3

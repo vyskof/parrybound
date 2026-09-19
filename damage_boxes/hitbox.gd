@@ -39,3 +39,4 @@ func register_hit(target: Node) -> void:
 
 func clear_hit_targets() -> void:
 	hit_targets.clear()
+	_last_hit_time.clear()

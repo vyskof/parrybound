@@ -578,7 +578,7 @@ hitstop_duration = 0.08
 metadata/_custom_type_script = "uid://dxnjmcdy603mm"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qi5as"]
-size = Vector2(57.651535, 67.23743)
+size = Vector2(26, 30)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wfnr8"]
 size = Vector2(6, 10)

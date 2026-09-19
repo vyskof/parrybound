@@ -355,7 +355,7 @@ func _enter_attack() -> void:
 		"parameters/StateMachine/AttackState/blend_position",
 		Vector2(mouse_dir.x, -mouse_dir.y)
 	)
-	_hitbox.position = Vector2(0.0, -12.0) + mouse_dir * tuning.attack_reach
+	_hitbox.position = Vector2(0.0, tuning.body_center_offset) + mouse_dir * tuning.attack_reach
 	_hitbox.rotation = mouse_dir.angle()
 	_clear_hitbox()
 	_playback.travel("AttackState")
