@@ -4,6 +4,11 @@ class_name BossBase extends CharacterBody2D
 @export var posture_regen_delay : float = 2.0
 @export var posture_regen_speed : float = 20.0
 @export var boss_id: String = "unnamed_boss"
+@export var move_speed: float = 60.0
+@export var stop_distance: float = 26.0
+@export var attack_range: float = 44.0     
+@export var far_range: float = 125.0       
+@export var moveset: BossMoveset
 @export var souls_reward: int = 150
 
 
@@ -17,6 +22,7 @@ var direction: Vector2
 var _posture_regen_timer: float = 0.0
 var _player: Node2D
 var _is_dead: bool = false 
+var phase_number: int = 1
 
 var _posture_bar: Node
 
@@ -50,8 +56,8 @@ func _on_boss_ready() -> void:
 	pass
 
 func _physics_process(delta: float) -> void:
-	if direction.length() > 33.0:
-		velocity = direction.normalized() * 60.0
+	if direction.length() > stop_distance:
+		velocity = direction.normalized() * move_speed
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, 300.0 * delta)
 	if velocity.length() > 1.0:

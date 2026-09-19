@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://1bnvyc18jae"]
+
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="2"]
+
+[sub_resource type="Resource" id="CombatData_sweep_perilous"]
+script = ExtResource("2")
+damage = 20.0
+posture_damage = 0.0
+perilous_type = 1
+knockback_force = 150.0
+is_unblockable = true
+
+[resource]
+script = ExtResource("1")
+id = &"sweep_perilous"
+combat_data = SubResource("CombatData_sweep_perilous")
+telegraph_time = 0.45

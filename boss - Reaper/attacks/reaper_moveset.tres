@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="BossMoveset" format=3 uid="uid://d3mcu56bnx1pi"]
+
+[ext_resource type="Script" uid="uid://gg0eot3hgemg" path="res://shared(other)/bosses/boss_moveset.gd" id="1"]
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1_ojt1b"]
+[ext_resource type="Script" uid="uid://bfq88d6tvj6qs" path="res://shared(other)/bosses/combo_data.gd" id="2"]
+[ext_resource type="Resource" uid="uid://2c2a3ivdss3r" path="res://boss - Reaper/attacks/reaper_slash.tres" id="3"]
+[ext_resource type="Resource" uid="uid://b67ttrph02lwe" path="res://boss - Reaper/attacks/reaper_sweep.tres" id="4"]
+[ext_resource type="Resource" uid="uid://1bnvyc18jae" path="res://boss - Reaper/attacks/reaper_sweep_perilous.tres" id="5"]
+
+[sub_resource type="Resource" id="Combo_single"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash"])
+weight = 2.0
+phase = 1
+pause_min = 0.7
+pause_max = 1.0
+
+[sub_resource type="Resource" id="Combo_double"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash", &"slash"])
+weight = 2.0
+phase = 1
+pause_min = 0.8
+pause_max = 1.1
+
+[sub_resource type="Resource" id="Combo_slash_sweep"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash", &"sweep"])
+weight = 1.5
+pause_min = 0.8
+pause_max = 1.1
+
+[sub_resource type="Resource" id="Combo_perilous"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"sweep_perilous"])
+pause_min = 0.9
+pause_max = 1.2
+
+[sub_resource type="Resource" id="Combo_p2_triple"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash", &"slash", &"sweep"])
+weight = 2.0
+phase = 2
+pause_min = 0.5
+pause_max = 0.8
+
+[sub_resource type="Resource" id="Combo_p2_perilous_chain"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash", &"sweep_perilous"])
+weight = 1.5
+phase = 2
+
+[resource]
+script = ExtResource("1")
+attacks = Array[ExtResource("1_ojt1b")]([ExtResource("3"), ExtResource("4"), ExtResource("5")])
+combos = Array[ExtResource("2")]([SubResource("Combo_single"), SubResource("Combo_double"), SubResource("Combo_slash_sweep"), SubResource("Combo_perilous"), SubResource("Combo_p2_triple"), SubResource("Combo_p2_perilous_chain")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://2c2a3ivdss3r"]
+
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="2"]
+
+[sub_resource type="Resource" id="CombatData_slash"]
+script = ExtResource("2")
+damage = 20.0
+posture_damage = 15.0
+knockback_force = 150.0
+
+[resource]
+script = ExtResource("1")
+id = &"slash"
+combat_data = SubResource("CombatData_slash")
+telegraph_time = 0.25

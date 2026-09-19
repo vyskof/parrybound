@@ -32,6 +32,7 @@ func _on_boss_hit(_combat_data: CombatData) -> void:
 
 func _start_phase_two() -> void:
 	phase_two = true
+	phase_number = 2
 	_spawn_effect(Phase_two_effect, $AnimatedSprite2D.global_position)
 	_show_taunt(PHASE_TWO_LINES)
 	_state_machine.change_state("PhaseTwo")

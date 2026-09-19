@@ -10,10 +10,10 @@ func exit():
 	owner.set_physics_process(false)
 
 func transition():
-	if owner.direction.length() < 40:
+	if owner.direction.length() < owner.attack_range:
 		get_parent().change_state("Attack")
 		return
-	if owner.direction.length() > 125:
+	if owner.direction.length() > owner.far_range:
 		var chance = randi() % 2
 		match chance:
 			0:
