@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BossMoveset" format=3 uid="uid://d3mcu56bnx1pi"]
+[gd_resource type="Resource" script_class="BossMoveset" format=3 uid="uid://8lxq27irjwjq"]
 
 [ext_resource type="Script" uid="uid://gg0eot3hgemg" path="res://shared(other)/bosses/boss_moveset.gd" id="1"]
 [ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1_ojt1b"]
@@ -7,50 +7,53 @@
 [ext_resource type="Resource" uid="uid://b67ttrph02lwe" path="res://boss - Reaper/attacks/reaper_sweep.tres" id="4"]
 [ext_resource type="Resource" uid="uid://1bnvyc18jae" path="res://boss - Reaper/attacks/reaper_sweep_perilous.tres" id="5"]
 
-[sub_resource type="Resource" id="Combo_single"]
-script = ExtResource("2")
-attack_ids = Array[StringName]([&"slash"])
-weight = 2.0
-phase = 1
-pause_min = 0.7
-pause_max = 1.0
-
-[sub_resource type="Resource" id="Combo_double"]
+[sub_resource type="Resource" id="C1"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"slash", &"slash"])
 weight = 2.0
 phase = 1
-pause_min = 0.8
-pause_max = 1.1
+pause_min = 0.08
+pause_max = 0.22
 
-[sub_resource type="Resource" id="Combo_slash_sweep"]
+[sub_resource type="Resource" id="C2"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"slash", &"sweep"])
-weight = 1.5
-pause_min = 0.8
-pause_max = 1.1
+weight = 2.0
+phase = 1
+pause_min = 0.05
+pause_max = 0.15
 
-[sub_resource type="Resource" id="Combo_perilous"]
-script = ExtResource("2")
-attack_ids = Array[StringName]([&"sweep_perilous"])
-pause_min = 0.9
-pause_max = 1.2
-
-[sub_resource type="Resource" id="Combo_p2_triple"]
+[sub_resource type="Resource" id="C3"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"slash", &"slash", &"sweep"])
-weight = 2.0
-phase = 2
-pause_min = 0.5
-pause_max = 0.8
+weight = 1.5
+pause_min = 0.08
+pause_max = 0.22
 
-[sub_resource type="Resource" id="Combo_p2_perilous_chain"]
+[sub_resource type="Resource" id="C4"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"slash", &"sweep_perilous"])
 weight = 1.5
+pause_min = 0.05
+pause_max = 0.15
+
+[sub_resource type="Resource" id="C5"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash", &"slash", &"slash", &"sweep"])
+weight = 2.0
 phase = 2
+pause_min = 0.05
+pause_max = 0.15
+
+[sub_resource type="Resource" id="C6"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"slash", &"sweep", &"slash", &"sweep_perilous"])
+weight = 2.0
+phase = 2
+pause_min = 0.1
+pause_max = 0.25
 
 [resource]
 script = ExtResource("1")
 attacks = Array[ExtResource("1_ojt1b")]([ExtResource("3"), ExtResource("4"), ExtResource("5")])
-combos = Array[ExtResource("2")]([SubResource("Combo_single"), SubResource("Combo_double"), SubResource("Combo_slash_sweep"), SubResource("Combo_perilous"), SubResource("Combo_p2_triple"), SubResource("Combo_p2_perilous_chain")])
+combos = Array[ExtResource("2")]([SubResource("C1"), SubResource("C2"), SubResource("C3"), SubResource("C4"), SubResource("C5"), SubResource("C6")])

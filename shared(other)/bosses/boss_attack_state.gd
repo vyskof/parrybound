@@ -73,7 +73,10 @@ func _perform(attack: AttackData) -> void:
 			return
 
 	owner.stop_telegraph_flash()
-	animation_player.speed_scale = attack.animation_speed
+	var speed := attack.animation_speed
+	if owner.phase_number >= 2:
+		speed *= owner.phase_two_speed_mult
+	animation_player.speed_scale = speed
 	for animation_name in attack.animations:
 		await await_animation(String(animation_name))
 		if not is_active:

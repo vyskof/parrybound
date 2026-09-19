@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="AttackData" format=3]
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://c8ps31s6d8f6f"]
 
-[ext_resource type="Script" path="res://shared(other)/bosses/attack_data.gd" id="1"]
-[ext_resource type="PackedScene" path="res://boss - golem/bullet.tscn" id="2"]
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c3oaydvcggj52" path="res://boss - golem/bullet.tscn" id="2"]
 
 [resource]
 script = ExtResource("1")
 id = &"missile"
 animations = Array[StringName]([&"ranged_attack"])
-telegraph_time = 0.25
-animation_speed = 1.0
+telegraph_time = 0.15
 projectile = ExtResource("2")
-min_range = 60.0
+min_range = 55.0
 max_range = 400.0

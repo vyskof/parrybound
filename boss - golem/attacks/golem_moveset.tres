@@ -1,41 +1,51 @@
-[gd_resource type="Resource" script_class="BossMoveset" format=3 uid="uid://cmo3qdquasmxb"]
+[gd_resource type="Resource" script_class="BossMoveset" format=3 uid="uid://cyfnx8fu3inmo"]
 
 [ext_resource type="Script" uid="uid://gg0eot3hgemg" path="res://shared(other)/bosses/boss_moveset.gd" id="1"]
 [ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1_qsc0v"]
 [ext_resource type="Script" uid="uid://bfq88d6tvj6qs" path="res://shared(other)/bosses/combo_data.gd" id="2"]
 [ext_resource type="Resource" uid="uid://dwoox0ju6vbtc" path="res://boss - golem/attacks/golem_melee.tres" id="3"]
 [ext_resource type="Resource" uid="uid://b0wy0fmyjji" path="res://boss - golem/attacks/golem_laser.tres" id="4"]
-[ext_resource type="Resource" path="res://boss - golem/attacks/golem_missile.tres" id="5"]
+[ext_resource type="Resource" uid="uid://c8ps31s6d8f6f" path="res://boss - golem/attacks/golem_missile.tres" id="5"]
 
-[sub_resource type="Resource" id="Combo_melee"]
+[sub_resource type="Resource" id="G1"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"melee"])
-weight = 2.0
-max_range = 50.0
-pause_min = 0.5
+weight = 1.5
+max_range = 65.0
+pause_min = 0.1
+pause_max = 0.2
 
-[sub_resource type="Resource" id="Combo_melee_double"]
+[sub_resource type="Resource" id="G2"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"melee", &"melee"])
-max_range = 50.0
-pause_min = 0.7
-pause_max = 1.1
+weight = 2.0
+max_range = 65.0
+pause_min = 0.15
+pause_max = 0.3
 
-[sub_resource type="Resource" id="Combo_missile"]
+[sub_resource type="Resource" id="G3"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"melee", &"melee", &"melee"])
+phase = 2
+max_range = 65.0
+pause_min = 0.1
+pause_max = 0.2
+
+[sub_resource type="Resource" id="G4"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"missile"])
-min_range = 60.0
+min_range = 55.0
 max_range = 400.0
 next_state = &"Dash"
 
-[sub_resource type="Resource" id="Combo_laser"]
+[sub_resource type="Resource" id="G5"]
 script = ExtResource("2")
 attack_ids = Array[StringName]([&"laser"])
-min_range = 60.0
+min_range = 55.0
 max_range = 400.0
 next_state = &"Dash"
 
 [resource]
 script = ExtResource("1")
 attacks = Array[ExtResource("1_qsc0v")]([ExtResource("3"), ExtResource("4"), ExtResource("5")])
-combos = Array[ExtResource("2")]([SubResource("Combo_melee"), SubResource("Combo_melee_double"), SubResource("Combo_missile"), SubResource("Combo_laser")])
+combos = Array[ExtResource("2")]([SubResource("G1"), SubResource("G2"), SubResource("G3"), SubResource("G4"), SubResource("G5")])

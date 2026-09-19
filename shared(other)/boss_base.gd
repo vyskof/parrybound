@@ -12,7 +12,8 @@ class_name BossBase extends CharacterBody2D
 @export var far_range: float = 125.0       
 @export var moveset: BossMoveset
 @export var far_states: Array[StringName] = []  
-@export var far_state_cooldown: float = 3.0      
+@export var far_state_cooldown: float = 3.0    
+@export var phase_two_speed_mult: float = 1.4     
 @export var souls_reward: int = 150
 
 

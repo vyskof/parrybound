@@ -14,4 +14,3 @@ script = ExtResource("1")
 id = &"slash"
 animations = Array[StringName]([&"attack_1"])
 combat_data = SubResource("CombatData_slash")
-telegraph_time = 0.25

@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_om3qj")
+deflect_window = 0.13
+parry_cooldown = 0.4
 metadata/_custom_type_script = "uid://lie3i1gy8alk"

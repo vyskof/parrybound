@@ -311,7 +311,7 @@ func _process_attack() -> void:
 		_enter_parry()
 		return
 
-	if Input.is_action_just_pressed("dodge"):
+	if Input.is_action_just_pressed("dodge") and _is_in_attack_recovery():
 		var cancel_cost := tuning.dodge_stamina_cost * tuning.dodge_cancel_stamina_mult
 		if stats.stamina >= cancel_cost and _dodge_cooldown_timer <= 0.0:
 			_clear_input_buffer()

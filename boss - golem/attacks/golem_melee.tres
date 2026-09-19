@@ -13,4 +13,5 @@ script = ExtResource("1")
 id = &"melee"
 animations = Array[StringName]([&"melee_attack"])
 combat_data = SubResource("CombatData_melee")
-max_range = 50.0
+animation_speed = 1.35
+max_range = 65.0
