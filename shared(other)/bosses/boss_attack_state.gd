@@ -19,6 +19,7 @@ func exit() -> void:
 	super.exit()
 	owner.set_physics_process(false)
 	animation_player.speed_scale = 1.0
+	owner.stop_telegraph_flash()
 	if hitbox:
 		hitbox.clear_hit_targets()
 	_clear_warning()
@@ -32,7 +33,7 @@ func _run_combo() -> void:
 		return
 
 	while is_active:
-		var combo := moveset.pick_combo(owner.phase_number)
+		var combo := moveset.pick_combo(owner.phase_number, owner.direction.length())
 		if combo == null:
 			push_warning("%s: pro fázi %d není žádné kombo." % [owner.name, owner.phase_number])
 			get_parent().change_state("Follow")
@@ -47,6 +48,10 @@ func _run_combo() -> void:
 			await _perform(attack)
 			if not is_active:
 				return
+
+		if combo.next_state != &"":
+			get_parent().change_state(String(combo.next_state))
+			return
 
 		await get_tree().create_timer(randf_range(combo.pause_min, combo.pause_max)).timeout
 		if not is_active:
@@ -67,17 +72,34 @@ func _perform(attack: AttackData) -> void:
 		if not is_active:
 			return
 
+	owner.stop_telegraph_flash()
 	animation_player.speed_scale = attack.animation_speed
-	await await_animation(String(attack.animation))
+	for animation_name in attack.animations:
+		await await_animation(String(animation_name))
+		if not is_active:
+			animation_player.speed_scale = 1.0
+			return
 	animation_player.speed_scale = 1.0
 	_clear_warning()
+
+	if attack.projectile:
+		_spawn_projectile(attack)
+
+
+func _spawn_projectile(attack: AttackData) -> void:
+	var projectile := attack.projectile.instantiate()
+	get_tree().current_scene.add_child(projectile)
+	if projectile is Node2D:
+		projectile.global_position = owner.global_position + attack.projectile_offset
 
 
 func _begin_telegraph(attack: AttackData) -> void:
 	var perilous: bool = attack.combat_data and attack.combat_data.is_unblockable
+	var perilous_type: int = attack.combat_data.perilous_type if attack.combat_data else 0
+	var flash_color := PerilousVisuals.get_color(perilous_type) if perilous else attack.telegraph_color
+	owner.play_telegraph_flash(flash_color, attack.telegraph_time)
 	if not perilous:
 		return
-	var perilous_type: int = attack.combat_data.perilous_type
 	_current_warning = PerilousWarning.instantiate()
 	owner.add_child(_current_warning)
 	_current_warning.position = WARNING_OFFSET

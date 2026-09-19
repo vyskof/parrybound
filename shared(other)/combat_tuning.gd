@@ -60,12 +60,23 @@ class_name CombatTuning extends Resource
 @export_group("Posture")
 @export var posture_regen_rate: float = 15.0
 @export var posture_regen_delay: float = 2.5
+@export var posture_regen_low_hp_mult: float = 0.6
 @export var stagger_duration: float = 1.8
 @export var posture_recovery_on_hit: float = 4.0
 
 @export_group("Vlastní zásah")
 @export var own_hit_hitstop: float = 0.05
-@export var own_hit_shake: float = 1.2
+@export var own_hit_shake: float = 0.35
+@export var own_hit_kick: float = 2.0
+
+@export_group("Třes kamery")
+@export var deflect_shake: float = 0.6
+@export var deflect_shake_per_streak: float = 0.1
+@export var deflect_kick: float = 4.0
+@export var hit_shake: float = 0.5
+@export var hit_kick: float = 5.0
+@export var stagger_shake: float = 0.95
+@export var contact_offset: float = 14.0   
 
 @export_group("Knockback")
 @export var knockback_friction: float = 400.0

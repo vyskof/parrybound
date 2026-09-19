@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://dwoox0ju6vbtc"]
+
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="2"]
+
+[sub_resource type="Resource" id="CombatData_melee"]
+script = ExtResource("2")
+posture_damage = 12.0
+knockback_force = 80.0
+
+[resource]
+script = ExtResource("1")
+id = &"melee"
+animations = Array[StringName]([&"melee_attack"])
+combat_data = SubResource("CombatData_melee")
+max_range = 50.0

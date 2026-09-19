@@ -3,12 +3,16 @@ class_name BossBase extends CharacterBody2D
 @export var stats: Stats
 @export var posture_regen_delay : float = 2.0
 @export var posture_regen_speed : float = 20.0
+@export var posture_regen_low_hp_mult: float = 0.35
 @export var boss_id: String = "unnamed_boss"
+@export var display_name: String = "Boss" 
 @export var move_speed: float = 60.0
 @export var stop_distance: float = 26.0
 @export var attack_range: float = 44.0     
 @export var far_range: float = 125.0       
 @export var moveset: BossMoveset
+@export var far_states: Array[StringName] = []  
+@export var far_state_cooldown: float = 3.0      
 @export var souls_reward: int = 150
 
 
@@ -23,6 +27,7 @@ var _posture_regen_timer: float = 0.0
 var _player: Node2D
 var _is_dead: bool = false 
 var phase_number: int = 1
+var _telegraph_tween: Tween = null
 
 var _posture_bar: Node
 
@@ -171,6 +176,7 @@ var is_vulnerable: bool = false
 const StaggerImpactSparks := preload("res://effects/deflect_sparks_effect.tscn")
 
 func _on_posture_broken() -> void:
+	stop_telegraph_flash()
 	stats.posture = 0.0
 	_posture_regen_timer = 0.0
 	_apply_posture_break_knockback()
@@ -184,12 +190,12 @@ func _on_boss_staggered() -> void:
 func _play_stagger_screen_feedback() -> void:
 	var cam := _player.get_node_or_null("Camera2D") if is_instance_valid(_player) else null
 	if cam and cam.has_method("shake"):
-		cam.shake(4.5)
+		cam.shake(0.9)
 	if cam and cam.has_method("zoom_pulse"):
 		cam.zoom_pulse(Vector2(0.85, 0.85), 0.4)
 
 	ChromaticAberration.pulse(0.016, 0.4)
-	FlashOverlay.flash(Color(1.0, 0.95, 0.7, 1.0), 0.05, 0.2)
+	FlashOverlay.flash(Color(1.0, 0.95, 0.7, 1.0), 0.3, 0.25)
 	Hitstop.freeze(0.22)
 
 	if _visual:
@@ -197,7 +203,7 @@ func _play_stagger_screen_feedback() -> void:
 		get_parent().add_child(sparks)
 		sparks.global_position = _visual.global_position
 		if sparks.has_method("init"):
-			sparks.init(Color(1.0, 0.9, 0.5, 1.0), 0.02, 0.1)
+			sparks.init(Color(1.0, 0.9, 0.5, 1.0), 2.5, 1.5)
 
 func _apply_posture_break_knockback() -> void:
 	if not is_instance_valid(_player):
@@ -210,6 +216,7 @@ func _apply_posture_break_knockback() -> void:
 
 func _on_no_health() -> void:
 	_is_dead = true
+	stop_telegraph_flash()
 	set_physics_process(false)
 	var hp_bar := get_node_or_null("UI/TextureProgressBar")
 	var posture_bar := get_node_or_null("UI/TexturePostureBar")
@@ -234,9 +241,13 @@ func _tick_posture_regen(delta: float) -> void:
 	_posture_regen_timer += delta
 	
 	if _posture_regen_timer >= posture_regen_delay:
-		stats.posture = maxf(0.0, stats.posture - posture_regen_speed * delta)
+		stats.posture = maxf(0.0, stats.posture - posture_regen_speed * get_posture_regen_factor() * delta)
 	if _posture_bar:
 		_posture_bar.value = stats.posture
+
+func get_posture_regen_factor() -> float:
+	var hp_ratio: float = clampf(stats.health / maxf(stats.max_health, 1.0), 0.0, 1.0)
+	return lerpf(posture_regen_low_hp_mult, 1.0, hp_ratio)
 
 func _update_direction() -> void:
 	if not is_instance_valid(_player):
@@ -245,6 +256,24 @@ func _update_direction() -> void:
 
 func _calculate_damage(raw_damage: float, _combat_data: CombatData = null, _hitbox: Hitbox = null) -> float:
 	return raw_damage
+
+
+func play_telegraph_flash(color: Color, duration: float) -> void:
+	if not _visual or duration <= 0.0:
+		return
+	stop_telegraph_flash()
+	var half := maxf(duration * 0.5, 0.05)
+	_telegraph_tween = create_tween().set_loops()
+	_telegraph_tween.tween_property(_visual, "modulate", color, half).set_trans(Tween.TRANS_SINE)
+	_telegraph_tween.tween_property(_visual, "modulate", Color.WHITE, half).set_trans(Tween.TRANS_SINE)
+
+
+func stop_telegraph_flash() -> void:
+	if _telegraph_tween and _telegraph_tween.is_valid():
+		_telegraph_tween.kill()
+	_telegraph_tween = null
+	if _visual:
+		_visual.modulate = Color.WHITE
 
 func _update_posture_lean(new_posture: float) -> void:
 	if not _visual or _is_dead:

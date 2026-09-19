@@ -534,7 +534,8 @@ func _on_hurt(combat_data: CombatData, hitbox: Hitbox) -> void:
 			_counter_timer     = tuning.counter_window_duration + _counter_window_bonus
 			_hitbox.combat_data.posture_damage = tuning.base_attack_posture_dmg * posture_mult
 
-			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak)
+			var attacker_position: Vector2 = hitbox.owner.global_position if hitbox and is_instance_valid(hitbox.owner) else Vector2.ZERO
+			_feedback.play_parry_feedback(ParryResolver.Result.DEFLECT, global_position, combat_data, _deflect_streak, attacker_position)
 			_apply_parry_pushback(hitbox, tuning.deflect_pushback)
 
 			if hitbox.owner.has_method("receive_parry"):
@@ -597,7 +598,9 @@ func _tick_posture_regen(delta: float) -> void:
 		return
 	_posture_regen_timer += delta
 	if _posture_regen_timer >= tuning.posture_regen_delay:
-		stats.posture = maxf(0.0, stats.posture - tuning.posture_regen_rate * delta)
+		var hp_ratio: float = clampf(stats.health / maxf(stats.max_health, 1.0), 0.0, 1.0)
+		var factor: float = lerpf(tuning.posture_regen_low_hp_mult, 1.0, hp_ratio)
+		stats.posture = maxf(0.0, stats.posture - tuning.posture_regen_rate * factor * delta)
 
 func _tick_stamina_regen(delta: float) -> void:
 	if stats.stamina >= stats.max_stamina:
@@ -896,7 +899,7 @@ func _update_regain_bar() -> void:
 	_regain_bar.value = stats.health + _regain_pool
 
 func _on_own_hitbox_landed(_target: Node) -> void:
-	_feedback.play_own_hit_feedback(tuning.own_hit_hitstop, tuning.own_hit_shake)
+	_feedback.play_own_hit_feedback(_hitbox.global_position, _attack_dir)
 	if _regain_pool > 0.0:
 		var heal := minf(_regain_pool, stats.max_health - stats.health)
 		stats.health += heal 

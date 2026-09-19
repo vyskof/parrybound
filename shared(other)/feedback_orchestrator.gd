@@ -5,6 +5,7 @@ const STREAK_PITCH_STEP := 0.10
 
 
 @export var camera: Camera2D
+@export var tuning: CombatTuning
 @export var perfect_parry_vfx: PackedScene
 @export var player_hit_vfx: PackedScene
 @export var stagger_vfx: PackedScene
@@ -20,22 +21,34 @@ func play_parry_feedback(
 	result: ParryResolver.Result,
 	position: Vector2,
 	combat_data: CombatData = null,
-	streak: int = 1
+	streak: int = 1,
+	source_position: Vector2 = Vector2.ZERO
 ) -> void:
 	if result != ParryResolver.Result.DEFLECT:
 		return
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.10
-	_spawn_vfx(perfect_parry_vfx, position)
-	_spawn_deflect_sparks(position, streak)
+	var impact_dir := _impact_direction(position, source_position)
+	var contact := position + impact_dir * tuning.contact_offset
+	_spawn_vfx(perfect_parry_vfx, contact)
+	_spawn_deflect_sparks(contact, streak)
 	var streak_pitch := 1.0 + (mini(streak, 4) - 1) * STREAK_PITCH_STEP
 	_play_sfx(perfect_parry_sfx, 0.03, streak_pitch)
-	var shake_mag := 1.0 + (mini(streak, 4) - 1) * 0.6
-	camera.shake(shake_mag)
+	var trauma := tuning.deflect_shake + (mini(streak, 4) - 1) * tuning.deflect_shake_per_streak
+	camera.shake(trauma, -impact_dir, tuning.deflect_kick)
 	Hitstop.freeze(hitstop_dur)
 
-func play_own_hit_feedback(hitstop_duration: float = 0.05, shake: float = 1.2) -> void:
-	Hitstop.freeze(hitstop_duration)
-	camera.shake(shake)
+
+func play_own_hit_feedback(contact_position: Vector2, direction: Vector2 = Vector2.ZERO) -> void:
+	Hitstop.freeze(tuning.own_hit_hitstop)
+	camera.shake(tuning.own_hit_shake, direction, tuning.own_hit_kick)
+	_spawn_single_spark(contact_position, Color(1.0, 0.95, 0.85, 1.0), 0.5, 0.7)
+
+
+func _impact_direction(position: Vector2, source_position: Vector2) -> Vector2:
+	if source_position == Vector2.ZERO:
+		return Vector2.UP
+	var dir := source_position - position
+	return dir.normalized() if dir != Vector2.ZERO else Vector2.UP
 
 func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source_position: Vector2 = Vector2.ZERO) -> void:
 	_spawn_vfx(player_hit_vfx, position)
@@ -43,7 +56,7 @@ func play_hit_feedback(position: Vector2, combat_data: CombatData = null, source
 	_play_sfx(hit_sfx)
 	var hitstop_dur := combat_data.hitstop_duration if combat_data else 0.08
 	Hitstop.freeze(hitstop_dur)
-	camera.shake(2.5)
+	camera.shake(tuning.hit_shake, _impact_direction(position, source_position) * -1.0, tuning.hit_kick)
 	ChromaticAberration.pulse(0.006, 0.22)
 
 func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void:
@@ -64,7 +77,7 @@ func _spawn_blood_spray(hit_position: Vector2, source_position: Vector2) -> void
 
 func play_stagger_feedback(position: Vector2) -> void:
 	_spawn_vfx(stagger_vfx, position)
-	camera.shake(4.0)
+	camera.shake(tuning.stagger_shake)
 	ChromaticAberration.pulse(0.014, 0.35)
 	Hitstop.freeze(0.22)
 
@@ -112,5 +125,7 @@ func _get_streak_config(streak: int) -> Dictionary:
 
 
 func _ready() -> void:
+	if tuning == null:
+		tuning = CombatTuning.new()
 	if not camera:
 		push_warning("FeedbackOrchestrator na '%s': chybí Camera2D!" % get_parent().name)

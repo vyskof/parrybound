@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="BossMoveset" format=3 uid="uid://cmo3qdquasmxb"]
+
+[ext_resource type="Script" uid="uid://gg0eot3hgemg" path="res://shared(other)/bosses/boss_moveset.gd" id="1"]
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1_qsc0v"]
+[ext_resource type="Script" uid="uid://bfq88d6tvj6qs" path="res://shared(other)/bosses/combo_data.gd" id="2"]
+[ext_resource type="Resource" uid="uid://dwoox0ju6vbtc" path="res://boss - golem/attacks/golem_melee.tres" id="3"]
+[ext_resource type="Resource" uid="uid://b0wy0fmyjji" path="res://boss - golem/attacks/golem_laser.tres" id="4"]
+[ext_resource type="Resource" path="res://boss - golem/attacks/golem_missile.tres" id="5"]
+
+[sub_resource type="Resource" id="Combo_melee"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"melee"])
+weight = 2.0
+max_range = 50.0
+pause_min = 0.5
+
+[sub_resource type="Resource" id="Combo_melee_double"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"melee", &"melee"])
+max_range = 50.0
+pause_min = 0.7
+pause_max = 1.1
+
+[sub_resource type="Resource" id="Combo_missile"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"missile"])
+min_range = 60.0
+max_range = 400.0
+next_state = &"Dash"
+
+[sub_resource type="Resource" id="Combo_laser"]
+script = ExtResource("2")
+attack_ids = Array[StringName]([&"laser"])
+min_range = 60.0
+max_range = 400.0
+next_state = &"Dash"
+
+[resource]
+script = ExtResource("1")
+attacks = Array[ExtResource("1_qsc0v")]([ExtResource("3"), ExtResource("4"), ExtResource("5")])
+combos = Array[ExtResource("2")]([SubResource("Combo_melee"), SubResource("Combo_melee_double"), SubResource("Combo_missile"), SubResource("Combo_laser")])

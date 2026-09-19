@@ -2,24 +2,56 @@ extends Camera2D
 
 var _intro_active: bool = false
 
-var _shake_strength: float = 0.0
-const SHAKE_DECAY := 5.0   
+
+@export var max_offset: float = 6.0          
+@export var max_rotation_deg: float = 0.35   
+@export var trauma_falloff: float = 2.2      
+@export var kick_recovery: float = 30.0      
+
+const NOISE_SPEED := 32.0
+const NOISE_GAIN := 2.2  
+
+var _trauma: float = 0.0
+var _kick: Vector2 = Vector2.ZERO
+var _noise := FastNoiseLite.new()
+var _noise_time: float = 0.0
+
+
+func _ready() -> void:
+	_noise.seed = randi()
+	_noise.frequency = 0.6
+
+
+
+func shake(magnitude: float = 0.4, direction: Vector2 = Vector2.ZERO, kick: float = 0.0) -> void:
+	_trauma = minf(_trauma + magnitude, 1.0)
+	if direction != Vector2.ZERO and kick > 0.0:
+		_kick += direction.normalized() * kick
+
 
 func _process(delta: float) -> void:
-	if _shake_strength <= 0.0:
+	if _trauma <= 0.0 and _kick.is_zero_approx():
+		if offset != Vector2.ZERO:
+			offset = Vector2.ZERO
+			rotation = 0.0
 		return
-	offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _shake_strength
-	_shake_strength = maxf(0.0, _shake_strength - SHAKE_DECAY * delta)
-	if _shake_strength <= 0.0:
-		offset = Vector2.ZERO
 
-func shake(magnitude: float = 0.7) -> void:
-	_shake_strength = maxf(_shake_strength, magnitude)
+	_noise_time += delta * NOISE_SPEED
+	var amount := _trauma * _trauma
+	var wobble := Vector2(
+		clampf(_noise.get_noise_2d(_noise_time, 0.0) * NOISE_GAIN, -1.0, 1.0),
+		clampf(_noise.get_noise_2d(0.0, _noise_time) * NOISE_GAIN, -1.0, 1.0)
+	)
+	offset = wobble * max_offset * amount + _kick
+	rotation = deg_to_rad(max_rotation_deg) * amount * clampf(_noise.get_noise_2d(_noise_time, 100.0) * NOISE_GAIN, -1.0, 1.0)
+
+	_trauma = maxf(_trauma - trauma_falloff * delta, 0.0)
+	_kick = _kick.move_toward(Vector2.ZERO, kick_recovery * delta)
 
 
 func zoom_pulse(target_zoom: Vector2 = Vector2(0.88, 0.88), duration: float = 0.4) -> void:
 	if _intro_active:
-		return   # boss intro už řídí zoom — nepřepisovat souběžným pulsem
+		return  
 	var tween := create_tween()
 	tween.tween_property(self, "zoom", target_zoom, duration * 0.3)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)

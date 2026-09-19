@@ -725,6 +725,7 @@ metadata/_custom_type_script = "uid://dn7fpdy4vo7uu"
 [node name="FeedbackOrchestrator" type="Node" parent="." unique_id=289670660 node_paths=PackedStringArray("camera", "perfect_parry_sfx", "hit_sfx")]
 script = ExtResource("14_jx0ln")
 camera = NodePath("../Camera2D")
+tuning = ExtResource("3_yn8gt")
 perfect_parry_vfx = ExtResource("15_lpiy1")
 player_hit_vfx = ExtResource("16_88tkl")
 stagger_vfx = ExtResource("17_y0ipg")

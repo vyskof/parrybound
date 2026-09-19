@@ -10,8 +10,6 @@
 [ext_resource type="Texture2D" uid="uid://cvec0dqwfhuot" path="res://assets/Undead executioner/Undead executioner puppet/png/summon.png" id="5_f6yd4"]
 [ext_resource type="Texture2D" uid="uid://ct1j8qg1q1h8o" path="res://assets/Undead executioner/Undead executioner puppet/png/idle2.png" id="6_8i8u5"]
 [ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://shared(other)/finite_state_machine.gd" id="6_p45h1"]
-[ext_resource type="Script" uid="uid://rnm7r0wh8xje" path="res://boss - Reaper/idle.gd" id="7_lfy3k"]
-[ext_resource type="Script" uid="uid://whkuseby2ynm" path="res://boss - Reaper/follow.gd" id="8_f6yd4"]
 [ext_resource type="AudioStream" uid="uid://7tb3vtm4xtrx" path="res://sounds/luis_humanoide-temple-of-the-dark-side-cinematic-dark-choral-music-219925.mp3" id="9_f7dme"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="10_7ekkh"]
 [ext_resource type="Script" uid="uid://kxfgqgmb4hep" path="res://boss - Reaper/teleport.gd" id="11_7a64b"]
@@ -20,10 +18,12 @@
 [ext_resource type="Script" uid="uid://bgf2rgqq3ef3x" path="res://boss - Reaper/spawn_minion.gd" id="12_o5o3m"]
 [ext_resource type="PackedScene" uid="uid://bveqf3a6rliwr" path="res://boss - Reaper/minion.tscn" id="13_tjsur"]
 [ext_resource type="Script" uid="uid://rhndbiafvom6" path="res://shared(other)/bosses/boss_attack_state.gd" id="14_qnlel"]
-[ext_resource type="Script" uid="uid://c8o1wrd5p51bh" path="res://boss - Reaper/death.gd" id="14_tjsur"]
-[ext_resource type="Script" uid="uid://ctnu0dd501v7u" path="res://boss - Reaper/stagger.gd" id="16_g0av0"]
+[ext_resource type="Script" uid="uid://cld4rel30ihha" path="res://shared(other)/bosses/boss_idle_state.gd" id="15_qnlel"]
+[ext_resource type="Script" uid="uid://ctnu0dd501v7u" path="res://shared(other)/bosses/stagger.gd" id="16_g0av0"]
+[ext_resource type="Script" uid="uid://g4xvg7prasmb" path="res://shared(other)/bosses/boss_follow_state.gd" id="16_v3xk3"]
 [ext_resource type="Script" uid="uid://c2csuki5q02cl" path="res://damage_boxes/hitbox.gd" id="16_xr06f"]
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="17_4g6ss"]
+[ext_resource type="Script" uid="uid://n5hnlqbotkqs" path="res://shared(other)/bosses/boss_death_state.gd" id="21_c1try"]
 [ext_resource type="Script" uid="uid://c07mk2txhl6w1" path="res://boss - Reaper/phase_two.gd" id="22_8ht51"]
 [ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="24_kgj4l"]
 [ext_resource type="PackedScene" uid="uid://cximkd1p0b0kr" path="res://effects/boss_shadow.tscn" id="26_gg6fy"]
@@ -1056,7 +1056,9 @@ collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_i3hiq")
 stats = SubResource("Resource_ss38u")
+display_name = "Grim Reaper"
 moveset = ExtResource("3_qnlel")
+far_states = Array[StringName]([&"Teleport", &"SpawnMinion"])
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=689715104]
 sprite_frames = SubResource("SpriteFrames_4562i")
@@ -1149,10 +1151,10 @@ texture_progress = ExtResource("12_f7dme")
 script = ExtResource("6_p45h1")
 
 [node name="Idle" type="Node2D" parent="FiniteStateMachine" unique_id=1040521906]
-script = ExtResource("7_lfy3k")
+script = ExtResource("15_qnlel")
 
 [node name="Follow" type="Node2D" parent="FiniteStateMachine" unique_id=1973623151]
-script = ExtResource("8_f6yd4")
+script = ExtResource("16_v3xk3")
 
 [node name="Attack" type="Node2D" parent="FiniteStateMachine" unique_id=1629057673]
 script = ExtResource("14_qnlel")
@@ -1165,7 +1167,7 @@ script = ExtResource("12_o5o3m")
 minion_node = ExtResource("13_tjsur")
 
 [node name="Death" type="Node2D" parent="FiniteStateMachine" unique_id=1773295203]
-script = ExtResource("14_tjsur")
+script = ExtResource("21_c1try")
 
 [node name="Stagger" type="Node2D" parent="FiniteStateMachine" unique_id=1815722849]
 script = ExtResource("16_g0av0")

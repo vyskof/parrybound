@@ -6,22 +6,20 @@
 [ext_resource type="Script" uid="uid://bgq0ro64cif2y" path="res://damage_boxes/hurtbox.gd" id="2_6fvac"]
 [ext_resource type="Script" uid="uid://dq06b5pnfgvcu" path="res://shared(other)/stats.gd" id="2_8m5rn"]
 [ext_resource type="Texture2D" uid="uid://cblpr4rbnvlem" path="res://assets/weapon PNG/Laser_sheet.png" id="2_j32wa"]
+[ext_resource type="Resource" uid="uid://cmo3qdquasmxb" path="res://boss - golem/attacks/golem_moveset.tres" id="3_1fngw"]
 [ext_resource type="Script" uid="uid://u22dkqc6rwks" path="res://shared(other)/finite_state_machine.gd" id="5_4887p"]
-[ext_resource type="Script" uid="uid://7n21d5hci74m" path="res://boss - golem/idle.gd" id="6_52ikx"]
 [ext_resource type="AudioStream" uid="uid://c3nlq3tajxroq" path="res://sounds/sapan4-gothic-choir-dark-epic-choral-atmosphere-404794.mp3" id="6_507lb"]
 [ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="6_lg7cf"]
 [ext_resource type="Texture2D" uid="uid://c2lel4jlg3kvu" path="res://assets/least rounded/progress bar least rounded over.png" id="6_u5ivr"]
 [ext_resource type="Texture2D" uid="uid://b7chhc5hlajri" path="res://assets/least rounded/progress bar least rounded progress red.png" id="7_507lb"]
-[ext_resource type="Script" uid="uid://ckpfyascgvc8i" path="res://boss - golem/follow.gd" id="7_h15kg"]
 [ext_resource type="Texture2D" uid="uid://bh4u47cj1122j" path="res://assets/least rounded/progress bar least rounded progress orange.png" id="8_lg7cf"]
-[ext_resource type="Script" uid="uid://bcicosv5aac7o" path="res://boss - golem/death.gd" id="9_f3cm2"]
-[ext_resource type="Script" uid="uid://cliecglkx0ixu" path="res://boss - golem/melee_attack.gd" id="10_bfmki"]
-[ext_resource type="Script" uid="uid://cukten6ag3fl6" path="res://boss - golem/homing_missile.gd" id="11_liq1x"]
-[ext_resource type="PackedScene" uid="uid://c3oaydvcggj52" path="res://boss - golem/bullet.tscn" id="12_e5m5i"]
-[ext_resource type="Script" uid="uid://dialklydh723l" path="res://boss - golem/laser_beam.gd" id="13_hkg3k"]
+[ext_resource type="Script" uid="uid://cld4rel30ihha" path="res://shared(other)/bosses/boss_idle_state.gd" id="14_507lb"]
 [ext_resource type="Script" uid="uid://51lwt6sbkgnw" path="res://boss - golem/armor_buff.gd" id="14_hkg3k"]
 [ext_resource type="Script" uid="uid://dl2yr6klv3j77" path="res://boss - golem/dash.gd" id="14_telw5"]
-[ext_resource type="Script" uid="uid://ctnu0dd501v7u" path="res://boss - Reaper/stagger.gd" id="17_xorjc"]
+[ext_resource type="Script" uid="uid://g4xvg7prasmb" path="res://shared(other)/bosses/boss_follow_state.gd" id="15_507lb"]
+[ext_resource type="Script" uid="uid://rhndbiafvom6" path="res://shared(other)/bosses/boss_attack_state.gd" id="16_1fngw"]
+[ext_resource type="Script" uid="uid://ctnu0dd501v7u" path="res://shared(other)/bosses/stagger.gd" id="17_xorjc"]
+[ext_resource type="Script" uid="uid://n5hnlqbotkqs" path="res://shared(other)/bosses/boss_death_state.gd" id="19_lg7cf"]
 [ext_resource type="PackedScene" uid="uid://cximkd1p0b0kr" path="res://effects/boss_shadow.tscn" id="23_3nkpl"]
 
 [sub_resource type="Resource" id="Resource_bfmki"]
@@ -34,7 +32,6 @@ metadata/_custom_type_script = "uid://dq06b5pnfgvcu"
 [sub_resource type="Resource" id="Resource_3nkpl"]
 script = ExtResource("6_lg7cf")
 posture_damage = 15.0
-guard_chip = 30.0
 metadata/_custom_type_script = "uid://dxnjmcdy603mm"
 
 [sub_resource type="Animation" id="Animation_j32wa"]
@@ -283,24 +280,10 @@ tracks/0/keys = {
 tracks/1/type = "method"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("FiniteStateMachine/LaserBeam")
+tracks/1/path = NodePath("pivot/Hitbox")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.75),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"set_target"
-}]
-}
-tracks/2/type = "method"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("pivot/Hitbox")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
 "times": PackedFloat32Array(1.875),
 "transitions": PackedFloat32Array(1),
 "values": [{
@@ -308,17 +291,31 @@ tracks/2/keys = {
 "method": &"clear_hit_targets"
 }]
 }
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("pivot/Hitbox/CollisionShape2D:shape")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("pivot/Hitbox/CollisionShape2D:shape")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
 "times": PackedFloat32Array(1, 1.125),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [SubResource("RectangleShape2D_xorjc"), null]
+}
+tracks/3/type = "method"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.75),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"aim_pivot"
+}]
 }
 
 [sub_resource type="Animation" id="Animation_8m5rn"]
@@ -522,6 +519,10 @@ collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_q4luy")
 stats = SubResource("Resource_bfmki")
+display_name = "Stone Golem"
+attack_range = 42.0
+far_range = 130.0
+moveset = ExtResource("3_1fngw")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2020328757]
 texture = ExtResource("1_ktqcg")
@@ -651,20 +652,13 @@ position = Vector2(2, -16)
 script = ExtResource("5_4887p")
 
 [node name="Idle" type="Node2D" parent="FiniteStateMachine" unique_id=576184067]
-script = ExtResource("6_52ikx")
+script = ExtResource("14_507lb")
 
 [node name="Follow" type="Node2D" parent="FiniteStateMachine" unique_id=393517255]
-script = ExtResource("7_h15kg")
+script = ExtResource("15_507lb")
 
-[node name="MeleeAttack" type="Node2D" parent="FiniteStateMachine" unique_id=837741701]
-script = ExtResource("10_bfmki")
-
-[node name="HomingMissile" type="Node2D" parent="FiniteStateMachine" unique_id=277942941]
-script = ExtResource("11_liq1x")
-bullet_node = ExtResource("12_e5m5i")
-
-[node name="LaserBeam" type="Node2D" parent="FiniteStateMachine" unique_id=1979422135]
-script = ExtResource("13_hkg3k")
+[node name="Attack" type="Node2D" parent="FiniteStateMachine" unique_id=837741701]
+script = ExtResource("16_1fngw")
 
 [node name="ArmorBuff" type="Node2D" parent="FiniteStateMachine" unique_id=1807145430]
 script = ExtResource("14_hkg3k")
@@ -673,7 +667,7 @@ script = ExtResource("14_hkg3k")
 script = ExtResource("14_telw5")
 
 [node name="Death" type="Node2D" parent="FiniteStateMachine" unique_id=2129318139]
-script = ExtResource("9_f3cm2")
+script = ExtResource("19_lg7cf")
 
 [node name="Stagger" type="Node2D" parent="FiniteStateMachine" unique_id=757790350]
 script = ExtResource("17_xorjc")

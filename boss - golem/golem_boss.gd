@@ -25,6 +25,10 @@ func _on_posture_changed(new_posture: float) -> void:
 	if bar:
 		bar.value = new_posture
 
+func aim_pivot() -> void:
+	var pivot: Node2D = get_node_or_null("pivot")
+	if pivot:
+		pivot.rotation = (direction - pivot.position).angle()
 
 func _on_boss_process(_delta: float) -> void:
 	$Sprite2D.flip_h = direction.x < 0
@@ -38,7 +42,8 @@ func _on_boss_hit(_combat_data: CombatData) -> void:
 	_spawn_effect(Hit_effect, $Sprite2D.global_position)
 	if stats.health <= stats.max_health / 2.0 and DEF == 0 and not armor_used:
 		armor_used   = true
-		DEF          = 5
+		phase_number = 2
+		DEF          = 10
 		armor_health = ARMOR_MAX_HEALTH
 		_show_taunt(ARMOR_TAUNT_LINES)
 		_state_machine.change_state("ArmorBuff")
@@ -67,7 +72,7 @@ func _play_armor_break_feedback() -> void:
 
 	var cam := _player.get_node_or_null("Camera2D") if is_instance_valid(_player) else null
 	if cam and cam.has_method("shake"):
-		cam.shake(2.0)
+		cam.shake(0.55)
 
 	VisualFX.squash_stretch(_visual, Vector2(1.2, 0.8), 0.1, 0.3)
 

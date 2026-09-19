@@ -7,11 +7,15 @@
 script = ExtResource("1_lcb41")
 
 [node name="Label" type="Label" parent="." unique_id=1312677577]
-offset_right = 40.0
-offset_bottom = 14.0
-pivot_offset = Vector2(-8, -22)
+anchors_preset = -1
+offset_left = -20.0
+offset_top = -14.0
+offset_right = 20.0
+pivot_offset = Vector2(20, 7)
 pivot_offset_ratio = Vector2(8, -8)
 theme_override_colors/font_color = Color(1, 0.13, 0.13, 1)
 theme_override_fonts/font = ExtResource("1_bp0kq")
 theme_override_font_sizes/font_size = 16
 text = "!"
+horizontal_alignment = 1
+vertical_alignment = 1

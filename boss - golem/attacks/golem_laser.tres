@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://b0wy0fmyjji"]
+
+[ext_resource type="Script" uid="uid://bdq5rjndmoaqo" path="res://shared(other)/bosses/attack_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://dxnjmcdy603mm" path="res://shared(other)/combat_data.gd" id="2"]
+
+[sub_resource type="Resource" id="CombatData_laser"]
+script = ExtResource("2")
+damage = 50.0
+posture_damage = 30.0
+perilous_type = 2
+knockback_force = 0.0
+is_unblockable = true
+
+[resource]
+script = ExtResource("1")
+id = &"laser"
+animations = Array[StringName]([&"laser_cast", &"laser"])
+combat_data = SubResource("CombatData_laser")
+telegraph_time = 0.35
+min_range = 60.0
+max_range = 400.0
